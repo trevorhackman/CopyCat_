@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="30dp"
+    android:width="30dp"
+    android:viewportWidth="480"
+    android:viewportHeight="480" >
+
+    <!-- I'm using group for rotation
+    BUT, rotation rotates around the origin (top-left corner)
+    SO, a corresponding X,Y translation is needed to offset to the desired point of rotation-->
+    <group
+        android:rotation="-90"
+        android:translateY="480">
+        <!-- gear path -->
+        <path android:fillColor="#ffffff"
+            android:pathData="M237.223,56.001c-99.414,0-180,80.577-180,180.001c0,99.405,80.586,180,180,180
+            c99.406,0,180.002-80.595,180.002-180C417.225,136.578,336.629,56.001,237.223,56.001z M327.825,224.219l-83.123,83.127
+            c-4.117,4.107-10.861,4.107-14.973,0l-83.105-83.109c-4.111-4.107-4.111-10.843,0-14.954l18.232-18.251
+            c6.939-6.938,17.393-6.015,23.549,0.155l41.324,41.315c4.111,4.125,10.855,4.125,14.973,0l41.443-41.436
+            c6.947-6.955,16.979-6.532,23.477-0.018l18.203,18.203C331.936,213.359,331.936,220.111,327.825,224.219z" />
+    </group>
+</vector>

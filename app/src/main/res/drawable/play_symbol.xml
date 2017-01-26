@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="106.07dp"
+    android:width="106.07dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100" >
+
+    <!-- Shadow -->
+    <group
+        android:translateX="3"
+        android:translateY="0">
+        <path android:fillColor="#FFFFFF"
+            android:fillAlpha="0.2"
+            android:pathData="M 98 50 L 23 93.3 L 23 6.7 z" />
+    </group>
+
+    <!-- draw a path -->
+    <!-- Previous green color - #04B431-->
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M 98 50 L 23 93.3 L 23 6.7 z" />
+</vector>

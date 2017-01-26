@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "588469068648",
+    "firebase_url": "https://copycat-ec4ba.firebaseio.com",
+    "project_id": "copycat-ec4ba",
+    "storage_bucket": "copycat-ec4ba.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588469068648:android:9330bbab1b8f8b80",
+        "android_client_info": {
+          "package_name": "hackman.trevor.copycat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588469068648-rvu7pvlti291ta1a5n96g3hrvg8t6o2p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "hackman.trevor.copycat",
+            "certificate_hash": "0CF5F8BB39A7CA39471161E84FB5F2B04744F6A8"
+          }
+        },
+        {
+          "client_id": "588469068648-8jd75k1ntdds6ip8h283gsuhi8uqcvh6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0EROhmE_rNWUUvH-BYojKSQcTshhoQCY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588469068648-8jd75k1ntdds6ip8h283gsuhi8uqcvh6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
