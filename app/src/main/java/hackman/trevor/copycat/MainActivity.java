@@ -79,7 +79,7 @@ import static hackman.trevor.library.Logging.report;
 // DONE 6.2 Button that links to playstore to garner more reviews
 // DONE 6.3 Button that links to my other aps in the playstore
 // DONE 6.4 Pay to remove ads button
-// DONE 6.4.2 TEST no_ads purchase, I need to use another android device (Dad's phone)
+// DONE 6.4.2 TEST no_ads purchase, I need to use another android device
 // DONE 7.0 Better images on the playstore
 // DONE 7.1 Update screenshots
 // DONE 7.2 Update ap icon
