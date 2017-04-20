@@ -42,7 +42,8 @@ public final class Logging {
         try {
             FirebaseCrash.logcat(Log.ERROR, intToExcelColName(++charTracker), string);
         } catch (NoClassDefFoundError e) {
-            log("Weird NoClassDefFoundError on FirebaseCrash logging - enable MultiDex in manifest and gradle.app to fix");
+            log("flog NoClassDefFoundError with string '" + string + "'");
+            report(new Exception("Weird NoClassDefFoundError on FirebaseCrash logging - enable MultiDex in manifest and gradle.app to fix"));
         }
     }
 
@@ -60,10 +61,15 @@ public final class Logging {
     }
 
     public static void report(Exception exception) {
-        FirebaseCrash.report(exception);
+        try {
+            FirebaseCrash.report(exception);
+        } catch (NoClassDefFoundError e) {
+            log(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
-    public static void report (String string) {
+    public static void report(String string) {
         flog(string);
         report(new Exception(string));
     }

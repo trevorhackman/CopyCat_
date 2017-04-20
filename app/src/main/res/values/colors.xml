@@ -13,12 +13,8 @@
     <color name="green">#40FF00</color>
     <color name="red">#FF4000</color>
     <color name="yellow">#FFFF40</color>
-    <color name="blue">#2020ff</color>
+    <color name="blue">#2020FF</color>
 
-    <color name="green_lit">#B0FF80</color>
-    <color name="red_lit">#FFB080</color>
-    <color name="yellow_lit">#FFFFB0</color>
-    <color name="blue_lit">#A0A0FF</color>
 
     <!-- Taken from https://material.google.com/style/color.html#color-color-palette - This is to be copied and used across all my apps-->
     <color name="Red100">#FFCDD2</color>

@@ -51,68 +51,6 @@ import static hackman.trevor.library.Logging.flog;
 import static hackman.trevor.library.Logging.log;
 import static hackman.trevor.library.Logging.report;
 
-// Maybe in the future - Simon Says 2.0 - Remodeling the architecture - Adding leaderboards, analytics, google play integration?
-// DONE 1.0 GET SOUNDS WORKING
-// DONE 1.1 Find Sound Death
-// DONE 1.2 Make cleaner sounds for color buttons
-// DONE 2.0 Solve BUG: Sounds stop working after configuration changes (presumably resources not getting released for recreation on unloading)
-// DELT 2.1 Solve BUG: Game state not being retained after configuration changes or after tabbing out and coming back
-// DONE 2.2 Solve BUG: On touching the play button but not inside the circle, play symbol disappears and glitches out
-// DONE 2.3 Solve BUG: Play button can't be clicked outside circle, but doesn't pass clicks on transparent part to buttons behind
-// DONE 2.4 Solve BUG: Circle's hitbox is inaccurate
-// DONE 2.5 Solve BUG: Holding the last button of a sequence (game waits for release before counting level complete), then pressing another button messes things up.
-// DONE 2.6 Solve BUG: Can hit play button while in settings
-// DONE 2.7 Solve BUG: Crash upon hitting remove ads button after already purchased
-// DONE 3.0 Death Screen
-// DONE 3.1 Working Score and High Score
-// DONE 3.2 Fading Animations
-// DONE 4.0 Add ads, I'm thinking a non-video fullscreen pop up that has chance of appearing on death
-// DONE 5.0 Release app
-// DONE 5.1 Add correct Ad Unit Id, integrate with AdMob
-// DONE 5.2 Make mipmaps - launcher icon
-// DONE 5.3 Make instructions that fade in and out on start of a game
-// DONE 6 Add 4 corner buttons
-// DONE 6.1 Add settings
-// DONE 6.1.1 Make arrows and speedText larger
-// DONE 6.1.2 Give speedText a fixed width that works so the left arrow doesn't shift positions
-// DONE 6.1.3 A 'faded' or some sort of visual effect on arrow buttons when left-most or right-most speed have been reached
-// DONE 6.2 Button that links to playstore to garner more reviews
-// DONE 6.3 Button that links to my other aps in the playstore
-// DONE 6.4 Pay to remove ads button
-// DONE 6.4.2 TEST no_ads purchase, I need to use another android device
-// DONE 7.0 Better images on the playstore
-// DONE 7.1 Update screenshots
-// DONE 7.2 Update ap icon
-// DONE 7.3 Update Hi-res icon
-// DONE 7.4 Update Feature Graphic
-// DONE 8.1 Return key exit from death screen instead of minimize
-// DONE 8.5 Change new highscores to save during gameplay, instead of waiting for death. Death could not occur if game is exited prematurely.
-// DONE 13.0 Firebase Crash Reporting
-// DONE 13.1 New Beta 1.3.0.b with Crash Reporting, Get Dad to crash his version
-// DONE 14.0 INSPECTION before 'final' release
-// DONE 15.0 Data Backup to the cloud, not working for some reason? It takes up to a day between backups, not a constant thing. Backup should be working automatically.
-// DONE 12.0 Find way to cancel/override themes from affecting buttons (the theme on my phone makes buttons rounded which looks terrible)
-// DONE 16.0 COLORS
-// DONE 16.1 Establish primary color, primary dark, accent, accent dark - I'm thinking a monochromatic scheme since the colorButtons are pretty colorful as is
-// DONE 16.2 Implement across visuals
-// DONE 8.2 Return key exit from settings screen instead of minimize
-// DONE 11.0 Pop-up Dialogs + Library
-// DONE 11.1 Pop-up on pressing rate button
-// DONE 11.2 Pop-up on pressing more games button explaining it
-// DONE 2.8 BUG: Pressing on a button (lighting it), then pressing an interrupting activity (more games button or appstore button), then lifting your fingers, then returning leaves the button in a lit state
-// DONE 2.8 The buttons can't detect the finger lifts while the other activity has taken over. It also then messes up the game b/c app waits till all buttons are no longer lit
-// TODO 6.4.1 Improve svg for no_ads, use generator for text, but make own circle and cross, it's hard to notice but actually not same size and width as others right now
-// TODO 8.0 Return Key Optimization - return key loses info if in game but home button keeps it, have return keep too
-// TODO 10.0 Save state on minimization and allow resuming
-// TODO 8.3 Return key exits app if in main menu instead of minimize
-// TODO? 8.4 If in game return key returns to homescreen, minimizes, or exits?
-// TODO 9.0 On failure, light and show what the correct key was
-// TODO 11.3 Pop-up on pressing removeAds button when item has already been purchased
-// TODO 11.4 Pop-up asking to rate the game, only pop up to those likely to rate highly (i.e. by playtime, score, or some other metric)
-// TODO 17.0 Expand Settings - Add fullscreen option
-// TODO 17.1 Alternative colors - including all grey
-// TODO 17.2 Alternative sounds - including no sounds
-
 public class MainActivity extends AppCompatActivity {
     // Saved Data
     MyPreferences myPreferences;
@@ -375,10 +313,10 @@ public class MainActivity extends AppCompatActivity {
         setNoAdsButton();
         setMoreGamesButton();
         // These should be merged together, setButtons should all systemized and done under the ColorButton class, not here
-        greenButton.setUp(ContextCompat.getColor(context, R.color.green), ContextCompat.getColor(context, R.color.green_lit), 0, sound1);
-        redButton.setUp(ContextCompat.getColor(context, R.color.red), ContextCompat.getColor(context, R.color.red_lit), 1, sound2);
-        yellowButton.setUp(ContextCompat.getColor(context, R.color.yellow), ContextCompat.getColor(context, R.color.yellow_lit), 2, sound3);
-        blueButton.setUp(ContextCompat.getColor(context, R.color.blue), ContextCompat.getColor(context, R.color.blue_lit), 3, sound4);
+        greenButton.setUp(ContextCompat.getColor(context, R.color.green), 0, sound1);
+        redButton.setUp(ContextCompat.getColor(context, R.color.red), 1, sound2);
+        yellowButton.setUp(ContextCompat.getColor(context, R.color.yellow), 2, sound3);
+        blueButton.setUp(ContextCompat.getColor(context, R.color.blue), 3, sound4);
         setButton(greenButton);
         setButton(redButton);
         setButton(yellowButton);
@@ -647,7 +585,10 @@ public class MainActivity extends AppCompatActivity {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                handler.sendEmptyMessage(sequence.get(0));
+                // A Firebase crash report shows my app somehow crashing from Exception java.lang.IndexOutOfBoundsException: Invalid index 0, size is 0 from the line 'handler.sendEmptyMessage(sequence.get(0));'
+                // I can't figure out how to reproduce this rare crash (Is it from nanosecond gap abuse?), but this if statement should at least stop the crash
+                if (sequence.size() > 0)
+                    handler.sendEmptyMessage(sequence.get(0));
             }
         }, (int) (milliSecondsDelay * 8 + milliSecondsToLight)); // Weird balancing I've found to like across speed settings
     }
@@ -974,7 +915,7 @@ public class MainActivity extends AppCompatActivity {
         int speed = myPreferences.getInt("speed", 0);
         if (speed == 0) { // Default normal speed
             milliSecondsToLight = 500;
-            milliSecondsDelay = 60;
+            milliSecondsDelay = 90;
             speedText.setText(R.string.Normal);
 
             // Fade out left arrow since no more settings to the left
@@ -983,7 +924,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else if (speed == 1) { // Fast
             milliSecondsToLight = 300;
-            milliSecondsDelay = 50;
+            milliSecondsDelay = 65;
             speedText.setText(R.string.Fast);
 
             // Unfade left arrow
@@ -992,7 +933,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else if (speed == 2) { // Extreme
             milliSecondsToLight = 150;
-            milliSecondsDelay = 40;
+            milliSecondsDelay = 45;
             speedText.setText(R.string.Extreme);
 
             // Unfade right arrow
