@@ -1,11 +1,13 @@
 <resources>
     <!-- String resources that might change-->
-    <string name="version_number">1.4.1</string>
+    <string name="version_number">1.5.1</string>
     <string name="app_name">Simon Says</string>
     <string name="rate_the_app_title">Rate the app?</string>
     <string name="rate_the_app_message">Your feedback is welcome</string>
     <string name="more_games_title">More games?</string>
     <string name="more_games_message">View other games made by us</string>
+    <string name="null_intent_sender_error_title">Error</string>
+    <string name="null_intent_sender_error_message">No Google account logged in\n</string>
 
     <!-- String resources that I don't expect to ever change -->
     <string name="Score">Score</string>

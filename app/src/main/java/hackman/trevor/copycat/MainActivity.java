@@ -3,6 +3,7 @@ package hackman.trevor.copycat;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
@@ -273,34 +274,34 @@ public class MainActivity extends AppCompatActivity {
         soundId = soundPool.load(context, soundDeath, 1);
 
         // Initialize Death Screen
-        deathScreen = (LinearLayout) findViewById(R.id.deathScreen);
-        score = (TextView) findViewById(R.id.score);
-        highScore = (TextView) findViewById(R.id.highScore);
+        deathScreen = findViewById(R.id.deathScreen);
+        score = findViewById(R.id.score);
+        highScore = findViewById(R.id.highScore);
 
         // Initialize Settings Screen
-        settingsScreen = (LinearLayout) findViewById(R.id.settingsScreen);
-        settingsCloseButton = (Button) findViewById(R.id.settingsCloseButton);
-        speedText = (TextView) findViewById(R.id.speedText);
-        leftArrowButton = (Button) findViewById(R.id.leftArrow);
-        rightArrowButton = (Button) findViewById(R.id.rightArrow);
+        settingsScreen = findViewById(R.id.settingsScreen);
+        settingsCloseButton = findViewById(R.id.settingsCloseButton);
+        speedText = findViewById(R.id.speedText);
+        leftArrowButton = findViewById(R.id.leftArrow);
+        rightArrowButton = findViewById(R.id.rightArrow);
 
         // Initialize Instructions
-        instructions = (TextView) findViewById(R.id.instructions);
+        instructions = findViewById(R.id.instructions);
         instructions.setAlpha(0.0f);
 
         // Initialize buttons
-        mainButton = (Button) findViewById(R.id.mainButton);
-        symbolButton = (Button) findViewById(R.id.symbolButton);
-        continueButton = (Button) findViewById(R.id.continueButton);
-        settingsButton = (Button) findViewById(R.id.settings);
-        starButton = (Button) findViewById(R.id.star);
-        noAdsButton = (Button) findViewById(R.id.noAds);
-        moreGamesButton = (Button) findViewById(R.id.moreGames);
+        mainButton = findViewById(R.id.mainButton);
+        symbolButton = findViewById(R.id.symbolButton);
+        continueButton = findViewById(R.id.continueButton);
+        settingsButton = findViewById(R.id.settings);
+        starButton = findViewById(R.id.star);
+        noAdsButton = findViewById(R.id.noAds);
+        moreGamesButton = findViewById(R.id.moreGames);
 
-        greenButton = (ColorButton) findViewById(R.id.greenButton);
-        redButton = (ColorButton) findViewById(R.id.redButton);
-        yellowButton = (ColorButton) findViewById(R.id.yellowButton);
-        blueButton = (ColorButton) findViewById(R.id.blueButton);
+        greenButton = findViewById(R.id.greenButton);
+        redButton = findViewById(R.id.redButton);
+        yellowButton = findViewById(R.id.yellowButton);
+        blueButton = findViewById(R.id.blueButton);
 
         // Setup buttons
         setMainButton();
@@ -577,7 +578,8 @@ public class MainActivity extends AppCompatActivity {
     private void startSequence() {
         startNextSequence = false;
         allowColorInput = false;
-        mainButton.setText("" + level);
+        String level_text = "" + level;
+        mainButton.setText(level_text);
         sequenceTraveler = 0;
         sequence.add(random.nextInt(4)); // Generate next square in sequence
 
@@ -784,7 +786,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         return true;
                     } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                        button.darken(); // Darken button when lifted
+                        v.performClick();
                         colorsLit[button.getNumber()] = false;
 
                         if (startNextSequence) {
@@ -835,10 +837,12 @@ public class MainActivity extends AppCompatActivity {
 
         int scoreNum = level - 1;
         level = 1;
-        score.setText("" + scoreNum);
+        String scoreNum_text = "" + scoreNum;
+        score.setText(scoreNum_text);
 
         int highScoreNum = myPreferences.getInt("highscore", 0);
-        highScore.setText("" + highScoreNum);
+        String highScoreNum_text = "" + highScoreNum;
+        highScore.setText(highScoreNum_text);
 
         fadeOutDeathScreenRan = false;
         deathScreen.bringToFront();
@@ -961,11 +965,21 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Bundle buyIntentBundle = mService.getBuyIntent(3, getPackageName(), "no_ads", "inapp", "Verified by me");
                     PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
-                    // 1001 is arbitrary code, I could use any code. Done to identify that responses with this code are for the purpose of billing
-                    IntentSender intentSender = pendingIntent.getIntentSender();
-                    if (intentSender != null)
-                        startIntentSenderForResult(intentSender, 1001, new Intent(), 0, 0, 0);
-                    else; // This happens when item is already purchased // TODO Add dialog
+
+                    if (pendingIntent != null) {
+                        IntentSender intentSender = pendingIntent.getIntentSender();
+                        if (intentSender != null)
+                            // 1001 is arbitrary code, I could use any code. Done to identify that responses with this code are for the purpose of billing
+                            startIntentSenderForResult(intentSender, 1001, new Intent(), 0, 0, 0);
+                        else ; // This happens when item is already purchased? // TODO Test and Add dialog
+                    } else {
+                        flog("noAdsButton clicked: pendingIntent is null; suspect no Google Account logged into Android device");
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+                        builder.setTitle(R.string.null_intent_sender_error_title).setMessage(R.string.null_intent_sender_error_message)
+                                .setNeutralButton(R.string.OK, null)
+                                .create()
+                                .show();
+                    }
                 }
                 catch (RemoteException | IntentSender.SendIntentException e) { report(e); }
             }
@@ -1015,27 +1029,34 @@ public class MainActivity extends AppCompatActivity {
                     // Get list of owned items - Warning, this only works for up to 700 owned items (Not a problem for me)
                     ArrayList<String> ownedProducts = ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
 
-                    for (int i = 0; i < ownedProducts.size(); ++i) {
-                        String product = ownedProducts.get(i);
-                        flog("Owned product: " + product);
+                    // ownedProducts should never be null, but in case it is
+                    if (ownedProducts != null) {
+                        for (int i = 0; i < ownedProducts.size(); ++i) {
+                            String product = ownedProducts.get(i);
+                            flog("Owned product: " + product);
 
-                        if (product.equals("no_ads")) return OWNED;
+                            if (product.equals("no_ads")) return OWNED;
+                        }
+                    }
+                    else {
+                        flog("Query for no_ads purchase failed: ownedProducts is null");
+                        return REQUEST_FAILED;
                     }
                 }
                 // Request failed - maybe no internet connection
                 else {
-                    flog("Query for no_ads purchase failed");
+                    flog("Query for no_ads purchase failed: response is not 0");
                     return REQUEST_FAILED;
                 }
             } catch (RemoteException e) {
-                flog("Query for no_ads purchase failed");
+                flog("Query for no_ads purchase failed: RemoteException");
                 report(e);
                 return REQUEST_FAILED;
             }
             flog("no_ads product NOT OWNED");
             return NOT_OWNED;
         }
-        flog("Query for no_ads purchase failed");
+        flog("Query for no_ads purchase failed: mService is null");
         return REQUEST_FAILED;
     }
 }

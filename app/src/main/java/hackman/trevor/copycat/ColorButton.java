@@ -59,4 +59,10 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
     public void destroy() {
         soundPool.release();
     }
+
+    public boolean performClick() {
+        darken();
+        super.performClick();
+        return true;
+    }
 }
