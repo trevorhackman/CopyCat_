@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
     private int soundId;
 
     // Declare variables
-    boolean[] colorsLit; // Keeps track of what colors are lit - wait until all false to start next sequence
+    boolean[] colorsPressed; // Keeps track of what colors are pressed - wait until all false to start next sequence
     boolean allowColorInput; // Close input while sequence is playing, open when it's the player's turn to repeat
     boolean fadeOutDeathScreenRan; // Keeps track of whether animation has run once yet per death and keeps track of whether dead or not
     boolean isStart; // Keeps track of whether the game has started yet or not
@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize variables
         allowColorInput = true;
-        colorsLit = new boolean[4];
+        colorsPressed = new boolean[4];
         fadeOutDeathScreenRan = true;
         isStart = false;
         level = 1;
@@ -541,10 +541,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void playColor(final ColorButton button) {
-        button.light(); // Light Button
+        button.pressedEffect(); // Press button
         button.playSound();
 
-        // Wait a bit then darken button
+        // Wait a bit then return button to normal
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -552,7 +552,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        button.darken();
+                        button.returnToNormal();
                     }
                 });
                 // Checks to see if there's more colors to play
@@ -757,11 +757,11 @@ public class MainActivity extends AppCompatActivity {
         button.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (allowColorInput || colorsLit[button.getNumber()]) {
+                if (allowColorInput || colorsPressed[button.getNumber()]) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        button.light(); // Light button when pressed.
+                        button.pressedEffect();
                         button.playSound();
-                        colorsLit[button.getNumber()] = true;
+                        colorsPressed[button.getNumber()] = true;
 
                         if (isStart) {
                             if (sequenceTraveler >= sequence.size()) onFailure(); // This occurs if user incorrectly inputs extra colors, conveniently also stops array out of bounds
@@ -787,12 +787,12 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     } else if (event.getAction() == MotionEvent.ACTION_UP) {
                         v.performClick();
-                        colorsLit[button.getNumber()] = false;
+                        colorsPressed[button.getNumber()] = false;
 
                         if (startNextSequence) {
                             // Check to see if any are still lit, don't start next sequence until none are
                             boolean anyLit = false;
-                            for (boolean b: colorsLit)
+                            for (boolean b: colorsPressed)
                                 if (b) {
                                     anyLit = true;
                                     break;
@@ -881,12 +881,12 @@ public class MainActivity extends AppCompatActivity {
         goFullScreen();
 
         // This code fixes bug 2.8
-        redButton.darken();
-        yellowButton.darken();
-        greenButton.darken();
-        blueButton.darken();
-        for (int i = 0; i < colorsLit.length; ++i) {
-            colorsLit[i] = false;
+        redButton.returnToNormal();
+        yellowButton.returnToNormal();
+        greenButton.returnToNormal();
+        blueButton.returnToNormal();
+        for (int i = 0; i < colorsPressed.length; ++i) {
+            colorsPressed[i] = false;
         }
     }
 
@@ -895,6 +895,12 @@ public class MainActivity extends AppCompatActivity {
         super.onWindowFocusChanged(hasFocus);
 
         if (hasFocus) goFullScreen();
+
+        // Quick fix to starting buttons with the graphics specified in returnToNormal instead of what is specified in xml
+        greenButton.returnToNormal();
+        redButton.returnToNormal();
+        yellowButton.returnToNormal();
+        blueButton.returnToNormal();
     }
 
     @TargetApi(19) // Doesn't seem to break anything on sub-19 API lvl

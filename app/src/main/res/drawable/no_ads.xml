@@ -2,14 +2,62 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:height="60dp"
     android:width="60dp"
-    android:viewportWidth="512"
-    android:viewportHeight="512" >
+    android:viewportWidth="480"
+    android:viewportHeight="480" >
 
-    <!-- Data from png found online converted to an svg
-    Didn't work out too well, b/c as a result the circle in particular
-    doesn't match my other svgs perfectly in size and thickness-->
-    <!-- Could do this for the "ADS" text, then insert own circle and cross to solve -->
+    <!-- Circle path -->
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="24"
+        android:pathData="
+        M 240 240
+        m -228, 0
+        a 228,228 0 1,0 456,0
+        a 228,228 0 1,0 -456,0
+        " />
+    <!-- Slash path -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="
+        M 55.29 85.29
+        l 30 -30
+        L 424.7 394.7
+        l -30 30 Z"
+        />
+
+    <!-- Text data from png converted to an svg
+     It's an extremely large and inefficient mess-->
     <group
+        android:translateY="480"
+        android:translateX="12"
+        android:scaleX="0.095"
+        android:scaleY="-0.095">
+        <path android:fillColor="#000000"
+    android:pathData="M3812 3345 c-144 -32 -256 -114 -308 -228 -23 -50 -29 -80 -32 -152
+ -5 -116 9 -176 60 -254 58 -89 128 -140 332 -242 283 -141 326 -184 326 -326
+0 -121 -65 -205 -188 -243 -146 -45 -278 -18 -506 103 -21 11 -35 13 -48 6
+ -15 -8 -18 -22 -18 -86 0 -73 1 -77 34 -108 71 -67 243 -115 409 -115 181 0
+316 49 415 149 175 175 175 463 1 628 -47 44 -128 91 -314 182 -189 93 -254
+147 -280 233 -46 157 66 288 250 288 89 0 157 -18 254 -67 46 -24 90 -43 98
+ -43 31 0 45 120 20 170 -28 56 -229 121 -368 119 -41 0 -102 -7 -137 -14z" />
+        <path android:fillColor="#000000"
+            android:pathData="M960 3344 c-59 -10 -67 -15 -79 -40 -14 -31 -528 -1452 -547 -1511
+ -20 -65 -5 -78 94 -78 49 0 85 5 94 13 9 7 46 102 84 212 l69 200 338 -2 339
+ -3 69 -195 c38 -107 76 -201 84 -210 12 -11 38 -15 106 -15 98 0 113 8 102 55
+ -8 31 -536 1495 -554 1532 -6 15 -19 30 -28 32 -27 8 -144 14 -171 10z m192
+ -627 l136 -392 -139 -3 c-76 -1 -201 -1 -277 0 l-137 3 135 392 c74 216 137
+393 140 393 3 0 66 -177 142 -393z" />
+        <path android:fillColor="#000000"
+            android:pathData="M2030 3333 c-8 -3 -23 -12 -32 -21 -17 -14 -18 -64 -18 -783 l0 -768
+26 -20 c25 -20 39 -21 248 -21 262 0 370 11 490 51 247 82 394 254 453 529 27
+127 24 396 -5 505 -56 206 -176 362 -342 443 -97 48 -168 67 -295 82 -93 10
+ -498 13 -525 3z m534 -188 c218 -39 366 -191 412 -424 20 -105 15 -344 -10
+ -436 -42 -153 -132 -271 -250 -326 -90 -42 -194 -58 -373 -59 l-153 0 0 630 0
+630 148 0 c81 -1 183 -7 226 -15z" />
+    </group>
+
+    <!-- Old path data -->
+<!--    <group
         android:translateY="512"
         android:scaleX="0.1"
         android:scaleY="-0.1">
@@ -46,5 +94,5 @@ m402 -295 c69 -8 181 -28 250 -46 131 -33 333 -106 328 -118 -2 -4 -153 -267
 59 77 129 77 224 0 62 -5 85 -28 132 -54 110 -127 153 -358 213 -273 71 -299
 85 -299 165 0 87 60 133 175 134 123 1 201 -45 225 -134 l11 -40 121 0 121 0
 -7 53 c-21 156 -132 264 -311 302 -75 16 -195 18 -260 5z"/>
-    </group>
+    </group>-->
     </vector>

@@ -34,18 +34,31 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
         soundId = soundPool.load(context, sound, 1);
     }
 
-    public void light() {
+    public void pressedEffect() {
         GradientDrawable gd = new GradientDrawable();
 
-//        gd.setColor(MyMath.darkenColor(color, .60f)); // Instead of brightening the color, darkening is an interesting alternative
-        gd.setColor(MyMath.brightenColor(color, .75f));
+        int brightened = MyMath.brightenColor(color, .5f);
 
-        gd.setStroke(15, 0x00abcdef); // Transparent border for a simulated shrinkage or 'press' effect
+//        gd.setColor(MyMath.darkenColor(color, .60f)); // Instead of brightening the color, darkening is an interesting alternative
+//        gd.setColor(MyMath.brightenColor(color, .75f)); // Old, simply brighten
+
+        gd.mutate();
+        gd.setGradientType(GradientDrawable.RADIAL_GRADIENT);
+        gd.setGradientRadius(getHeight());
+        int[] colors = {brightened, color};
+        gd.setColors(colors);
+        gd.setCornerRadius(getHeight()/20);
+        gd.setStroke(25, 0x00abcdef); // Transparent border for a simulated shrinkage or 'press' effect
+
         setBackground(gd);
     }
 
-    public void darken() {
-        setBackgroundColor(color);
+    public void returnToNormal() {
+        // setBackgroundColor(color); // Old
+        GradientDrawable gd = new GradientDrawable();
+        gd.setColor(color);
+        gd.setCornerRadius(getHeight()/20);
+        setBackground(gd);
     }
 
     public int getNumber() {
@@ -61,7 +74,7 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
     }
 
     public boolean performClick() {
-        darken();
+        returnToNormal();
         super.performClick();
         return true;
     }
