@@ -1,18 +1,26 @@
 <resources>
-    <!-- String resources that might change-->
-    <string name="version_number">1.5.1</string>
+    <!-- Descriptive string resources-->
+    <string name="version_number">1.6.0</string>
     <string name="app_name">Simon Says</string>
-    <string name="rate_the_app_title">Rate the app?</string>
-    <string name="rate_the_app_message">Your feedback is welcome</string>
-    <string name="more_games_title">More games?</string>
-    <string name="more_games_message">View other games made by us</string>
+    <string name="rate_the_app_title">Rate the app</string>
+    <string name="rate_the_app_message">Simon Says is made by a single person so your reviews mean a lot. Thank you for the effort. </string>
+    <string name="more_games_title">More games</string>
+    <string name="more_games_message">View other games made by me</string>
+    <string name="no_ads_title">Remove Ads</string>
+    <string name="no_ads_message">Make a small purchase to permanently remove ads </string>
     <string name="null_intent_sender_error_title">Error</string>
-    <string name="null_intent_sender_error_message">No Google account logged in\n</string>
+    <string name="null_intent_sender_error_message">Check that you are logged in with a Google account or try again later\n</string>
 
-    <!-- String resources that I don't expect to ever change -->
+    <!-- Explicit string resources -->
+    <string name="Game_Over">Game Over</string>
     <string name="Score">Score</string>
-    <string name="High_Score">High Score</string>
-    <string name="Continue">Continue</string>
+    <!--<string name="High_Score">High Score</string>-->
+    <string name="Best">Best</string>
+    <!--<string name="Continue">Continue</string>-->
+    <string name="Pressed">Pressed</string>
+    <string name="Correct">Correct</string>
+    <string name="Menu">Main Menu</string>
+    <string name="Play_Again">Play Again</string>
     <string name="Watch_and_repeat">Watch and repeat</string>
     <string name="Settings">Settings</string>
     <string name="Speed">Speed:</string>
@@ -23,5 +31,8 @@
     <string name="Close">Close</string>
     <string name="OK">OK</string>
     <string name="Cancel">Cancel</string>
+    <string name="View">View</string>
+    <string name="Rate">Rate</string>
+    <string name="Purchase">Purchase</string>
 
 </resources>

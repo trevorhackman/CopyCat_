@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:height="60dp"
     android:width="60dp"
     android:viewportWidth="100"
     android:viewportHeight="100" >
+
+    <!-- Circle path -->
+    <path
+        android:strokeWidth="5"
+        android:strokeColor="#000000"
+        android:fillColor="#000000"
+        android:pathData="
+        M 50 50
+        m -47.5, 0
+        a 47.5,47.5 0 1,0 95,0
+        a 47.5,47.5 0 1,0 -95,0
+        " />
 
     <!-- Gamepad path -->
     <group
@@ -12,7 +25,7 @@
         android:translateX="7.5"
         android:translateY="7.5">
         <path
-            android:fillColor="#000000"
+            android:fillColor="#ffffff"
             android:pathData="M90.439,74.078c-2.887,2.092-7.396,1.937-10.172-0.703
         c-2.946-2.801-4.772-6.191-7.536-9.578c-1.311-1.604-2.554-2.51-5.52-1.532c-5.827,1.925-12.122,2.385-18.167,2.251
         c-4.921-0.039-10.44-0.257-16.268-2.179c-2.965-0.979-4.208-0.074-5.518,1.532c-2.765,3.386-4.59,6.774-7.537,9.577
@@ -26,18 +39,8 @@
         c-2.487,0-4.506,2.018-4.506,4.506c0,2.487,2.019,4.504,4.506,4.504c2.488,0,4.507-2.017,4.507-4.504
         C74.399,36.931,72.381,34.913,69.893,34.913z M63.333,46.187c-2.486,0-4.504,2.017-4.504,4.504c0,2.488,2.018,4.506,4.504,4.506
         c2.488,0,4.506-2.018,4.506-4.506C67.839,48.204,65.821,46.187,63.333,46.187z M76.453,46.187c-2.49,0-4.504,2.017-4.504,4.504
-        c0,2.488,2.014,4.506,4.504,4.506c2.488,0,4.504-2.018,4.504-4.506C80.957,48.204,78.941,46.187,76.453,46.187z"/>
+        c0,2.488,2.014,4.506,4.504,4.506c2.488,0,4.504-2.018,4.504-4.506C80.957,48.204,78.941,46.187,76.453,46.187z"
+            tools:ignore="VectorPath" />
     </group>
-
-    <!-- Circle path -->
-    <path
-        android:strokeColor="#000000"
-        android:strokeWidth="5"
-        android:pathData="
-        M 50 50
-        m -47.5, 0
-        a 47.5,47.5 0 1,0 95,0
-        a 47.5,47.5 0 1,0 -95,0
-        " />
 
 </vector>

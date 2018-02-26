@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
+    <item android:state_pressed="false">
         <shape android:shape="rectangle">
             <stroke android:color="@color/colorAccent" android:width="5dp" />
             <solid android:color="@color/colorAccentLightLight"/>
+        </shape>
+    </item>
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <stroke android:color="@color/colorAccentDark" android:width="5dp" />
+            <!--<solid android:color="@color/colorAccentLight"/>-->
+            <gradient
+                android:type="linear"
+                android:angle="45"
+                android:startColor="@color/colorAccentLight"
+                android:endColor="@color/colorAccent"
+                />
         </shape>
     </item>
 </selector>

@@ -1,11 +1,11 @@
-package hackman.trevor.library;
+package hackman.trevor.tlibrary.library;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 
-public final class MyDialog {
-    private MyDialog() {}
+public final class TDialog {
+    private TDialog() {}
 
     // ID is of the form R.string... It is the proper way of hardcoding strings in the res/strings.xml
     public static void createAlertDialog(Context context, int titleID, int messageID, int positiveStringID, int negativeStringID
