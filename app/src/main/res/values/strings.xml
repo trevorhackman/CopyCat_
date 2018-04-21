@@ -10,6 +10,8 @@
     <string name="no_ads_message">Make a small purchase to permanently remove ads </string>
     <string name="null_intent_sender_error_title">Error</string>
     <string name="null_intent_sender_error_message">Check that you are logged in with a Google account or try again later\n</string>
+    <string name="exit_title">Are you sure you want to leave?</string>
+    <string name="exit_message">Your current game will be lost</string>
 
     <!-- Explicit string resources -->
     <string name="Game_Over">Game Over</string>
@@ -34,5 +36,6 @@
     <string name="View">View</string>
     <string name="Rate">Rate</string>
     <string name="Purchase">Purchase</string>
+    <string name="Exit_App">Exit App</string>
 
 </resources>

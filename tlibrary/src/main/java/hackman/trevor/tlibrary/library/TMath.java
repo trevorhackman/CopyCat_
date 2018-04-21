@@ -1,10 +1,70 @@
 package hackman.trevor.tlibrary.library;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.util.DisplayMetrics;
 
 import static hackman.trevor.tlibrary.library.TLogging.report;
 
-public class TMath {
+// An instance-less enum is a quick workaround to making the class both final and abstract,
+// both non-inheritable and non-instantiable, ie. non-object-oriented,
+// an illegal keyword combination in object-oriented java.
+// Alternative is to make the class final with a private constructor that throws an error if called
+public enum TMath {;
+
+    /**
+     * This method converts hp unit to equivalent pixels, depending on height of device
+     *
+     * @param hp A value in hp (custom height-dependent pixels) unit. 1hp = 1/640 Screen Height
+     * hp is equivalent to wp on 16:9 aspect ratio displays
+     * @param context to get resources and device specific display metrics
+     * @return A float value to represent px equivalent to hp depending on device height
+     */
+    public static float convertHpToPixel(float hp, Context context) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        float px = hp * metrics.heightPixels / 640;
+        return px;
+    }
+
+    /**
+     * This method converts wp unit to equivalent pixels, depending on width of device
+     *
+     * @param wp A value in wp (custom width-dependent pixels) unit. 1wp = 1/360 Screen Width
+     * @param context Context to get resources and device specific display metrics
+     * @return A float value to represent px equivalent to wp depending on device width
+     */
+    public static float convertWpToPixel(float wp, Context context) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        float px = wp * metrics.widthPixels / 360;
+        return px;
+    }
+
+    /**
+     * This method converts dp unit to equivalent pixels, depending on device density.
+     *
+     * @param dp A value in dp (density independent pixels) unit. Which we need to convert into pixels
+     * @param context Context to get resources and device specific display metrics
+     * @return A float value to represent px equivalent to dp depending on device density
+     */
+    public static float convertDpToPixel(float dp, Context context) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        float px = dp * metrics.density;
+        return px;
+    }
+
+    /**
+     * This method converts device specific pixels to density independent pixels.
+     *
+     * @param px A value in px (pixels) unit. Which we need to convert into db
+     * @param context Context to get resources and device specific display metrics
+     * @return A float value to represent dp equivalent to px value
+     */
+    public static float convertPixelsToDp(float px, Context context){
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        float dp = px / metrics.density;
+        return dp;
+    }
 
     // Turns an int into its corresponding 'excel column' form. That is 1, 2, 3... into A, B, C, ... Z, AA, AB, AC, ... AZ, BA, BB, ... ZZ, AAA, ...
     // Only takes integers that are 1 or greater
@@ -28,6 +88,43 @@ public class TMath {
         }
 
         return result.toString();
+    }
+
+    // Shifts the hue of a color according to HSV
+    // Hue is a value from 0 to 360 on the wheel that goes red=>yellow=>green=>cyan=>blue=>magenta=>red=>...
+    public static int hueShift(int color, int shift) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(color, hsv);
+        hsv[0] += shift;
+        if (hsv[0] > 360) hsv[0] -= 360;
+        return Color.HSVToColor(hsv);
+    }
+
+    // Shifts the saturation of a color according to HSV
+    // Saturation is a value form 0=white to 1=color
+    public static int saturationShift(int color, float shift) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(color, hsv);
+        hsv[1] += shift;
+        if (hsv[1] > 1) hsv[1] = 1;
+        if (hsv[1] < 0) hsv[1] = 0;
+        return Color.HSVToColor(hsv);
+    }
+
+    // Shifts the value of a color according to HSV
+    // Value is a value from 0=black to 1=color
+    public static int valueShift(int color, float shift) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(color, hsv);
+        hsv[2] += shift;
+        if (hsv[2] > 1) hsv[2] = 1;
+        if (hsv[2] < 0) hsv[2] = 0;
+        return Color.HSVToColor(hsv);
+    }
+
+    // Opposite HSV color
+    public static int complementaryColor(int color) {
+        return hueShift(color, 180);
     }
 
     // Makes a color (int) darker by a given percentage

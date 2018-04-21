@@ -1,50 +1,63 @@
 package hackman.trevor.tlibrary.library;
 
+import android.content.Context;
 import android.util.Log;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
+
+import io.fabric.sdk.android.BuildConfig;
+import io.fabric.sdk.android.Fabric;
+
+import static android.util.Log.ASSERT;
+import static android.util.Log.DEBUG;
+import static android.util.Log.ERROR;
+import static android.util.Log.INFO;
+import static android.util.Log.VERBOSE;
+import static android.util.Log.WARN;
 
 public final class TLogging {
     private TLogging() {} // Private constructor to stop instances of this class, everything is static so instances are pointless
 
     private static int charTracker = 0;
     private static String lastLog = "Default";
-    private final static boolean logCatLoggingEnabled = true;
+    private static final boolean logCatLoggingEnabled = true;
+    private static boolean crashlyticsEnabled = true;
 
     public static void log() {
-        log(TMath.intToExcelColName(++charTracker));
+        log(getTag());
     }
 
-    private final static int ASSERT = 0;
-    private final static int ERROR = 1;
-    private final static int WARN = 2;
-    private final static int INFO = 3;
-    private final static int DEBUG = 4;
-    private final static int VERBOSE = 5;
+    private enum Priority {ASSERT, ERROR, WARN, INFO, DEBUG, VERBOSE}
     private static void log(String string, final int PRIORITY) {
         if (logCatLoggingEnabled) {
             lastLog = string;
             switch (PRIORITY) {
-                case (ASSERT):
-                    Log.wtf(TMath.intToExcelColName(++charTracker), string);
+                case ASSERT:
+                    Log.wtf(getTag(), string);
                     break;
-                case (ERROR):
-                    Log.e(TMath.intToExcelColName(++charTracker), string);
+                case ERROR:
+                    Log.e(getTag(), string);
                     break;
-                case (WARN):
-                    Log.w(TMath.intToExcelColName(++charTracker), string);
+                case WARN:
+                    Log.w(getTag(), string);
                     break;
-                case (INFO):
-                    Log.i(TMath.intToExcelColName(++charTracker), string);
+                case INFO:
+                    Log.i(getTag(), string);
                     break;
-                case (DEBUG):
-                    Log.d(TMath.intToExcelColName(++charTracker), string);
+                case DEBUG:
+                    Log.d(getTag(), string);
                     break;
                 case VERBOSE:
-                    Log.v(TMath.intToExcelColName(++charTracker), string);
+                    Log.v(getTag(), string);
                     break;
             }
         }
+    }
+
+    private static String getTag() {
+        // The TT_ is to make my logs filterable in the logcat by searching for TT, there's shitloads of other logs from other sources that I'm largely not interested in
+        return "TT_" + TMath.intToExcelColName(++charTracker);
     }
 
     // Logs to logcat, uses Log.ERROR by default
@@ -81,14 +94,17 @@ public final class TLogging {
     }
 
     // Logs to logcat and to firebase
-    // Note: Firebase log is only recieved if there is an unhandled exception or report
+    // Note: Firebase log is only recieved if there is an fatal crash or non-fatal exception
     public static void flog(String string) {
         lastLog = string;
-        try {
-            FirebaseCrash.logcat(Log.ERROR, TMath.intToExcelColName(++charTracker), string);
-        } catch (NoClassDefFoundError e) {
-            log("Weird NoClassDefFoundError on FirebaseCrash logging - enable MultiDex in manifest and gradle.app to fix");
+        if (crashlyticsEnabled) {
+            try {
+                Crashlytics.log(Log.ERROR, getTag(), string);
+            } catch (NoClassDefFoundError e) {
+                report(e, "Weird NoClassDefFoundError on FirebaseCrash logging - enable MultiDex in manifest and gradle.app to fix");
+            }
         }
+        else log(string);
     }
 
     public static void flog(int integer) {
@@ -104,15 +120,36 @@ public final class TLogging {
         else flog("False");
     }
 
-    // For when you catch an error and stop a crash from happening but still want to report it to firebase
-    public static void report(Exception exception) {
-        FirebaseCrash.report(exception);
+    // Only logs to firebase; does NOT log to logcat
+    public static void fog(String string) {
+        if (crashlyticsEnabled) {
+            Crashlytics.log(string);
+        }
     }
 
-    public static void report (String string) {
-        flog(string);
+    // For when you catch an error and stop a crash from happening but still want to report it to firebase
+    public static void report(Throwable e) {
+        if (crashlyticsEnabled) {
+            flog(e.toString());
+            Crashlytics.logException(e);
+        }
+        else log(e.toString());
+    }
+
+    public static void report(String string) {
+        log(string);
         report(new Exception(string));
     }
 
     public static void report() { report(lastLog); }
+
+    public static void report(Throwable e, String string) {
+        flog(string);
+        report(e);
+    }
+
+    public static void disableCrashlytics() {
+        crashlyticsEnabled = false;
+        log("Crashlytics disabled");
+    }
 }

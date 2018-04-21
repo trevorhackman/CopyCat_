@@ -7,6 +7,7 @@
 
     <application
         android:resizeableActivity="true"
+        android:supportsPictureInPicture="false"
         android:name="android.support.multidex.MultiDexApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -15,13 +16,20 @@
         android:theme="@style/AppTheme"
         android:fullBackupContent="@xml/backup_descriptor">
         <meta-data android:name="android.max_aspect" android:value="3" /> <!-- This is critical b/c default is 16/9, app does not stretch to fill screens of phones wider than this -->
-        <activity android:name=".MainActivity" android:screenOrientation="portrait">
+        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" /> <!--disable crashlytics by default so that I can conditionally enable it onCreate-->
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="user"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout|density">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="7c414c329f4e2ac275ac7a0c78f70f79025b5206" />
     </application>
 
 </manifest>

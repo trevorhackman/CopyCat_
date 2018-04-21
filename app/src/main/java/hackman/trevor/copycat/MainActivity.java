@@ -1,9 +1,7 @@
 package hackman.trevor.copycat;
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.animation.TimeInterpolator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -13,13 +11,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.media.SoundPool;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -27,18 +23,17 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Display;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.vending.billing.IInAppBillingService;
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
@@ -48,19 +43,29 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import hackman.trevor.tlibrary.library.TDialog;
 import hackman.trevor.tlibrary.library.TLogging;
 import hackman.trevor.tlibrary.library.TPreferences;
+import io.fabric.sdk.android.Fabric;
 
+import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LOCKED;
+import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER;
+import static hackman.trevor.copycat.AndroidSound.sounds;
+import static hackman.trevor.copycat.MainActivity.noAdsStatus.NOT_OWNED;
+import static hackman.trevor.copycat.MainActivity.noAdsStatus.OWNED;
+import static hackman.trevor.copycat.MainActivity.noAdsStatus.REQUEST_FAILED;
 import static hackman.trevor.tlibrary.library.TLogging.flog;
+import static hackman.trevor.tlibrary.library.TLogging.log;
 import static hackman.trevor.tlibrary.library.TLogging.report;
+import static hackman.trevor.tlibrary.library.TMiscellaneous.moreGamesIntent;
+import static hackman.trevor.tlibrary.library.TMiscellaneous.rateGameIntent;
 
 public class MainActivity extends AppCompatActivity {
-    // For Ads
-    final boolean PLAYADS = true; // TODO Make this true for release, keep false when developing/testing unless testing ads
+    // TODO Make this false for release, keep true for testing
+    final static boolean TESTING = false; // Disables ads and crash reporting
+
+    // Ad
     InterstitialAd interstitialAd;
 
     // Saved Data
@@ -72,71 +77,36 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mService = IInAppBillingService.Stub.asInterface(service);
-            flog("mService connected");
+            flog("mServiceConn connected");
 
             noAdsStatus = isNoAdsPurchased(); // We have to wait for connection else nullReferenceError
             if (noAdsStatus == NOT_OWNED)
                 requestNewInterstitial();
-
-            // Query for items available for purchase once connected
-            // Commented out b/c I make no use of it within this app, only used it for testing
-            /*
-            ArrayList<String> responseList; // List of app products and their information sorted by keys
-            ArrayList<String> skuList = new ArrayList<>();
-            skuList.add("no_ads"); // You need to add the ids for all of your app products
-            Bundle querySkus = new Bundle();
-            querySkus.putStringArrayList("ITEM_ID_LIST", skuList);
-            Bundle skuDetails = null;
-            try {
-                skuDetails = mService.getSkuDetails(3, getPackageName(), "inapp", querySkus);
-
-                // Get results
-                if (skuDetails != null) {
-                    int response = skuDetails.getInt("REPONSE_CODE");
-                    if (response == 0) {
-                        responseList = skuDetails.getStringArrayList("DETAILS_LIST");
-                        log("Number of products found: " + responseList.size());
-                        for (String thisResponse : responseList) {
-                            log(thisResponse);
-                            // How to acquire each element of the product by key
-                            JSONObject object = new JSONObject(thisResponse);
-                            String productId = object.getString("productId");
-                            String price = object.getString("price");
-                            log("Product ID: " + productId + "\nPrice: " + price);
-                        }
-                    }
-                    else flog("Wrong Response: " + response);
-                }
-                else flog("skuDetails still null");
-            }
-            catch (RemoteException | JSONException e) {
-                flog("Error getting details of inapp purchases");
-                report(e);
-            }
-            */
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             mService = null;
+            flog("mServiceConn disconnected");
         }
     };
 
+    DeathScreen deathScreen;
     LinearLayout buttonBar;
-    LinearLayout deathScreen;
     LinearLayout settingsScreen;
 
+    PlaySymbol playSymbolButton; // Inside the main button, displays play symbol
     Button mainButton; // The circle, click on it to play, displays level number
-    Button symbolButton; // Inside the main button, displays play symbol
-    Button mainMenuButton;
-    Button playAgainButton;
-    Button settingsButton;
     Button settingsCloseButton;
     Button leftArrowButton;
     Button rightArrowButton;
+
+    // Button bar
+    Button settingsButton;
     Button starButton;
     Button noAdsButton;
     Button moreGamesButton;
+    // Button[] buttonBarArray = {moreGamesButton, noAdsButton, starButton, settingsButton};
 
     ColorButton[] colorButtons = new ColorButton[4];
     ColorButton greenButton;
@@ -144,23 +114,24 @@ public class MainActivity extends AppCompatActivity {
     ColorButton yellowButton;
     ColorButton blueButton;
 
-    ImageView title;
-    ImageView title_background;
+    Title title;
+    ImageView top_fade;
 
+    Instructions txt_instructions;
     TextView txt_score;
     TextView txt_highscore;
     TextView txt_pressed;
     TextView txt_correct;
-    TextView txt_instructions;
     TextView txt_speedText;
 
     View.OnTouchListener mainButtonListener;
 
-    // Static Integers
+    // Enums
     final static int GREEN = 0; // Highest
     final static int RED = 1; // 2nd Highest
     final static int YELLOW = 2; // 3rd Highest
     final static int BLUE = 3; // 4th Highest
+    // enum Color { Green, Red, Yellow, Blue }
 
     private ColorButton getButton(int which) {
         switch (which) {
@@ -176,6 +147,9 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
+    // Tracks whether or not the game is stopped
+    static boolean stopped;
+
     // This is the handler along with my own method I've come up with to stop the
     // potential memory leaks w/o a static trail making a mess of the entire class
     static Runner runner;
@@ -186,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
     }
     final static MyHandler handler = new MyHandler();
     private static class MyHandler extends Handler {
+        @Override
         public void handleMessage(Message message) {
             final int what = message.what;
             switch (what) {
@@ -209,69 +184,59 @@ public class MainActivity extends AppCompatActivity {
     final Context context = this;
     final ArrayList<Integer> sequence = new ArrayList<>(); // The sequence of colors to be played
     final Random random = new Random();
-    final Timer timer = new Timer();
 
-    // Animations - Main screen fade out and in
-    ObjectAnimator fadeOutTitle;
-    ObjectAnimator fadeOutTitleBackground;
+    // Animators
+    ObjectAnimator fadeOutTopFade;
     ObjectAnimator fadeOutButtonBar;
     ObjectAnimator fadeOutPlaySymbol;
-    ObjectAnimator fadeInTitle;
-    ObjectAnimator fadeInTitleBackground;
+    ObjectAnimator fadeInTopFade;
     ObjectAnimator fadeInButtonBar;
-    AnimatorSet mainFadeOutAnimatorSet;
-    AnimatorSet mainFadeInAnimatorSet;
-    final int mainFadeDuration = 1000; // In milliseconds
 
-    // Other Animations
-    ObjectAnimator fadeOutInstructions;
-    ObjectAnimator fadeInInstructions;
-    ObjectAnimator fadeInDeathScreen;
-    ObjectAnimator fadeOutDeathScreen;
-    ScaleAnimation animatePlaySymbol;
-    Animator titleScaleY;
-    Animator titleScaleX;
-    AnimatorSet titleAnimatorSet;
+    // Durations, in milliseconds
+    static final int mainFadeDuration = 1000;
+    static final int titlePopDuration = 1000;
+    static final int instructionsInDuration = 500;
+    static final int instructionsOutDuration = 1200;
+    static final int instructionsOutDelay = 2000;
+    static final int deathScreenInDuration = 700;
+    static final int deathScreenOutDuration = 500;
 
-
-
-    // Sounds
-    final int sound1 = R.raw.chip1;
-    final int sound2 = R.raw.chip2;
-    final int sound3 = R.raw.chip3;
-    final int sound4 = R.raw.chip4;
-    final int soundDeath = R.raw.chip5_2;
-    private SoundPool soundPool;
-    private int soundId;
+    // Screen size, obtained in onCreate
+    static DisplayMetrics displayMetrics = new DisplayMetrics();
+    int pixelHeight;
+    int pixelWidth;
 
     // Declare variables
+    MainActivity.noAdsStatus noAdsStatus; // Tracks the response from isNoAdsPurchased()
     boolean allowColorInput; // Close input while sequence is playing, open when it's the player's turn to repeat
-    boolean isDeathScreenUp; // Keeps track of whether death screen is fully faded in or not
-    boolean isStart; // Keeps track of whether the game has started yet or not
+    boolean inGame; // Keeps track of whether in game or not
+    boolean mainButtonEnabled; // Enables and disables main button, effectively tracks when game is allowed to start
     boolean isSettingsScreenUp; // Keeps track of whether settings screen is open or not
     boolean startGameAfterFadeOut; // If true, game will start after the deathscreen finishes fading away. Set on playAgainButton click
     boolean startNextSequence; // False until sequence is finished, true to continue to next level/sequence
+    boolean popInRan; // Title pop-in plays in onResume once per creation
     long milliSecondsToLight; // The length of time a color is played (visual and sound) for during a sequence
     long milliSecondsDelay; // Delay between lights
     int level; // What level the user is on
     int sequenceTraveler; // Iterates as the sequence and player plays
-    int noAdsStatus; // Tracks the response from isNoAdsPurchased()
-
-    // Screen size, obtained in onCreate
-    int pixelHeight;
-    int pixelWidth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Crashlytics disabled be default, automatically enable it here if not testing
+        if (!TESTING) {
+            Fabric.with(this, new Crashlytics());
+        }
+        else {
+            TLogging.disableCrashlytics(); // Necessary else crashlytics crashes from not being initialized with fabric
+        }
+
+        // Load layout
         setContentView(R.layout.activity_main);
 
         // Get screen dimensions of device
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        pixelHeight = size.y;
-        pixelWidth = size.x;
+        getScreenDimensions();
 
         // Log start of app and screen size
         flog("Activity Start: Screen:["+ pixelWidth + "p by " + pixelHeight + "p]");
@@ -282,11 +247,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize variables
         allowColorInput = true;
-        isDeathScreenUp = false;
-        isStart = false;
+        inGame = false;
+        mainButtonEnabled = true;
         level = 1;
         startNextSequence = false;
         isSettingsScreenUp = false;
+        popInRan = false;
 
         // Billing
         Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
@@ -306,8 +272,8 @@ public class MainActivity extends AppCompatActivity {
 
         // For sound
         setVolumeControlStream(AudioManager.STREAM_MUSIC); // Makes the volume wheel control music (all game sounds grouped in music) by default
-        soundPool = new SoundPool.Builder().build();
-        soundId = soundPool.load(context, soundDeath, 1);
+        AndroidSound.newSoundPool();
+        AndroidSound.loadSounds(context);
 
         // Initialize Death Screen
         deathScreen = findViewById(R.id.deathScreen);
@@ -315,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
         txt_highscore = findViewById(R.id.highScore);
         txt_pressed = findViewById(R.id.pressed);
         txt_correct = findViewById(R.id.correct);
+        deathScreen.setUp(this);
 
         // Initialize Settings Screen
         settingsScreen = findViewById(R.id.settingsScreen);
@@ -325,8 +292,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize Title and Instructions
         title = findViewById(R.id.title_logo);
-        title_background = findViewById(R.id.title_background);
+        top_fade = findViewById(R.id.top_fade);
         txt_instructions = findViewById(R.id.instructions);
+        title.flexSize();
 
         // Initialize buttons
         buttonBar = findViewById(R.id.button_bar);
@@ -335,9 +303,7 @@ public class MainActivity extends AppCompatActivity {
         noAdsButton = findViewById(R.id.noAds);
         moreGamesButton = findViewById(R.id.moreGames);
         mainButton = findViewById(R.id.mainButton);
-        symbolButton = findViewById(R.id.symbolButton);
-        mainMenuButton = findViewById(R.id.mainMenuButton);
-        playAgainButton = findViewById(R.id.playAgainButton);
+        playSymbolButton = findViewById(R.id.playSymbolButton);
 
         greenButton = findViewById(R.id.greenButton);
         redButton = findViewById(R.id.redButton);
@@ -349,10 +315,10 @@ public class MainActivity extends AppCompatActivity {
         colorButtons[3] = blueButton;
 
         // Setup color buttons
-        greenButton.setUp(ContextCompat.getColor(context, R.color.green), sound1, 0);
-        redButton.setUp(ContextCompat.getColor(context, R.color.red), sound2, 1);
-        yellowButton.setUp(ContextCompat.getColor(context, R.color.yellow), sound3, 2);
-        blueButton.setUp(ContextCompat.getColor(context, R.color.blue), sound4, 3);
+        greenButton.setUp(ContextCompat.getColor(context, R.color.green), sounds[0], 0);
+        redButton.setUp(ContextCompat.getColor(context, R.color.red), sounds[1], 1);
+        yellowButton.setUp(ContextCompat.getColor(context, R.color.yellow), sounds[2], 2);
+        blueButton.setUp(ContextCompat.getColor(context, R.color.blue), sounds[3], 3);
         setButton(greenButton);
         setButton(redButton);
         setButton(yellowButton);
@@ -360,8 +326,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup buttons
         setMainButton();
-        setMainMenuButton();
-        setPlayAgainButton();
         setSettingsButton();
         setSettingsCloseButton();
         setLeftArrowButton();
@@ -374,19 +338,13 @@ public class MainActivity extends AppCompatActivity {
         setSpeed();
 
         // Initialize animations
-        fadeOutTitle = ObjectAnimator.ofFloat(title, "alpha", 0.0f);
-        fadeOutTitle.setDuration(mainFadeDuration);
+        fadeOutTopFade = ObjectAnimator.ofFloat(top_fade, "alpha", 0.0f);
+        fadeOutTopFade.setDuration(mainFadeDuration);
 
-        fadeInTitle = ObjectAnimator.ofFloat(title, "alpha", 1.0f);
-        fadeInTitle.setDuration(mainFadeDuration);
+        fadeInTopFade = ObjectAnimator.ofFloat(top_fade, "alpha", 1.0f);
+        fadeInTopFade.setDuration(mainFadeDuration);
 
-        fadeOutTitleBackground = ObjectAnimator.ofFloat(title_background, "alpha", 0.0f);
-        fadeOutTitleBackground.setDuration(mainFadeDuration);
-
-        fadeInTitleBackground = ObjectAnimator.ofFloat(title_background, "alpha", 1.0f);
-        fadeInTitleBackground.setDuration(mainFadeDuration);
-
-        fadeOutPlaySymbol = ObjectAnimator.ofFloat(symbolButton, "alpha", 0.0f);
+        fadeOutPlaySymbol = ObjectAnimator.ofFloat(playSymbolButton, "alpha", 0.0f);
         fadeOutPlaySymbol.setDuration(mainFadeDuration);
 
         fadeOutButtonBar = ObjectAnimator.ofFloat(buttonBar, "alpha", 0.0f);
@@ -437,141 +395,59 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Combine animations into sets
-        mainFadeInAnimatorSet = new AnimatorSet();
-        mainFadeOutAnimatorSet = new AnimatorSet();
-        mainFadeInAnimatorSet.play(fadeInButtonBar).with(fadeInTitle).with(fadeInTitleBackground);
-        mainFadeOutAnimatorSet.play(fadeOutButtonBar).with(fadeOutPlaySymbol).with(fadeOutTitle).with(fadeOutTitleBackground);
+        // Animate play symbol
+        playSymbolButton.myAnimation();
 
-        fadeInInstructions = ObjectAnimator.ofFloat(txt_instructions, "alpha", 1.0f);
-        fadeInInstructions.setDuration(500);
-        fadeInInstructions.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {}
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                fadeOutInstructions.start();
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {}
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {}
-        });
-
-        fadeOutInstructions = ObjectAnimator.ofFloat(txt_instructions, "alpha", 0.0f);
-        fadeOutInstructions.setDuration(1000);
-        fadeOutInstructions.setStartDelay(2000);
-
-        fadeInDeathScreen = ObjectAnimator.ofFloat(deathScreen, "alpha", 1.0f);
-        fadeInDeathScreen.setDuration(500);
-        fadeInDeathScreen.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                deathScreen.bringToFront();
-                deathScreen.setTranslationZ(999); // Fix for newer APIs handling bringToFront differently with relativeLayout
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isDeathScreenUp = true;
-
-                // Make deathscreen and buttons clickable once completely faded in
-                playAgainButton.setClickable(true);
-                mainMenuButton.setClickable(true);
-
-                if (!isStart) {
-                    mainButton.setText("");
-                    symbolButton.setAlpha(1.0f);
-                    playAgainButton.setClickable(true);
-                    mainMenuButton.setClickable(true);
-                }
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {}
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {}
-        });
-
-        fadeOutDeathScreen = ObjectAnimator.ofFloat(deathScreen, "alpha", 0.0f);
-        fadeOutDeathScreen.setDuration(500);
-        fadeOutDeathScreen.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                // Don't want to be clickable while fading out, also stops multiclicks
-                playAgainButton.setClickable(false);
-                mainMenuButton.setClickable(false);
-
-                isDeathScreenUp = false;
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (startGameAfterFadeOut) {
-                    startGameAfterFadeOut = false;
-                    startGame();
-                }
-
-                // Manual bring to back
-                final ViewGroup parent = (ViewGroup)deathScreen.getParent();
-                parent.removeView(deathScreen);
-                parent.addView(deathScreen, 0);
-                deathScreen.setTranslationZ(0);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {}
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {}
-        });
-
-        animatePlaySymbol = new ScaleAnimation(1f, 1.08f, 1f, 1.08f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        animatePlaySymbol.setDuration(750);
-        animatePlaySymbol.setRepeatCount(-1);
-        animatePlaySymbol.setRepeatMode(Animation.REVERSE);
-        symbolButton.setAnimation(animatePlaySymbol);
-        animatePlaySymbol.start();
-
-        // Animate title on startup
-        title.setScaleY(0);
-        title.setScaleX(0);
-        int animationDuration = 1000;
-        titleScaleX = ObjectAnimator.ofFloat(title, "scaleX", 1.0f);
-        titleScaleX.setDuration(animationDuration);
-        titleScaleY = ObjectAnimator.ofFloat(title, "scaleY", 1.0f);
-        titleScaleY.setDuration(animationDuration);
-        titleAnimatorSet = new AnimatorSet();
-        titleAnimatorSet.play(titleScaleY).with(titleScaleX);
-        titleAnimatorSet.setStartDelay(0);
-        titleAnimatorSet.setInterpolator(new TimeInterpolator() {
-            @Override
-            public float getInterpolation(float v) {
-                return -2*v*v + 3*v; // Allows me two animations in one! Peaks at v = 0.75 then down to (1,1)
-            }
-        });
-
-        titleAnimatorSet.start();
+        // Possibly redundant as this is declared in manifest, but just incase
+        setRequestedOrientation(SCREEN_ORIENTATION_USER);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
+    void startGame() {
+        inGame = true;
+        mainButtonEnabled = false;
+        txt_instructions.fadeIn();
+
+        allowColorInput = false;
+        String level_text = "" + level;
+        mainButton.setText(level_text);
+
+        // Multi-screen orientation changes ignore this setting, but I guess that's okay
+        setRequestedOrientation(SCREEN_ORIENTATION_LOCKED);
+
+        for (ColorButton c: colorButtons) {
+            c.returnToNormal();
+        }
+
+        startSequence();
     }
 
+    // Fade in buttons and title
+    void mainFadeInAnimation() {
+        fadeInButtonBar.start();
+        fadeInTopFade.start();
+        title.fadeIn();
+    }
+
+    // Fade out buttons and title
+    private void mainFadeOutAnimation() {
+        fadeOutButtonBar.start();
+        fadeOutPlaySymbol.start();
+        fadeOutTopFade.start();
+        title.fadeOut();
+    }
+
+    // Get screen dimensions; used for resizing of elements if and as needed.
+    private void getScreenDimensions() {
+        displayMetrics = getResources().getDisplayMetrics();
+    }
 
     private void playColor(final ColorButton button) {
         button.press();
 
         // Wait a bit then return button to normal
-        timer.schedule(new TimerTask() {
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-
                 // All UI changes have to run on UI thread or errors occur
                 runOnUiThread(new Runnable() {
                     @Override
@@ -583,7 +459,7 @@ public class MainActivity extends AppCompatActivity {
                 if (sequenceTraveler + 1 < sequence.size()) {
                     sequenceTraveler++;
                     // After delay play next color
-                    timer.schedule(new TimerTask() {
+                    handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             try {
@@ -612,11 +488,11 @@ public class MainActivity extends AppCompatActivity {
         sequence.add(random.nextInt(4)); // Generate next square in sequence
 
         // Note, the 1 new value added is kept and retained, growing the sequence naturally per the rules of the game
-        timer.schedule(new TimerTask() {
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 try {
-                    handler.sendEmptyMessage(sequence.get(0));
+                    handler.sendEmptyMessage(sequence.get(0)); // if statement needed for case of starting game then backing to main menu
                 }
                 catch(NullPointerException e) { TLogging.report("");} // Something has gone wrong, this should never happen
             }
@@ -646,11 +522,11 @@ public class MainActivity extends AppCompatActivity {
                 if (x*x + y*y <= radius * radius) {
                     // When button is clicked
                     if (event.getAction() == MotionEvent.ACTION_UP) {
-                        if (!isStart) { // Don't start the game if it has already started
+                        if (mainButtonEnabled && !inGame) { // Don't start the game if it has already started
                             startGame();
 
                             // Fade out buttons and title
-                            mainFadeOutAnimatorSet.start();
+                            mainFadeOutAnimation();
                         }
                     }
                     return true;
@@ -662,13 +538,6 @@ public class MainActivity extends AppCompatActivity {
         };
 
         mainButton.setOnTouchListener(mainButtonListener);
-    }
-
-    private void startGame() {
-        isStart = true;
-        fadeInInstructions.start();
-
-        startSequence();
     }
 
     private void setSettingsButton() {
@@ -684,7 +553,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void setRightArrowButton() {
+    private void setRightArrowButton() {
         rightArrowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -695,7 +564,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void setLeftArrowButton() {
+    private void setLeftArrowButton() {
         leftArrowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -728,9 +597,7 @@ public class MainActivity extends AppCompatActivity {
                 TDialog.createAlertDialog(context, R.string.rate_the_app_title, R.string.rate_the_app_message, R.string.Rate, R.string.Cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse("market://details?id=" + getPackageName())); // package name is hackman.trevor.copycat
-                        startActivity(intent);
+                        startActivity(rateGameIntent(getPackageName()));
                     }
                 }, new DialogInterface.OnClickListener() {
                     @Override
@@ -749,9 +616,7 @@ public class MainActivity extends AppCompatActivity {
                 TDialog.createAlertDialog(context, R.string.more_games_title, R.string.more_games_message, R.string.View, R.string.Cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse("market://search?q=pub:Hackman"));
-                        startActivity(intent);
+                        startActivity(moreGamesIntent());
                     }
                 }, new DialogInterface.OnClickListener() {
                     @Override
@@ -759,36 +624,6 @@ public class MainActivity extends AppCompatActivity {
                         // Dialog closes by default
                     }
                 });
-            }
-        });
-    }
-
-    private void setMainMenuButton() {
-        mainMenuButton.setOnClickListener(new View.OnClickListener() {
-            // On Continue Click
-            public void onClick(View view) {
-
-                fadeOutDeathScreen.start();
-
-                // Fade in buttons and title
-//                  fadeInSettings.start();
-//                  fadeInStar.start();
-//                  fadeInNoAds.start();
-//                  fadeInMoreGames.start();
-                mainFadeInAnimatorSet.start();
-            }
-        });
-    }
-
-    private void setPlayAgainButton() {
-        playAgainButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                symbolButton.setAlpha(0.0f);
-
-                startGameAfterFadeOut = true;
-                mainButton.setText("1"); // Starting level is always 1
-                fadeOutDeathScreen.start();
             }
         });
     }
@@ -802,7 +637,7 @@ public class MainActivity extends AppCompatActivity {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         button.press();
 
-                        if (isStart) {
+                        if (inGame) {
                             if (sequenceTraveler >= sequence.size()) onFailure(button.getNumber(), -1); // This occurs if user incorrectly inputs extra colors, conveniently also stops array out of bounds
                             else if (sequence.get(sequenceTraveler) == button.getNumber()) { // Success
                                 sequenceTraveler++;
@@ -841,31 +676,31 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-                // For the case of pressing a button, then starting the game, then lifting the button up while sequence is playing - Fixes Bug 13: Buttons stuck lit
-                else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    button.returnToNormal();
-                }
                 return false;
             }
         });
     }
 
     private void onFailure(int pressed, int correct) {
-        isStart = false;
+        inGame = false;
         startNextSequence = false;
         sequence.clear();
 
-        // In case user fails so fast that fadeOutPlaySymbol hasn't ended yet
+        // In case user fails so fast that animations haven't ended yet
         fadeOutPlaySymbol.end();
+        txt_instructions.endAnimations();
 
         // Death sound
-        soundPool.play(soundId, 1, 1, 1, 0, 1f);
+        sounds[4].play(1);
 
         // Check for Ad
         if (noAdsStatus == NOT_OWNED) {
             if (interstitialAd.isLoaded()) {
                 int rollForAd = random.nextInt(3); // A 1/3 chance
-                if (PLAYADS && rollForAd == 0) interstitialAd.show();
+                if (rollForAd == 0) {
+                    if (!TESTING) interstitialAd.show();
+                    else log("Ad not displayed because TESTING");
+                }
             }
             // If NOT_OWNED but Ad never began loading (connection issues?), try loading Ad
             else if (!interstitialAd.isLoading()) requestNewInterstitial();
@@ -903,71 +738,131 @@ public class MainActivity extends AppCompatActivity {
         txt_pressed.setText(pressedString);
         txt_correct.setText(correctString);
 
-        fadeInDeathScreen.start();
+        deathScreen.fadeIn();
+        setRequestedOrientation(SCREEN_ORIENTATION_USER);
+    }
+
+    // End game in progress, reset variables, and return to main menu
+    private void exitGameToMainMenu() {
+        inGame = false;
+        mainButtonEnabled = true;
+        startNextSequence = false;
+        level = 1;
+        mainButton.setText("");
+
+        // Remove scheduled tasks
+        handler.removeCallbacksAndMessages(null);
+        sequence.clear();
+
+        // End animations incase still ongoing and return buttons to normal incase they are in middle of press by sequence
+        fadeOutPlaySymbol.end();
+        txt_instructions.endAnimations();
+        for (ColorButton button: colorButtons) {
+            button.returnToNormal();
+        }
+
+        playSymbolButton.setAlpha(1.0f);
+        mainFadeInAnimation();
+        allowColorInput = true;
+        setRequestedOrientation(SCREEN_ORIENTATION_USER);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        getScreenDimensions();
+        title.flexSize();
     }
 
     @Override
     public void onBackPressed() {
-        if (isDeathScreenUp) {
-            mainMenuButton.performClick();
+        if (deathScreen.isDeathScreenUp) {
+            deathScreen.performMainMenuClick();
         }
         else if (isSettingsScreenUp) {
             settingsCloseButton.performClick();
         }
-        else { super.onBackPressed(); }
+        else if (inGame) {
+            if (level > 2) { // 'level > 2' not worth bothering to ask if only just started the game
+                TDialog.createAlertDialog(context, R.string.exit_title, R.string.exit_message, R.string.Exit_App, R.string.Menu, R.string.Cancel,
+                        // Positive listener
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                MainActivity.super.onBackPressed();
+                            }
+                        },
+                        // Neutral listener
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                exitGameToMainMenu();
+                            }
+                        });
+            }
+            else { exitGameToMainMenu(); }
+        }
+        else {
+            super.onBackPressed(); // Exits app
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        // Billing
+        // Unload Billing
         if (mService != null) unbindService(mServiceConn);
 
-        // Releasing these soundPools seems to be key in fixing a bug where the sounds would get corrupted
-        soundPool.release();
-        greenButton.destroy();
-        redButton.destroy();
-        blueButton.destroy();
-        yellowButton.destroy();
+        // Unload sounds if necessary
+        if (AndroidSound.soundPool != null) {
+            AndroidSound.release();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Essential so buttons don't stay stuck if app is minimized mid-button-press
+        // Done in onStart and not onResume in order to support window switches in multi-screen which call onResume but not onStart
+        redButton.returnToNormal();
+        yellowButton.returnToNormal();
+        greenButton.returnToNormal();
+        blueButton.returnToNormal();
+
+        // Reload sounds if necessary
+        if (AndroidSound.soundPool == null) {
+            AndroidSound.newSoundPool();
+            AndroidSound.loadSounds(context);
+        }
     }
 
     @Override // Goes fullscreen
     public void onResume() {
         super.onResume();
-        // goFullScreen();
+        stopped = false;
 
-        // This code fixes bug 2.8
-        redButton.returnToNormal();
-        yellowButton.returnToNormal();
-        greenButton.returnToNormal();
-        blueButton.returnToNormal();
+        if (!popInRan) {
+            title.popIn();
+            popInRan = true;
+        }
     }
 
-    @Override // Goes fullscreen
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-
-        // if (hasFocus) goFullScreen();
-
-        // Quick fix to starting buttons with the graphics specified in returnToNormal instead of what is specified in xml
-        greenButton.returnToNormal();
-        redButton.returnToNormal();
-        yellowButton.returnToNormal();
-        blueButton.returnToNormal();
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
-    // Old way to go fullscreen, replaced by line in styles.xml, keeping in case needed again in the future
-    /*@TargetApi(19) // Doesn't seem to break anything on sub-19 API lvl
-    private void goFullScreen() {
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-    }*/
+    @Override
+    public void onStop() {
+        super.onStop();
+        stopped = true;
+
+        // Don't hog resources from other apps when not infront; don't leak memory and stop sound errors
+        // We do this in onStop instead of onPause in order to support multi-screen, onPause is called but onStop isn't on multi-screen window change
+        AndroidSound.release();
+    }
 
     private void requestNewInterstitial() {
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -1015,10 +910,12 @@ public class MainActivity extends AppCompatActivity {
             rightArrowDrawable.setColorFilter(0x44ffffff, PorterDuff.Mode.MULTIPLY);
         }
         else { // else should never happen
-            TLogging.flog("Invalid speed setting: " + speed);
+            report("Invalid speed setting: " + speed);
         }
     }
 
+    // 1001 is arbitrary number, I could use any number for the code. Done to identify that responses with this code are for the purpose of billing
+    public static final int BILLING_REQUEST_CODE = 1001;
     private void setNoAdsButton() {
         noAdsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1027,15 +924,16 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         try {
+                            flog("Purchase flow started");
                             Bundle buyIntentBundle = mService.getBuyIntent(3, getPackageName(), "no_ads", "inapp", "Verified by me");
                             PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
 
                             if (pendingIntent != null) {
                                 IntentSender intentSender = pendingIntent.getIntentSender();
                                 if (intentSender != null)
-                                    // 1001 is arbitrary code, I could use any code. Done to identify that responses with this code are for the purpose of billing
-                                    startIntentSenderForResult(intentSender, 1001, new Intent(), 0, 0, 0);
-                                else { flog("intentSender is null"); report(); }; // This happens when item is already purchased? // TODO Test and Add dialog
+
+                                    startIntentSenderForResult(intentSender, BILLING_REQUEST_CODE, new Intent(), 0, 0, 0);
+                                else { flog("intentSender is null"); report(); } // This happens when item is already purchased? // TODO Test and Add dialog
                             } else {
                                 flog("noAdsButton clicked: pendingIntent is null; suspect no Google Account logged into Android device");
                                 AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
@@ -1060,8 +958,7 @@ public class MainActivity extends AppCompatActivity {
     // This handles results from other activities, in particular, I'm using it to handle the results of requests to Google for purchases of my inapp products
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // I use 1001 for billing
-        if (requestCode == 1001) {
+        if (requestCode == BILLING_REQUEST_CODE) {
             String purchaseData = data.getStringExtra("INAPP_PURCHASE_DATA");
 
             // Purchase successful
@@ -1086,10 +983,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Query Google to see if no_ads has been purchased
-    final static int OWNED = 0;
-    final static int NOT_OWNED = 1;
-    final static int REQUEST_FAILED = 2;
-    private int isNoAdsPurchased() {
+    enum noAdsStatus {OWNED, NOT_OWNED, REQUEST_FAILED}
+    private MainActivity.noAdsStatus isNoAdsPurchased() {
         // incase mService which only gets initialized on connection hasn't been initialized yet
         if (mService != null) {
             try {
@@ -1097,7 +992,7 @@ public class MainActivity extends AppCompatActivity {
                 int response = ownedItems.getInt("RESPONSE_CODE");
                 // Request is successful
                 if (response == 0) {
-                    // Get list of owned items - Warning, this only works for up to 700 owned items (Not a problem for me)
+                    // Get pauseList of owned items - Warning, this only works for up to 700 owned items (Not a problem for me)
                     ArrayList<String> ownedProducts = ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
 
                     // ownedProducts should never be null, but in case it is
@@ -1121,6 +1016,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             } catch (RemoteException e) {
                 flog("Query for no_ads purchase failed: RemoteException");
+                flog(mService == null ? "mService is null" : "mService is not null");
                 report(e);
                 return REQUEST_FAILED;
             }
