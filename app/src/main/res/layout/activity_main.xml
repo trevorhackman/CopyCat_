@@ -78,16 +78,16 @@
             app:layout_rowWeight="1" />
     </android.support.v7.widget.GridLayout>
 
-    <Button
+    <hackman.trevor.copycat.MainButton
         android:id="@+id/mainButton"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="200px"
+        android:layout_height="200px"
         android:layout_centerInParent="true"
-        android:layout_gravity="center"
         android:background="@drawable/circle"
         android:clickable="false"
+        android:textAlignment="center"
         android:textColor="#ffffff"
-        android:textSize="75dp"
+        android:textSize="100px"
         android:textStyle="bold"
         tools:ignore="SpUsage" />
 
@@ -195,8 +195,7 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/mainButton"
+        android:layout_height="match_parent"
         android:layout_alignParentBottom="false"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
@@ -207,8 +206,8 @@
         <hackman.trevor.copycat.Title
             android:id="@+id/title_logo"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1.25"
+            android:layout_height="0dp"
+            android:layout_weight=".5"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
             android:scaleType="fitCenter"

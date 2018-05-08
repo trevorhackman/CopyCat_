@@ -1,13 +1,11 @@
 package hackman.trevor.tlibrary.library;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.core.CrashlyticsCore;
 
-import io.fabric.sdk.android.BuildConfig;
-import io.fabric.sdk.android.Fabric;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import static android.util.Log.ASSERT;
 import static android.util.Log.DEBUG;
@@ -19,9 +17,9 @@ import static android.util.Log.WARN;
 public final class TLogging {
     private TLogging() {} // Private constructor to stop instances of this class, everything is static so instances are pointless
 
+    public static final boolean TESTING = true; // TODO Make this false for release, keep true for testing
     private static int charTracker = 0;
     private static String lastLog = "Default";
-    private static final boolean logCatLoggingEnabled = true;
     private static boolean crashlyticsEnabled = true;
 
     public static void log() {
@@ -30,7 +28,7 @@ public final class TLogging {
 
     private enum Priority {ASSERT, ERROR, WARN, INFO, DEBUG, VERBOSE}
     private static void log(String string, final int PRIORITY) {
-        if (logCatLoggingEnabled) {
+        if (TESTING) {
             lastLog = string;
             switch (PRIORITY) {
                 case ASSERT:
@@ -98,11 +96,7 @@ public final class TLogging {
     public static void flog(String string) {
         lastLog = string;
         if (crashlyticsEnabled) {
-            try {
-                Crashlytics.log(Log.ERROR, getTag(), string);
-            } catch (NoClassDefFoundError e) {
-                report(e, "Weird NoClassDefFoundError on FirebaseCrash logging - enable MultiDex in manifest and gradle.app to fix");
-            }
+            Crashlytics.log(string);
         }
         else log(string);
     }
@@ -120,12 +114,7 @@ public final class TLogging {
         else flog("False");
     }
 
-    // Only logs to firebase; does NOT log to logcat
-    public static void fog(String string) {
-        if (crashlyticsEnabled) {
-            Crashlytics.log(string);
-        }
-    }
+    public static void report() { report(lastLog); }
 
     // For when you catch an error and stop a crash from happening but still want to report it to firebase
     public static void report(Throwable e) {
@@ -133,15 +122,20 @@ public final class TLogging {
             flog(e.toString());
             Crashlytics.logException(e);
         }
-        else log(e.toString());
+        else {
+            // Method for getting stacktrace as string
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+
+            log(exceptionAsString);
+        }
     }
 
     public static void report(String string) {
-        log(string);
+        flog(string);
         report(new Exception(string));
     }
-
-    public static void report() { report(lastLog); }
 
     public static void report(Throwable e, String string) {
         flog(string);

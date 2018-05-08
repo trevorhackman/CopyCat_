@@ -46,6 +46,7 @@ import java.util.Random;
 
 import hackman.trevor.tlibrary.library.TDialog;
 import hackman.trevor.tlibrary.library.TLogging;
+import hackman.trevor.tlibrary.library.TMath;
 import hackman.trevor.tlibrary.library.TPreferences;
 import io.fabric.sdk.android.Fabric;
 
@@ -58,13 +59,10 @@ import static hackman.trevor.copycat.MainActivity.noAdsStatus.REQUEST_FAILED;
 import static hackman.trevor.tlibrary.library.TLogging.flog;
 import static hackman.trevor.tlibrary.library.TLogging.log;
 import static hackman.trevor.tlibrary.library.TLogging.report;
-import static hackman.trevor.tlibrary.library.TMiscellaneous.moreGamesIntent;
-import static hackman.trevor.tlibrary.library.TMiscellaneous.rateGameIntent;
+import static hackman.trevor.tlibrary.library.TMiscellaneous.startMoreGamesIntent;
+import static hackman.trevor.tlibrary.library.TMiscellaneous.startRateGameIntent;
 
 public class MainActivity extends AppCompatActivity {
-    // TODO Make this false for release, keep true for testing
-    final static boolean TESTING = false; // Disables ads and crash reporting
-
     // Ad
     InterstitialAd interstitialAd;
 
@@ -90,23 +88,28 @@ public class MainActivity extends AppCompatActivity {
             flog("mServiceConn disconnected");
         }
     };
+    private void bindBillingService() {
+        Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
+        serviceIntent.setPackage("com.android.vending");
+        bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
+    }
 
     DeathScreen deathScreen;
     LinearLayout buttonBar;
     LinearLayout settingsScreen;
 
     PlaySymbol playSymbolButton; // Inside the main button, displays play symbol
-    Button mainButton; // The circle, click on it to play, displays level number
+    MainButton mainButton; // The circle, click on it to play, displays level number
     Button settingsCloseButton;
     Button leftArrowButton;
     Button rightArrowButton;
 
     // Button bar
-    Button settingsButton;
-    Button starButton;
-    Button noAdsButton;
     Button moreGamesButton;
-    // Button[] buttonBarArray = {moreGamesButton, noAdsButton, starButton, settingsButton};
+    Button noAdsButton;
+    Button starButton;
+    Button settingsButton;
+    Button[] buttonBarArray;
 
     ColorButton[] colorButtons = new ColorButton[4];
     ColorButton greenButton;
@@ -119,12 +122,10 @@ public class MainActivity extends AppCompatActivity {
 
     Instructions txt_instructions;
     TextView txt_score;
-    TextView txt_highscore;
+    TextView txt_best;
     TextView txt_pressed;
     TextView txt_correct;
     TextView txt_speedText;
-
-    View.OnTouchListener mainButtonListener;
 
     // Enums
     final static int GREEN = 0; // Highest
@@ -191,20 +192,10 @@ public class MainActivity extends AppCompatActivity {
     ObjectAnimator fadeOutPlaySymbol;
     ObjectAnimator fadeInTopFade;
     ObjectAnimator fadeInButtonBar;
-
-    // Durations, in milliseconds
-    static final int mainFadeDuration = 1000;
-    static final int titlePopDuration = 1000;
-    static final int instructionsInDuration = 500;
-    static final int instructionsOutDuration = 1200;
-    static final int instructionsOutDelay = 2000;
-    static final int deathScreenInDuration = 700;
-    static final int deathScreenOutDuration = 500;
+    static final int mainFadeDuration = 1000; // main animation duration in milliseconds
 
     // Screen size, obtained in onCreate
     static DisplayMetrics displayMetrics = new DisplayMetrics();
-    int pixelHeight;
-    int pixelWidth;
 
     // Declare variables
     MainActivity.noAdsStatus noAdsStatus; // Tracks the response from isNoAdsPurchased()
@@ -225,12 +216,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // Crashlytics disabled be default, automatically enable it here if not testing
-        if (!TESTING) {
-            Fabric.with(this, new Crashlytics());
-        }
-        else {
-            TLogging.disableCrashlytics(); // Necessary else crashlytics crashes from not being initialized with fabric
-        }
+        if (!TLogging.TESTING) Fabric.with(this, new Crashlytics());
+        else TLogging.disableCrashlytics(); // Necessary else crashlytics crashes from not being initialized with fabric
 
         // Load layout
         setContentView(R.layout.activity_main);
@@ -239,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
         getScreenDimensions();
 
         // Log start of app and screen size
-        flog("Activity Start: Screen:["+ pixelWidth + "p by " + pixelHeight + "p]");
+        flog("Activity Start: Screen:["+ displayMetrics.heightPixels + "p by " + displayMetrics.widthPixels + "p]");
 
         // Initialize miscellaneous objects
         runner = new Runner();
@@ -255,9 +242,7 @@ public class MainActivity extends AppCompatActivity {
         popInRan = false;
 
         // Billing
-        Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
-        serviceIntent.setPackage("com.android.vending");
-        bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
+        bindBillingService();
 
         // Initialize Ads
         interstitialAd = new InterstitialAd(context);
@@ -278,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize Death Screen
         deathScreen = findViewById(R.id.deathScreen);
         txt_score = findViewById(R.id.score);
-        txt_highscore = findViewById(R.id.highScore);
+        txt_best = findViewById(R.id.highScore);
         txt_pressed = findViewById(R.id.pressed);
         txt_correct = findViewById(R.id.correct);
         deathScreen.setUp(this);
@@ -294,7 +279,6 @@ public class MainActivity extends AppCompatActivity {
         title = findViewById(R.id.title_logo);
         top_fade = findViewById(R.id.top_fade);
         txt_instructions = findViewById(R.id.instructions);
-        title.flexSize();
 
         // Initialize buttons
         buttonBar = findViewById(R.id.button_bar);
@@ -304,6 +288,11 @@ public class MainActivity extends AppCompatActivity {
         moreGamesButton = findViewById(R.id.moreGames);
         mainButton = findViewById(R.id.mainButton);
         playSymbolButton = findViewById(R.id.playSymbolButton);
+        buttonBarArray = new Button[4];
+        buttonBarArray[0] = moreGamesButton;
+        buttonBarArray[1] = noAdsButton;
+        buttonBarArray[2] = starButton;
+        buttonBarArray[3] = settingsButton;
 
         greenButton = findViewById(R.id.greenButton);
         redButton = findViewById(R.id.redButton);
@@ -358,14 +347,9 @@ public class MainActivity extends AppCompatActivity {
                 settingsButton.setClickable(false);
             }
 
-            @Override
-            public void onAnimationEnd(Animator animator) {}
-
-            @Override
-            public void onAnimationCancel(Animator animator) {}
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {}
+            @Override public void onAnimationEnd(Animator animator) {}
+            @Override public void onAnimationCancel(Animator animator) {}
+            @Override public void onAnimationRepeat(Animator animator) {}
         });
 
         fadeInButtonBar = ObjectAnimator.ofFloat(buttonBar, "alpha", 1.0f);
@@ -379,20 +363,9 @@ public class MainActivity extends AppCompatActivity {
                 settingsButton.setClickable(true);
             }
 
-            @Override
-            public void onAnimationEnd(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-
-            }
+            @Override public void onAnimationEnd(Animator animator) { }
+            @Override public void onAnimationCancel(Animator animator) { }
+            @Override public void onAnimationRepeat(Animator animator) { }
         });
 
         // Animate play symbol
@@ -400,6 +373,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Possibly redundant as this is declared in manifest, but just incase
         setRequestedOrientation(SCREEN_ORIENTATION_USER);
+
+        flexAll();
     }
 
     void startGame() {
@@ -439,6 +414,45 @@ public class MainActivity extends AppCompatActivity {
     // Get screen dimensions; used for resizing of elements if and as needed.
     private void getScreenDimensions() {
         displayMetrics = getResources().getDisplayMetrics();
+    }
+
+    private void flexAll() {
+        int height = displayMetrics.heightPixels;
+        int width = displayMetrics.widthPixels;
+
+        title.flexSize(height, width);
+        mainButton.flexSize(height, width);
+        playSymbolButton.flexSize(height, width);
+        flexButtons(height, width);
+        deathScreen.flexSize(height, width);
+        txt_instructions.flex();
+    }
+
+    private void flexButtons(int height, int width) {
+        int minDimension = Math.min(height, width); // For consistent size in both portrait & landscape
+        int numButtons = buttonBarArray.length;
+        for (Button button: buttonBarArray) {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0,0); // 0,0 just placeholder
+
+            // Determine margin, minimum margin is 6dp
+            int margin = (int)(.015 * minDimension);
+            margin = Math.min((int)TMath.convertDpToPixel(6, this), margin);
+
+            // Determine button size, minimum* size is 60dp, but if screen is super small, let the buttons go smaller
+            int maxSize = (minDimension - margin*numButtons*2)/numButtons; // Max size that will let the buttons still fit on screen
+            int minSize = (int)TMath.convertDpToPixel(60f, this);
+            int size = (int)(minDimension*.67 - margin*numButtons*2)/numButtons;
+
+            if (maxSize < minSize) size = maxSize; // For super small devices
+            else if (size < minSize) size = minSize; // For small devices
+
+            params.height = size;
+            params.width = size;
+
+            params.setMargins(margin, margin, margin, margin*2);
+
+            button.setLayoutParams(params);
+        }
     }
 
     private void playColor(final ColorButton button) {
@@ -501,7 +515,7 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("ClickableViewAccessibility")
     private void setMainButton() {
-        mainButtonListener = new View.OnTouchListener() {
+        View.OnTouchListener mainButtonListener = new View.OnTouchListener() {
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View view, MotionEvent event) {
@@ -544,8 +558,7 @@ public class MainActivity extends AppCompatActivity {
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // We have to disable the mainButton while settings are up as a precaution
-                mainButton.setOnTouchListener(null);
+                mainButtonEnabled = false; // Disable mainButton while settings are up, it may be visible on some layouts
                 settingsScreen.bringToFront();
                 settingsScreen.setTranslationZ(999); // Fix for bringToFront not completely working on newer APIs with relativeLayout
                 isSettingsScreenUp = true;
@@ -584,7 +597,7 @@ public class MainActivity extends AppCompatActivity {
                 parent.removeView(settingsScreen);
                 parent.addView(settingsScreen, 0);
                 settingsScreen.setTranslationZ(0); // Bring elevation back to zero
-                mainButton.setOnTouchListener(mainButtonListener);
+                mainButtonEnabled = true;
                 isSettingsScreenUp = false;
             }
         });
@@ -597,7 +610,7 @@ public class MainActivity extends AppCompatActivity {
                 TDialog.createAlertDialog(context, R.string.rate_the_app_title, R.string.rate_the_app_message, R.string.Rate, R.string.Cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        startActivity(rateGameIntent(getPackageName()));
+                        startRateGameIntent(MainActivity.this, getPackageName());
                     }
                 }, new DialogInterface.OnClickListener() {
                     @Override
@@ -616,7 +629,7 @@ public class MainActivity extends AppCompatActivity {
                 TDialog.createAlertDialog(context, R.string.more_games_title, R.string.more_games_message, R.string.View, R.string.Cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        startActivity(moreGamesIntent());
+                        startMoreGamesIntent(MainActivity.this);
                     }
                 }, new DialogInterface.OnClickListener() {
                     @Override
@@ -698,7 +711,7 @@ public class MainActivity extends AppCompatActivity {
             if (interstitialAd.isLoaded()) {
                 int rollForAd = random.nextInt(3); // A 1/3 chance
                 if (rollForAd == 0) {
-                    if (!TESTING) interstitialAd.show();
+                    if (!TLogging.TESTING) interstitialAd.show();
                     else log("Ad not displayed because TESTING");
                 }
             }
@@ -718,7 +731,7 @@ public class MainActivity extends AppCompatActivity {
 
         int highScoreNum = myPreferences.getInt("highscore", 0);
         String highScoreNum_text = "" + highScoreNum;
-        txt_highscore.setText(highScoreNum_text);
+        txt_best.setText(highScoreNum_text);
 
         // Indicate what the pressed and correct buttons were
         String pressedString = "---"; // Default, shouldn't occur
@@ -738,7 +751,7 @@ public class MainActivity extends AppCompatActivity {
         txt_pressed.setText(pressedString);
         txt_correct.setText(correctString);
 
-        deathScreen.fadeIn();
+        deathScreen.animateIn();
         setRequestedOrientation(SCREEN_ORIENTATION_USER);
     }
 
@@ -771,7 +784,7 @@ public class MainActivity extends AppCompatActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         getScreenDimensions();
-        title.flexSize();
+        flexAll();
     }
 
     @Override
@@ -806,20 +819,6 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed(); // Exits app
         }
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        // Unload Billing
-        if (mService != null) unbindService(mServiceConn);
-
-        // Unload sounds if necessary
-        if (AndroidSound.soundPool != null) {
-            AndroidSound.release();
-        }
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -831,21 +830,26 @@ public class MainActivity extends AppCompatActivity {
         greenButton.returnToNormal();
         blueButton.returnToNormal();
 
-        // Reload sounds if necessary
+        // Load sounds if necessary
         if (AndroidSound.soundPool == null) {
             AndroidSound.newSoundPool();
             AndroidSound.loadSounds(context);
         }
     }
 
-    @Override // Goes fullscreen
+    @Override
     public void onResume() {
         super.onResume();
         stopped = false;
+    }
 
-        if (!popInRan) {
-            title.popIn();
-            popInRan = true;
+    @Override // Better indication of when the activity becomes visible than onResume
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (hasFocus) {
+            if (!popInRan) {
+                title.popIn();
+                popInRan = true;
+            }
         }
     }
 
@@ -861,8 +865,24 @@ public class MainActivity extends AppCompatActivity {
 
         // Don't hog resources from other apps when not infront; don't leak memory and stop sound errors
         // We do this in onStop instead of onPause in order to support multi-screen, onPause is called but onStop isn't on multi-screen window change
-        AndroidSound.release();
+        if (AndroidSound.soundPool != null) { // Bug, unsure of the cause, that causes release to be called when things are already released
+            AndroidSound.release();
+        }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Unload Billing
+        if (mService != null) unbindService(mServiceConn);
+
+        // Unload sounds if necessary
+        if (AndroidSound.soundPool != null) {
+            AndroidSound.release();
+        }
+    }
+
 
     private void requestNewInterstitial() {
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -925,25 +945,52 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         try {
                             flog("Purchase flow started");
-                            Bundle buyIntentBundle = mService.getBuyIntent(3, getPackageName(), "no_ads", "inapp", "Verified by me");
-                            PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
-
-                            if (pendingIntent != null) {
-                                IntentSender intentSender = pendingIntent.getIntentSender();
-                                if (intentSender != null)
-
-                                    startIntentSenderForResult(intentSender, BILLING_REQUEST_CODE, new Intent(), 0, 0, 0);
-                                else { flog("intentSender is null"); report(); } // This happens when item is already purchased? // TODO Test and Add dialog
-                            } else {
-                                flog("noAdsButton clicked: pendingIntent is null; suspect no Google Account logged into Android device");
+                            Bundle buyIntentBundle = null;
+                            try {
+                                buyIntentBundle = mService.getBuyIntent(3, getPackageName(), "no_ads", "inapp", "Verified by me");
+                            } catch(NullPointerException e) { // incase mService is null
                                 AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-                                builder.setTitle(R.string.null_intent_sender_error_title).setMessage(R.string.null_intent_sender_error_message)
+                                builder.setTitle(R.string.Error).setMessage(R.string.null_mService_error_message)
                                         .setNeutralButton(R.string.OK, null)
                                         .create()
                                         .show();
+                                // Attempt to re-establish billing connection
+                                bindBillingService();
+                            }
+                            if (buyIntentBundle != null) {
+                                PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
+
+                                if (pendingIntent != null) {
+                                    IntentSender intentSender = pendingIntent.getIntentSender();
+                                    if (intentSender != null)
+                                        startIntentSenderForResult(intentSender, BILLING_REQUEST_CODE, new Intent(), 0, 0, 0);
+                                    else {
+                                        report("intentSender is null");
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+                                        builder.setTitle(R.string.Unknown_Error)
+                                                .setNeutralButton(R.string.OK, null)
+                                                .create()
+                                                .show();
+                                    } // This happens when item is already purchased? // TODO Test
+                                } else {
+                                    flog("noAdsButton clicked: pendingIntent is null; suspect no Google Account logged into Android device");
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+                                    builder.setTitle(R.string.Error).setMessage(R.string.null_intent_sender_error_message)
+                                            .setNeutralButton(R.string.OK, null)
+                                            .create()
+                                            .show();
+                                }
                             }
                         }
-                        catch (RemoteException | IntentSender.SendIntentException e) { TLogging.report(e); }
+                        // DeadObjectException (A type of RemoteException) happens when (but uncertain if limited to) mService is not null, but mServiceConn has disconnected
+                        catch (RemoteException | IntentSender.SendIntentException e) {
+                            TLogging.report(e);
+                            AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+                            builder.setTitle(R.string.Unknown_Error)
+                                    .setNeutralButton(R.string.OK, null)
+                                    .create()
+                                    .show();
+                        }
                     }
                 }, new DialogInterface.OnClickListener() {
                     @Override

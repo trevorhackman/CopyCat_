@@ -14,6 +14,21 @@ import static hackman.trevor.tlibrary.library.TLogging.report;
 public enum TMath {;
 
     /**
+     * This method converts md unit to equivalent pixels, depending on minimum dimension
+     *
+     * @param md A value in md (custom minimum-dimension-dependent pixels) unit. 1md = 1/360 Minimum Dimension
+     * md is equivalent to wp on portrait landscape
+     * @param context to get resources and device specific display metrics
+     * @return A float value to represent px equivalent to md depending on device height
+     */
+    public static float convertMdToPixel(float md, Context context) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        int minDimension = Math.min(metrics.heightPixels, metrics.widthPixels);
+        float px = md * minDimension / 360;
+        return px;
+    }
+
+    /**
      * This method converts hp unit to equivalent pixels, depending on height of device
      *
      * @param hp A value in hp (custom height-dependent pixels) unit. 1hp = 1/640 Screen Height
@@ -49,7 +64,7 @@ public enum TMath {;
      */
     public static float convertDpToPixel(float dp, Context context) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        float px = dp * metrics.density;
+        float px = dp * (metrics.xdpi / (float)metrics.densityDpi);
         return px;
     }
 
@@ -62,7 +77,7 @@ public enum TMath {;
      */
     public static float convertPixelsToDp(float px, Context context){
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        float dp = px / metrics.density;
+        float dp = px / (metrics.xdpi / DisplayMetrics.DENSITY_DEFAULT);
         return dp;
     }
 

@@ -6,7 +6,7 @@
 
     <color name="colorAccentLightLight">@color/White</color>
     <color name="colorAccentLight">@color/Grey300</color>
-    <color name="colorAccent">@color/Grey400</color>
+    <color name="colorAccent">@color/Grey500</color>
     <color name="colorAccentDark">@color/Grey600</color>
     <color name="colorAccentDarkDark">@color/Grey900</color>
 
