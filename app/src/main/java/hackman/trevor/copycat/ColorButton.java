@@ -21,10 +21,13 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
         super(context, attrs);
     }
 
-    void setUp(int color, AndroidSound sound, int number) {
-        this.color = color;
+    void setUp(AndroidSound sound, int number) {
         this.sound = sound;
         this.number = number;
+    }
+
+    void setColor(int color) {
+        this.color = color;
     }
 
     void playSound() {
@@ -63,8 +66,8 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
         super.onSizeChanged(xNew, yNew, xOld, yOld);
 
         if (xNew != 0 && yNew != 0) {
-            int width = xNew;
             int height = yNew;
+            int width = xNew;
 
             int ratio = 15;
             float cornerRadius = height > width ? height / ratio : width / ratio; // Tertiary for consistency in both portrait & landscape
@@ -82,7 +85,34 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
             pressedDrawable.setColors(colors);
 
             pressedDrawable.setCornerRadius(cornerRadius);
-            pressedDrawable.setStroke(Math.min(width, height) / 6, 0x00abcdef); // Transparent border for a simulated shrinkage or 'press' effect
+            pressedDrawable.setStroke((int)(Math.min(width, height) * .15), 0x00abcdef); // Transparent border for a simulated shrinkage or 'press' effect
+
+            returnToNormal();
+        }
+    }
+
+    void flex() {
+        if (getHeight() != 0 && getWidth() != 0) {
+            int height = getHeight();
+            int width = getWidth();
+
+            int ratio = 15;
+            float cornerRadius = height > width ? height / ratio : width / ratio; // Tertiary for consistency in both portrait & landscape
+
+            drawable = new GradientDrawable();
+            drawable.setColor(color);
+            drawable.setCornerRadius(cornerRadius);
+
+            pressedDrawable = new GradientDrawable();
+            pressedDrawable.setGradientType(GradientDrawable.RADIAL_GRADIENT);
+            pressedDrawable.setGradientRadius(height / 2);
+
+            int brightened = TMath.brightenColor(color, .5f);
+            int[] colors = {brightened, color};
+            pressedDrawable.setColors(colors);
+
+            pressedDrawable.setCornerRadius(cornerRadius);
+            pressedDrawable.setStroke((int)(Math.min(width, height) * .15), 0x00abcdef); // Transparent border for a simulated shrinkage or 'press' effect
 
             returnToNormal();
         }

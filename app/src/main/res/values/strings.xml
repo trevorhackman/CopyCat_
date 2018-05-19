@@ -1,6 +1,6 @@
 <resources>
     <!-- Descriptive string resources-->
-    <string name="version_number">1.6.0</string>
+    <string name="version_number">1.8.0</string>
     <string name="app_name">Simon Says</string>
     <string name="rate_the_app_title">Rate the app</string>
     <string name="rate_the_app_message">Simon Says is made by a single person so your reviews mean a lot. Thank you for the effort. </string>
@@ -14,30 +14,47 @@
     <string name="exit_message">Your current game will be lost</string>
 
     <!-- Explicit string resources -->
-    <string name="Error">Error</string>
-    <string name="Unknown_Error">Unknown Error</string>
-    <string name="Game_Over">Game Over</string>
-    <string name="Score">Score</string>
-    <!--<string name="High_Score">High Score</string>-->
     <string name="Best">Best</string>
-    <!--<string name="Continue">Continue</string>-->
-    <string name="Pressed">Pressed</string>
-    <string name="Correct">Correct</string>
-    <string name="Menu">Main Menu</string>
-    <string name="Play_Again">Play Again</string>
-    <string name="Watch_and_repeat">Watch and repeat</string>
-    <string name="Settings">Settings</string>
-    <string name="Speed">Speed:</string>
-    <string name="Normal">Normal</string>
-    <string name="Fast">Fast</string>
-    <string name="Extreme">Extreme</string>
-    <string name="Insane">Insane</string>
-    <string name="Close">Close</string>
-    <string name="OK">OK</string>
     <string name="Cancel">Cancel</string>
-    <string name="View">View</string>
-    <string name="Rate">Rate</string>
-    <string name="Purchase">Purchase</string>
+    <string name="Close">Close</string>
+    <string name="Correct">Correct</string>
+    <string name="Error">Error</string>
     <string name="Exit_App">Exit App</string>
+    <string name="Game_Over">Game Over</string>
+    <string name="Menu">Main Menu</string>
+    <string name="OK">OK</string>
+    <string name="Pressed">Pressed</string>
+    <string name="Purchase">Purchase</string>
+    <string name="Play_Again">Play Again</string>
+    <string name="Rate">Rate</string>
+    <string name="Score">Score</string>
+    <string name="Settings">Settings</string>
+    <string name="Unknown_Error">Unknown Error</string>
+    <string name="View">View</string>
+    <string name="Watch_and_repeat">Watch and repeat</string>
+
+    <string name="Speed"    >Speed</string>
+    <string name="Normal"   >Normal</string>
+    <string name="Fast"     >Fast</string>
+    <string name="Extreme"  >Extreme</string>
+    <string name="Insane"   >Insane</string>
+
+    <string name="Colors"   >Colors</string>
+    <string name="Classic"  >Classic</string>
+    <string name="Warm"     >Warm</string>
+    <string name="Cool"     >Cool</string>
+    <string name="Royal"    >Royal</string>
+    <string name="Inverted" >Inverted</string>
+    <string name="Greyed"   >Greyed</string>
+
+    <string name="Green"     >Green</string>
+    <string name="Red"       >Red</string>
+    <string name="Yellow"    >Yellow</string>
+    <string name="Blue"      >Blue</string>
+
+    <string name="Top_Left"  >Top Left</string>
+    <string name="Top_Right" >Top Right</string>
+    <string name="Bot_Left"  >Bottom Left</string>
+    <string name="Bot_Right" >Bottom Right</string>
 
 </resources>

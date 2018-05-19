@@ -13,24 +13,19 @@ import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.android.vending.billing.IInAppBillingService;
 import com.crashlytics.android.Crashlytics;
@@ -95,14 +90,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     DeathScreen deathScreen;
+    SettingsScreen settingsScreen;
     LinearLayout buttonBar;
-    LinearLayout settingsScreen;
 
     PlaySymbol playSymbolButton; // Inside the main button, displays play symbol
     MainButton mainButton; // The circle, click on it to play, displays level number
-    Button settingsCloseButton;
-    Button leftArrowButton;
-    Button rightArrowButton;
 
     // Button bar
     Button moreGamesButton;
@@ -121,13 +113,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView top_fade;
 
     Instructions txt_instructions;
-    TextView txt_score;
-    TextView txt_best;
-    TextView txt_pressed;
-    TextView txt_correct;
-    TextView txt_speedText;
 
-    // Enums
     final static int GREEN = 0; // Highest
     final static int RED = 1; // 2nd Highest
     final static int YELLOW = 2; // 3rd Highest
@@ -202,7 +188,6 @@ public class MainActivity extends AppCompatActivity {
     boolean allowColorInput; // Close input while sequence is playing, open when it's the player's turn to repeat
     boolean inGame; // Keeps track of whether in game or not
     boolean mainButtonEnabled; // Enables and disables main button, effectively tracks when game is allowed to start
-    boolean isSettingsScreenUp; // Keeps track of whether settings screen is open or not
     boolean startGameAfterFadeOut; // If true, game will start after the deathscreen finishes fading away. Set on playAgainButton click
     boolean startNextSequence; // False until sequence is finished, true to continue to next level/sequence
     boolean popInRan; // Title pop-in plays in onResume once per creation
@@ -238,7 +223,6 @@ public class MainActivity extends AppCompatActivity {
         mainButtonEnabled = true;
         level = 1;
         startNextSequence = false;
-        isSettingsScreenUp = false;
         popInRan = false;
 
         // Billing
@@ -262,18 +246,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize Death Screen
         deathScreen = findViewById(R.id.deathScreen);
-        txt_score = findViewById(R.id.score);
-        txt_best = findViewById(R.id.highScore);
-        txt_pressed = findViewById(R.id.pressed);
-        txt_correct = findViewById(R.id.correct);
         deathScreen.setUp(this);
 
         // Initialize Settings Screen
         settingsScreen = findViewById(R.id.settingsScreen);
-        settingsCloseButton = findViewById(R.id.settingsCloseButton);
-        txt_speedText = findViewById(R.id.speedText);
-        leftArrowButton = findViewById(R.id.leftArrow);
-        rightArrowButton = findViewById(R.id.rightArrow);
+        settingsScreen.setUp(this);
 
         // Initialize Title and Instructions
         title = findViewById(R.id.title_logo);
@@ -304,10 +281,10 @@ public class MainActivity extends AppCompatActivity {
         colorButtons[3] = blueButton;
 
         // Setup color buttons
-        greenButton.setUp(ContextCompat.getColor(context, R.color.green), sounds[0], 0);
-        redButton.setUp(ContextCompat.getColor(context, R.color.red), sounds[1], 1);
-        yellowButton.setUp(ContextCompat.getColor(context, R.color.yellow), sounds[2], 2);
-        blueButton.setUp(ContextCompat.getColor(context, R.color.blue), sounds[3], 3);
+        greenButton.setUp(sounds[0], 0);
+        redButton.setUp(sounds[1], 1);
+        yellowButton.setUp(sounds[2], 2);
+        blueButton.setUp(sounds[3], 3);
         setButton(greenButton);
         setButton(redButton);
         setButton(yellowButton);
@@ -316,15 +293,12 @@ public class MainActivity extends AppCompatActivity {
         // Setup buttons
         setMainButton();
         setSettingsButton();
-        setSettingsCloseButton();
-        setLeftArrowButton();
-        setRightArrowButton();
         setStarButton();
         setNoAdsButton();
         setMoreGamesButton();
 
-        // Initialize speed
-        setSpeed();
+        // Initialize settings
+        settingsScreen.getSettings();
 
         // Initialize animations
         fadeOutTopFade = ObjectAnimator.ofFloat(top_fade, "alpha", 0.0f);
@@ -416,6 +390,7 @@ public class MainActivity extends AppCompatActivity {
         displayMetrics = getResources().getDisplayMetrics();
     }
 
+    // Flexible UI resizes according to screen dimensions
     private void flexAll() {
         int height = displayMetrics.heightPixels;
         int width = displayMetrics.widthPixels;
@@ -424,8 +399,9 @@ public class MainActivity extends AppCompatActivity {
         mainButton.flexSize(height, width);
         playSymbolButton.flexSize(height, width);
         flexButtons(height, width);
-        deathScreen.flexSize(height, width);
         txt_instructions.flex();
+        deathScreen.flex(height, width);
+        settingsScreen.flex(height, width);
     }
 
     private void flexButtons(int height, int width) {
@@ -436,12 +412,13 @@ public class MainActivity extends AppCompatActivity {
 
             // Determine margin, minimum margin is 6dp
             int margin = (int)(.015 * minDimension);
-            margin = Math.min((int)TMath.convertDpToPixel(6, this), margin);
+            margin = Math.max((int)TMath.convertDpToPixel(4, this), margin);
 
             // Determine button size, minimum* size is 60dp, but if screen is super small, let the buttons go smaller
             int maxSize = (minDimension - margin*numButtons*2)/numButtons; // Max size that will let the buttons still fit on screen
             int minSize = (int)TMath.convertDpToPixel(60f, this);
-            int size = (int)(minDimension*.67 - margin*numButtons*2)/numButtons;
+
+            int size = (int)(maxSize * 0.9);
 
             if (maxSize < minSize) size = maxSize; // For super small devices
             else if (size < minSize) size = minSize; // For small devices
@@ -449,7 +426,10 @@ public class MainActivity extends AppCompatActivity {
             params.height = size;
             params.width = size;
 
-            params.setMargins(margin, margin, margin, margin*2);
+            int bottomMargin;
+            if (height < width) bottomMargin = margin;
+            else bottomMargin = 2 * margin;
+            params.setMargins(margin, margin, margin, bottomMargin);
 
             button.setLayoutParams(params);
         }
@@ -558,47 +538,7 @@ public class MainActivity extends AppCompatActivity {
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainButtonEnabled = false; // Disable mainButton while settings are up, it may be visible on some layouts
-                settingsScreen.bringToFront();
-                settingsScreen.setTranslationZ(999); // Fix for bringToFront not completely working on newer APIs with relativeLayout
-                isSettingsScreenUp = true;
-            }
-        });
-    }
-
-    private void setRightArrowButton() {
-        rightArrowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int speedSetting = myPreferences.getInt("speed", 0);
-                if (speedSetting < 3) myPreferences.putInt("speed", ++speedSetting);
-                setSpeed();
-            }
-        });
-    }
-
-    private void setLeftArrowButton() {
-        leftArrowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int speedSetting = myPreferences.getInt("speed", 0);
-                if (speedSetting > 0) myPreferences.putInt("speed", --speedSetting);
-                setSpeed();
-            }
-        });
-    }
-
-    private void setSettingsCloseButton() {
-        settingsCloseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Manual move to back
-                final ViewGroup parent = (ViewGroup)settingsScreen.getParent();
-                parent.removeView(settingsScreen);
-                parent.addView(settingsScreen, 0);
-                settingsScreen.setTranslationZ(0); // Bring elevation back to zero
-                mainButtonEnabled = true;
-                isSettingsScreenUp = false;
+                settingsScreen.display();
             }
         });
     }
@@ -726,30 +666,8 @@ public class MainActivity extends AppCompatActivity {
 
         int scoreNum = level - 1;
         level = 1;
-        String scoreNum_text = "" + scoreNum;
-        txt_score.setText(scoreNum_text);
 
-        int highScoreNum = myPreferences.getInt("highscore", 0);
-        String highScoreNum_text = "" + highScoreNum;
-        txt_best.setText(highScoreNum_text);
-
-        // Indicate what the pressed and correct buttons were
-        String pressedString = "---"; // Default, shouldn't occur
-        switch (pressed) {
-            case(0): pressedString = "Green"; break;
-            case(1): pressedString = "Red"; break;
-            case(2): pressedString = "Yellow"; break;
-            case(3): pressedString = "Blue"; break;
-        }
-        String correctString = "---"; // Default, occurs if user hits extra button and therefore there is no correct button
-        switch (correct) {
-            case(0): correctString = "Green"; break;
-            case(1): correctString = "Red"; break;
-            case(2): correctString = "Yellow"; break;
-            case(3): correctString = "Blue"; break;
-        }
-        txt_pressed.setText(pressedString);
-        txt_correct.setText(correctString);
+        deathScreen.setValues(scoreNum, pressed, correct);
 
         deathScreen.animateIn();
         setRequestedOrientation(SCREEN_ORIENTATION_USER);
@@ -792,8 +710,8 @@ public class MainActivity extends AppCompatActivity {
         if (deathScreen.isDeathScreenUp) {
             deathScreen.performMainMenuClick();
         }
-        else if (isSettingsScreenUp) {
-            settingsCloseButton.performClick();
+        else if (settingsScreen.isSettingsScreenUp) {
+            settingsScreen.close();
         }
         else if (inGame) {
             if (level > 2) { // 'level > 2' not worth bothering to ask if only just started the game
@@ -889,50 +807,6 @@ public class MainActivity extends AppCompatActivity {
         interstitialAd.loadAd(adRequest);
     }
 
-    // To be called on creation and every time speed setting is changed
-    // Also fades left&right arrow buttons appropiately
-    private void setSpeed() {
-        int speed = myPreferences.getInt("speed", 0);
-        if (speed == 0) { // Default normal speed
-            milliSecondsToLight = 500;
-            milliSecondsDelay = 90;
-            txt_speedText.setText(R.string.Normal);
-
-            // Fade out left arrow since no more settings to the left
-            Drawable leftArrowDrawable = leftArrowButton.getBackground();
-            leftArrowDrawable.setColorFilter(0x44ffffff, PorterDuff.Mode.MULTIPLY);
-        }
-        else if (speed == 1) { // Fast
-            milliSecondsToLight = 300;
-            milliSecondsDelay = 65;
-            txt_speedText.setText(R.string.Fast);
-
-            // Unfade left arrow
-            Drawable leftArrowDrawable = leftArrowButton.getBackground();
-            leftArrowDrawable.clearColorFilter();
-        }
-        else if (speed == 2) { // Extreme
-            milliSecondsToLight = 150;
-            milliSecondsDelay = 45;
-            txt_speedText.setText(R.string.Extreme);
-
-            // Unfade right arrow
-            Drawable rightArrowDrawable = rightArrowButton.getBackground();
-            rightArrowDrawable.clearColorFilter();
-        }
-        else if (speed == 3) { // Insane
-            milliSecondsToLight = 75;
-            milliSecondsDelay = 30;
-            txt_speedText.setText(R.string.Insane);
-
-            // Fade out right arrow since no more settings to the right
-            Drawable rightArrowDrawable = rightArrowButton.getBackground();
-            rightArrowDrawable.setColorFilter(0x44ffffff, PorterDuff.Mode.MULTIPLY);
-        }
-        else { // else should never happen
-            report("Invalid speed setting: " + speed);
-        }
-    }
 
     // 1001 is arbitrary number, I could use any number for the code. Done to identify that responses with this code are for the purpose of billing
     public static final int BILLING_REQUEST_CODE = 1001;

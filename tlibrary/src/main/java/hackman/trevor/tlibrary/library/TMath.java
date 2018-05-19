@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
 
+import static hackman.trevor.tlibrary.library.TLogging.log;
 import static hackman.trevor.tlibrary.library.TLogging.report;
 
 // An instance-less enum is a quick workaround to making the class both final and abstract,
@@ -112,6 +113,7 @@ public enum TMath {;
         Color.colorToHSV(color, hsv);
         hsv[0] += shift;
         if (hsv[0] > 360) hsv[0] -= 360;
+
         return Color.HSVToColor(hsv);
     }
 
@@ -134,6 +136,7 @@ public enum TMath {;
         hsv[2] += shift;
         if (hsv[2] > 1) hsv[2] = 1;
         if (hsv[2] < 0) hsv[2] = 0;
+
         return Color.HSVToColor(hsv);
     }
 
