@@ -639,6 +639,9 @@ public class MainActivity extends AppCompatActivity {
         startNextSequence = false;
         sequence.clear();
 
+        int scoreNum = level - 1;
+        level = 1;
+
         // In case user fails so fast that animations haven't ended yet
         fadeOutPlaySymbol.end();
         txt_instructions.endAnimations();
@@ -646,11 +649,16 @@ public class MainActivity extends AppCompatActivity {
         // Death sound
         sounds[4].play(1);
 
+        // Track the number of games that have been completed
+        int gamesCompleted = myPreferences.getInt("gamesCompleted", 0) + 1;
+        myPreferences.putInt("gamesCompleted", gamesCompleted);
+
         // Check for Ad
-        if (noAdsStatus == NOT_OWNED) {
+        // Don't display ad on the very first play
+        if (noAdsStatus == NOT_OWNED && gamesCompleted > 1) {
             if (interstitialAd.isLoaded()) {
-                int rollForAd = random.nextInt(3); // A 1/3 chance
-                if (rollForAd == 0) {
+                double rollForAd = random.nextDouble(); // Double in range [0.0, 1.0)
+                if (rollForAd < 0.38) { // 38% chance for ad
                     if (!TLogging.TESTING) interstitialAd.show();
                     else log("Ad not displayed because TESTING");
                 }
@@ -664,12 +672,10 @@ public class MainActivity extends AppCompatActivity {
         }
         // else OWNED, don't roll for ads or send more requests
 
-        int scoreNum = level - 1;
-        level = 1;
-
         deathScreen.setValues(scoreNum, pressed, correct);
-
         deathScreen.animateIn();
+
+        // Unlock screen orientation
         setRequestedOrientation(SCREEN_ORIENTATION_USER);
     }
 
