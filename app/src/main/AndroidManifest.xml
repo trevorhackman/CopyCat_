@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- installLocation="auto" allows the app to be installed on external storage, default is internal only -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    android:installLocation="auto"
     package="hackman.trevor.copycat">
 
     <uses-permission android:name="android.permission.INTERNET"/>

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<hackman.trevor.copycat.DeathScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/deathScreen"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:layout_gravity="center"
+    android:alpha="1"
+    android:background="@drawable/bordered_rectangle"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/txt_gameOver"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/Game_Over"
+        android:textAlignment="center"
+        android:textAppearance="@style/DeathScreenText"
+        android:textSize="40dp"
+        android:textStyle="bold|italic"
+        tools:ignore="SpUsage" />
+
+    <ImageView
+        android:id="@+id/divider0"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/block"
+        tools:ignore="ContentDescription" />
+
+    <LinearLayout
+        android:id="@+id/deathScreenRow0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="18dp"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".4" />
+
+        <TextView
+            android:id="@+id/txt_score"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/Score"
+            android:textAppearance="@style/DeathScreenText" />
+
+        <TextView
+            android:id="@+id/score"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="123"
+            android:textAlignment="textStart"
+            android:textAppearance="@style/DeathScreenText"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/deathScreenRow1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="18dp"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".4" />
+
+        <TextView
+            android:id="@+id/txt_best"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/Best"
+            android:textAlignment="textStart"
+            android:textAppearance="@style/DeathScreenText" />
+
+        <TextView
+            android:id="@+id/best"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="321"
+            android:textAlignment="textStart"
+            android:textAppearance="@style/DeathScreenText"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/deathScreenRow2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="18dp"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".4" />
+
+        <TextView
+            android:id="@+id/txt_pressed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/Pressed"
+            android:textAlignment="textStart"
+            android:textAppearance="@style/DeathScreenText" />
+
+        <TextView
+            android:id="@+id/pressed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Green"
+            android:textAlignment="textStart"
+            android:textAppearance="@style/DeathScreenText"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/deathScreenRow3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="9dp"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".4" />
+
+        <TextView
+            android:id="@+id/txt_correct"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/Correct"
+            android:textAlignment="textStart"
+            android:textAppearance="@style/DeathScreenText" />
+
+        <TextView
+            android:id="@+id/correct"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Bottom Right"
+            android:textAlignment="textStart"
+            android:textAppearance="@style/DeathScreenText"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/divider1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_weight="1"
+        android:background="@drawable/block"
+        tools:ignore="ContentDescription" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".1" />
+
+        <Button
+            android:id="@+id/mainMenuButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bordered_rectangle_2"
+            android:clickable="false"
+            android:text="@string/Menu"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            tools:ignore="ButtonStyle,SpUsage" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".1" />
+
+        <Button
+            android:id="@+id/playAgainButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bordered_rectangle_2"
+            android:clickable="false"
+            android:text="@string/Play_Again"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            tools:ignore="ButtonStyle,SpUsage" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".1" />
+    </LinearLayout>
+
+</hackman.trevor.copycat.DeathScreen>

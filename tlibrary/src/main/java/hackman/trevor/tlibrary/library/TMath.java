@@ -1,11 +1,9 @@
 package hackman.trevor.tlibrary.library;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
 
-import static hackman.trevor.tlibrary.library.TLogging.log;
 import static hackman.trevor.tlibrary.library.TLogging.report;
 
 // An instance-less enum is a quick workaround to making the class both final and abstract,
@@ -78,7 +76,7 @@ public enum TMath {;
      */
     public static float convertPixelsToDp(float px, Context context){
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        float dp = px / (metrics.xdpi / DisplayMetrics.DENSITY_DEFAULT);
+        float dp = px / (metrics.xdpi / (float)metrics.densityDpi);
         return dp;
     }
 

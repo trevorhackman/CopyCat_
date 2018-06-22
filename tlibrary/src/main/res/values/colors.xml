@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Taken from https://material.google.com/style/color.html#color-color-palette - This is to be copied and used across all my apps-->
+    <color name="Red100">#FFCDD2</color>
+    <color name="Red200">#EF9A9A</color>
+    <color name="Red300">#E57373</color>
+    <color name="Red500">#F44336</color>
+    <color name="Red600">#E53935</color>
+    <color name="Red700">#D32F2F</color>
+    <color name="Red800">#C62828</color>
+    <color name="Red900">#B71C1C</color>
+    <color name="RedAccent100">#FF8A80</color>
+    <color name="RedAccent200">#FF5252</color>
+    <color name="RedAccent400">#FF1744</color>
+    <color name="RedAccent700">#D50000</color>
+
+    <color name="Pink100">#F8BBD0</color>
+    <color name="Pink200">#F48FB1</color>
+    <color name="Pink300">#F06292</color>
+    <color name="Pink500">#E91E63</color>
+    <color name="Pink700">#C2185B</color>
+    <color name="Pink800">#AD1457</color>
+    <color name="Pink900">#880E4F</color>
+    <color name="PinkAccent100">#FF80AB</color>
+    <color name="PinkAccent200">#FF4081</color>
+    <color name="PinkAccent400">#F50057</color>
+    <color name="PinkAccent700">#C51162</color>
+
+    <color name="Purple100">#E1BEE7</color>
+    <color name="Purple200">#CE93D8</color>
+    <color name="Purple300">#BA68C8</color>
+    <color name="Purple500">#9C27B0</color>
+    <color name="Purple700">#7B1FA2</color>
+    <color name="Purple800">#6A1B9A</color>
+    <color name="Purple900">#4A148C</color>
+    <color name="PurpleAccent100">#C51162</color>
+    <color name="PurpleAccent200">#E040FB</color>
+    <color name="PurpleAccent400">#D500F9</color>
+    <color name="PurpleAccent700">#AA00FF</color>
+
+    <color name="DeepPurple100">#D1C4E9</color>
+    <color name="DeepPurple200">#B39DDB</color>
+    <color name="DeepPurple300">#9575CD</color>
+    <color name="DeepPurple500">#673AB7</color>
+    <color name="DeepPurple700">#512DA8</color>
+    <color name="DeepPurple900">#311B92</color>
+    <color name="DeepPurpleAccent100">#B388FF</color>
+    <color name="DeepPurpleAccent200">#7C4DFF</color>
+    <color name="DeepPurpleAccent400">#651FFF</color>
+    <color name="DeepPurpleAccent700">#6200EA</color>
+
+    <color name="Indigo100">#C5CAE9</color>
+    <color name="Indigo200">#9FA8DA</color>
+    <color name="Indigo300">#7986CB</color>
+    <color name="Indigo500">#3F51B5</color>
+    <color name="Indigo700">#303F9F</color>
+    <color name="Indigo900">#1A237E</color>
+    <color name="IndigoAccent100">#8C9EFF</color>
+    <color name="IndigoAccent200">#536DFE</color>
+    <color name="IndigoAccent300">#3D5AFE</color>
+    <color name="IndigoAccent700">#304FFE</color>
+
+    <color name="Blue100">#BBDEFB</color>
+    <color name="Blue200">#90CAF9</color>
+    <color name="Blue300">#64B5F6</color>
+    <color name="Blue500">#2196F3</color>
+    <color name="Blue700">#1976D2</color>
+    <color name="Blue900">#0D47A1</color>
+    <color name="BlueAccent100">#82B1FF</color>
+    <color name="BlueAccent200">#448AFF</color>
+    <color name="BlueAccent400">#2979FF</color>
+    <color name="BlueAccent700">#2962FF</color>
+
+    <color name="LightBlue100">#B3E5FC</color>
+    <color name="LightBlue200">#81D4FA</color>
+    <color name="LightBlue300">#4FC3F7</color>
+    <color name="LightBlue500">#03A9F4</color>
+    <color name="LightBlue700">#0288D1</color>
+    <color name="LightBlue900">#01579B</color>
+    <color name="LightBlueAccent100">#80D8FF</color>
+    <color name="LightBlueAccent200">#40C4FF</color>
+    <color name="LightBlueAccent400">#00B0FF</color>
+    <color name="LightBlueAccent700">#0091EA</color>
+
+    <color name="Cyan100">#B2EBF2</color>
+    <color name="Cyan200">#80DEEA</color>
+    <color name="Cyan300">#4DD0E1</color>
+    <color name="Cyan500">#00BCD4</color>
+    <color name="Cyan700">#0097A7</color>
+    <color name="Cyan900">#006064</color>
+    <color name="CyanAccent100">#84FFFF</color>
+    <color name="CyanAccent200">#18FFFF</color>
+    <color name="CyanAccent400">#00E5FF</color>
+    <color name="CyanAccent700">#00B8D4</color>
+
+    <color name="Teal100">#B2DFDB</color>
+    <color name="Teal200">#80CBC4</color>
+    <color name="Teal300">#4DB6AC</color>
+    <color name="Teal500">#009688</color>
+    <color name="Teal700">#00796B</color>
+    <color name="Teal900">#004D40</color>
+    <color name="TealAccent100">#A7FFEB</color>
+    <color name="TealAccent200">#64FFDA</color>
+    <color name="TealAccent400">#1DE9B6</color>
+    <color name="TealAccent700">#00BFA5</color>
+
+    <color name="Green100">#C8E6C9</color>
+    <color name="Green200">#A5D6A7</color>
+    <color name="Green300">#81C784</color>
+    <color name="Green500">#4CAF50</color>
+    <color name="Green700">#388E3C</color>
+    <color name="Green900">#1B5E20</color>
+    <color name="GreenAccent100">#B9F6CA</color>
+    <color name="GreenAccent200">#69F0AE</color>
+    <color name="GreenAccent400">#00E676</color>
+    <color name="GreenAccent700">#00C853</color>
+
+    <color name="LightGreen100">#DCEDC8</color>
+    <color name="LightGreen200">#C5E1A5</color>
+    <color name="LightGreen300">#AED581</color>
+    <color name="LightGreen500">#8BC34A</color>
+    <color name="LightGreen700">#689F38</color>
+    <color name="LightGreen900">#33691E</color>
+    <color name="LightGreenAccent100">#CCFF90</color>
+    <color name="LightGreenAccent200">#B2FF59</color>
+    <color name="LightGreenAccent400">#76FF03</color>
+    <color name="LightGreenAccent700">#64DD17</color>
+
+    <color name="Lime100">#F0F4C3</color>
+    <color name="Lime200">#E6EE9C</color>
+    <color name="Lime300">#DCE775</color>
+    <color name="Lime500">#CDDC39</color>
+    <color name="Lime700">#AFB42B</color>
+    <color name="Lime900">#827717</color>
+    <color name="LimeAccent100">#F4FF81</color>
+    <color name="LimeAccent200">#EEFF41</color>
+    <color name="LimeAccent400">#C6FF00</color>
+    <color name="LimeAccent700">#AEEA00</color>
+
+    <color name="Yellow100">#FFF9C4</color>
+    <color name="Yellow200">#FFF59D</color>
+    <color name="Yellow300">#FFF176</color>
+    <color name="Yellow500">#FFEB3B</color>
+    <color name="Yellow700">#FBC02D</color>
+    <color name="Yellow900">#F57F17</color>
+    <color name="YellowAccent100">#FFFF8D</color>
+    <color name="YellowAccent200">#FFFF00</color>
+    <color name="YellowAccent400">#FFEA00</color>
+    <color name="YellowAccent700">#FFD600</color>
+
+    <color name="Amber100">#FFECB3</color>
+    <color name="Amber200">#FFE082</color>
+    <color name="Amber300">#ffd54f</color>
+    <color name="Amber500">#FFC107</color>
+    <color name="Amber700">#FFA000</color>
+    <color name="Amber800">#FF8F00</color>
+    <color name="Amber900">#FF6F00</color>
+    <color name="AmberAccent100">#FFE57F</color>
+    <color name="AmberAccent200">#FFD740</color>
+    <color name="AmberAccent400">#FFC400</color>
+    <color name="AmberAccent700">#FFAB00</color>
+
+    <color name="Orange100">#FFE0B2</color>
+    <color name="Orange200">#FFCC80</color>
+    <color name="Orange300">#FFB74D</color>
+    <color name="Orange500">#FF9800</color>
+    <color name="Orange600">#FB8C00</color>
+    <color name="Orange700">#F57C00</color>
+    <color name="Orange800">#EF6C00</color>
+    <color name="Orange900">#E65100</color>
+    <color name="OrangeAccent100">#FFD180</color>
+    <color name="OrangeAccent200">#FFAB40</color>
+    <color name="OrangeAccent400">#FF9100</color>
+    <color name="OrangeAccent700">#FF6D00</color>
+
+    <color name="DeepOrange100">#FFCCBC</color>
+    <color name="DeepOrange200">#FFAB91</color>
+    <color name="DeepOrange300">#FF8A65</color>
+    <color name="DeepOrange500">#FF5722</color>
+    <color name="DeepOrange700">#E64A19</color>
+    <color name="DeepOrange900">#BF360C</color>
+    <color name="DeepOrangeAccent100">#FF9E80</color>
+    <color name="DeepOrangeAccent200">#FF6E40</color>
+    <color name="DeepOrangeAccent400">#FF3D00</color>
+    <color name="DeepOrangeAccent700">#DD2C00</color>
+
+    <color name="Brown100">#D7CCC8</color>
+    <color name="Brown200">#BCAAA4</color>
+    <color name="Brown300">#A1887F</color>
+    <color name="Brown500">#795548</color>
+    <color name="Brown700">#5D4037</color>
+    <color name="Brown900">#3E2723</color>
+
+    <color name="Grey100">#F5F5F5</color>
+    <color name="Grey200">#EEEEEE</color>
+    <color name="Grey300">#E0E0E0</color>
+    <color name="Grey400">#BDBDBD</color>
+    <color name="Grey500">#9E9E9E</color>
+    <color name="Grey600">#757575</color>
+    <color name="Grey700">#616161</color>
+    <color name="Grey900">#212121</color>
+
+    <color name="BlueGrey100">#CFD8DC</color>
+    <color name="BlueGrey200">#B0BEC5</color>
+    <color name="BlueGrey300">#90A4AE</color>
+    <color name="BlueGrey500">#607D8B</color>
+    <color name="BlueGrey700">#455A64</color>
+    <color name="BlueGrey900">#263238</color>
+
+    <color name="Black">#000000</color>
+    <color name="White">#ffffff</color>
+
+</resources>
