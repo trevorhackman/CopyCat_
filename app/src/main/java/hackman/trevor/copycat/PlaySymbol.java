@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import hackman.trevor.tlibrary.library.TMath;
 
+import static hackman.trevor.copycat.MainActivity.mainFadeDuration;
 import static hackman.trevor.tlibrary.library.TLogging.log;
 
 /**
@@ -17,17 +18,26 @@ import static hackman.trevor.tlibrary.library.TLogging.log;
  */
 
 public class PlaySymbol extends AppCompatButton {
+    private float scale = 1.09f;
     private ObjectAnimator scaleY;
     private ObjectAnimator scaleX;
-    private AnimatorSet animatorSet;
+    private AnimatorSet gyrateSet;
     private int animationDuration = 725;
-    private float scale = 1.09f;
+
+    private ObjectAnimator fadeOutAlpha;
+    private ObjectAnimator fadeOutX;
+    private ObjectAnimator fadeOutY;
 
     public PlaySymbol(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-    }
 
-    void myAnimation() {
+        fadeOutAlpha = ObjectAnimator.ofFloat(this, "alpha", 0.0f);
+        fadeOutX = ObjectAnimator.ofFloat(this, "scaleX", 0.3f);
+        fadeOutY = ObjectAnimator.ofFloat(this, "scaleY", 0.3f);
+        fadeOutAlpha.setDuration(mainFadeDuration);
+        fadeOutX.setDuration(mainFadeDuration);
+        fadeOutY.setDuration(mainFadeDuration);
+
         scaleX = ObjectAnimator.ofFloat(this, "scaleX", scale);
         scaleY = ObjectAnimator.ofFloat(this, "scaleY", scale);
         scaleX.setDuration(animationDuration);
@@ -37,9 +47,30 @@ public class PlaySymbol extends AppCompatButton {
         scaleX.setRepeatMode(ObjectAnimator.REVERSE);
         scaleY.setRepeatMode(ObjectAnimator.REVERSE);
 
-        animatorSet = new AnimatorSet();
-        animatorSet.playTogether(scaleX, scaleY);
-        animatorSet.start();
+        gyrateSet = new AnimatorSet();
+        gyrateSet.playTogether(scaleX, scaleY);
+    }
+
+    void fadeOut() {
+        gyrateSet.end();
+        fadeOutAlpha.start();
+        fadeOutX.start();
+        fadeOutY.start();
+    }
+
+    void endAnimations() {
+        fadeOutAlpha.end();
+        fadeOutX.end();
+        fadeOutY.end();
+    }
+
+    void reset() {
+        setAlpha(1.0f);
+        gyrateSet.start();
+    }
+
+    void gyrate() {
+        gyrateSet.start();
     }
 
     void flexSize(int height, int width) {

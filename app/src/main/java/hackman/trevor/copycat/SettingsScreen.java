@@ -16,15 +16,18 @@ import android.widget.TextView;
 
 import hackman.trevor.tlibrary.library.TMath;
 
+import static hackman.trevor.tlibrary.library.TLogging.log;
 import static hackman.trevor.tlibrary.library.TLogging.report;
 
 public class SettingsScreen extends LinearLayout {
     public SettingsScreen(Context context, AttributeSet attrs) { super(context, attrs); }
 
-    boolean isSettingsScreenUp; // Keeps track of whether settings screen is open or not
+    private boolean isSettingsScreenUp; // Keeps track of whether settings screen is open/opening or not
+    private boolean isSettingsScreenCompletelyUp; // Keeps track of whether screen is completely open (fade in animation over)
+    private boolean listenToEnd = true;
 
-    private final int fadeInDuration = 500;
-    private final int fadeOutDuration = 250;
+    private final int fadeInDuration = 600;
+    private final int fadeOutDuration = 300;
 
     private MainActivity main;
     private Button leftArrowButton0;
@@ -40,12 +43,15 @@ public class SettingsScreen extends LinearLayout {
 
     private ObjectAnimator fadeIn;
     private ObjectAnimator fadeOut;
+    private Animator.AnimatorListener fadeOutListener;
+    private Animator.AnimatorListener fadeInListener;
 
     void setUp(final MainActivity main) {
         this.main = main;
         this.setAlpha(0f);
 
         isSettingsScreenUp = false;
+        isSettingsScreenCompletelyUp = false;
 
         txt_settings = findViewById(R.id.settingsHead);
         settingsCloseButton = findViewById(R.id.settingsCloseButton);
@@ -65,37 +71,44 @@ public class SettingsScreen extends LinearLayout {
         setSettingsCloseButton();
         setArrowButtons();
 
-        fadeIn = ObjectAnimator.ofFloat(this, "alpha", 1.0f);
-        fadeIn.setDuration(fadeInDuration);
-        fadeIn.addListener(new Animator.AnimatorListener() {
-            @Override public void onAnimationCancel(Animator animation) { }
-            @Override public void onAnimationRepeat(Animator animation) { }
-            @Override public void onAnimationStart(Animator animation) { }
-            @Override public void onAnimationEnd(Animator animation) { }
-        });
+        fadeInListener = new Animator.AnimatorListener() {
+            @Override public void onAnimationStart(Animator animator) { }
+            @Override public void onAnimationRepeat(Animator animator) { }
+            @Override public void onAnimationCancel(Animator animator) { }
+            @Override public void onAnimationEnd(Animator animator) {
+                isSettingsScreenCompletelyUp = true;
+            }
+        };
 
-        fadeOut = ObjectAnimator.ofFloat(this, "alpha", 0.0f);
-        fadeOut.setDuration(fadeOutDuration);
-        fadeOut.addListener(new Animator.AnimatorListener() {
-            @Override public void onAnimationCancel(Animator animation) { }
-            @Override public void onAnimationRepeat(Animator animation) { }
+        fadeOutListener = new Animator.AnimatorListener() {
             @Override public void onAnimationStart(Animator animation) { }
+            @Override public void onAnimationRepeat(Animator animation) { }
+            @Override public void onAnimationCancel(Animator animation) { }
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                // Manual move to back
-                final ViewGroup parent = (ViewGroup)SettingsScreen.this.getParent();
-                parent.removeView(SettingsScreen.this);
-                parent.addView(SettingsScreen.this, 0);
-                SettingsScreen.this.setTranslationZ(0); // Bring elevation back to zero
-                main.mainButtonEnabled = true;
+                if (listenToEnd) {
+                    // Manual move to back
+                    final ViewGroup parent = (ViewGroup) SettingsScreen.this.getParent();
+                    parent.removeView(SettingsScreen.this);
+                    parent.addView(SettingsScreen.this, 0);
+                    SettingsScreen.this.setTranslationZ(0); // Bring elevation back to zero
+                    main.mainButtonEnabled = true;
+                }
             }
-        });
+        };
+        fadeOut = ObjectAnimator.ofFloat(this, "alpha", 0.0f);
+        fadeOut.setDuration(fadeOutDuration);
+        fadeOut.addListener(fadeOutListener);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
+    }
+
+    boolean isSettingsScreenUp() {
+        return isSettingsScreenUp;
     }
 
     void flex(int height, int width) {
@@ -165,16 +178,34 @@ public class SettingsScreen extends LinearLayout {
     }
 
     void display() {
+        isSettingsScreenUp = true;
+
+        if (fadeOut != null && fadeOut.isRunning()) {
+            listenToEnd = false;
+            fadeOut.cancel();
+        }
+
         main.mainButtonEnabled = false; // Disable mainbutton while settings are up
         this.bringToFront();
         this.setTranslationZ(999); // Fix for bringToFront not completely working on newer APIs with relativeLayout
-        isSettingsScreenUp = true;
+
+        // Causes fade in from current alpha value which may have been modified since creation
+        fadeIn = ObjectAnimator.ofFloat(this, "alpha", 1.0f);
+        fadeIn.setDuration(fadeInDuration);
+        fadeIn.addListener(fadeInListener);
+
         fadeIn.start();
+
+        listenToEnd = true;
     }
 
     void close() {
-        isSettingsScreenUp = false;
-        fadeOut.start();
+        if (isSettingsScreenCompletelyUp) {
+            isSettingsScreenUp = false;
+            isSettingsScreenCompletelyUp = false;
+
+            fadeOut.start();
+        }
     }
 
     void getSettings() {
@@ -186,9 +217,7 @@ public class SettingsScreen extends LinearLayout {
         settingsCloseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isSettingsScreenUp) {
-                    close();
-                }
+                close();
             }
         });
     }

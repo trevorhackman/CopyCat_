@@ -57,7 +57,8 @@ import static hackman.trevor.tlibrary.library.TLogging.report;
 import static hackman.trevor.tlibrary.library.TMiscellaneous.startMoreGamesIntent;
 import static hackman.trevor.tlibrary.library.TMiscellaneous.startRateGameIntent;
 
-public class MainActivity extends AppCompatActivity {
+public class
+MainActivity extends AppCompatActivity {
     // Ad
     InterstitialAd interstitialAd;
 
@@ -175,7 +176,6 @@ public class MainActivity extends AppCompatActivity {
     // Animators
     ObjectAnimator fadeOutTopFade;
     ObjectAnimator fadeOutButtonBar;
-    ObjectAnimator fadeOutPlaySymbol;
     ObjectAnimator fadeInTopFade;
     ObjectAnimator fadeInButtonBar;
     static final int mainFadeDuration = 1000; // main animation duration in milliseconds
@@ -307,9 +307,6 @@ public class MainActivity extends AppCompatActivity {
         fadeInTopFade = ObjectAnimator.ofFloat(top_fade, "alpha", 1.0f);
         fadeInTopFade.setDuration(mainFadeDuration);
 
-        fadeOutPlaySymbol = ObjectAnimator.ofFloat(playSymbolButton, "alpha", 0.0f);
-        fadeOutPlaySymbol.setDuration(mainFadeDuration);
-
         fadeOutButtonBar = ObjectAnimator.ofFloat(buttonBar, "alpha", 0.0f);
         fadeOutButtonBar.setDuration(mainFadeDuration);
         fadeOutButtonBar.addListener(new Animator.AnimatorListener() {
@@ -343,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Animate play symbol
-        playSymbolButton.myAnimation();
+        playSymbolButton.gyrate();
 
         // Possibly redundant as this is declared in manifest, but just incase
         setRequestedOrientation(SCREEN_ORIENTATION_USER);
@@ -380,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
     // Fade out buttons and title
     private void mainFadeOutAnimation() {
         fadeOutButtonBar.start();
-        fadeOutPlaySymbol.start();
+        playSymbolButton.fadeOut();
         fadeOutTopFade.start();
         title.fadeOut();
     }
@@ -538,7 +535,9 @@ public class MainActivity extends AppCompatActivity {
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                settingsScreen.display();
+                if (!settingsScreen.isSettingsScreenUp()) {
+                    settingsScreen.display();
+                }
             }
         });
     }
@@ -643,7 +642,7 @@ public class MainActivity extends AppCompatActivity {
         level = 1;
 
         // In case user fails so fast that animations haven't ended yet
-        fadeOutPlaySymbol.end();
+        playSymbolButton.endAnimations();
         txt_instructions.endAnimations();
 
         // Death sound
@@ -692,13 +691,13 @@ public class MainActivity extends AppCompatActivity {
         sequence.clear();
 
         // End animations incase still ongoing and return buttons to normal incase they are in middle of press by sequence
-        fadeOutPlaySymbol.end();
+        playSymbolButton.endAnimations();
         txt_instructions.endAnimations();
         for (ColorButton button: colorButtons) {
             button.returnToNormal();
         }
 
-        playSymbolButton.setAlpha(1.0f);
+        playSymbolButton.reset();
         mainFadeInAnimation();
         allowColorInput = true;
         setRequestedOrientation(SCREEN_ORIENTATION_USER);
@@ -716,7 +715,7 @@ public class MainActivity extends AppCompatActivity {
         if (deathScreen.isDeathScreenUp) {
             deathScreen.performMainMenuClick();
         }
-        else if (settingsScreen.isSettingsScreenUp) {
+        else if (settingsScreen.isSettingsScreenUp()) {
             settingsScreen.close();
         }
         else if (inGame) {
@@ -765,6 +764,9 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         stopped = false;
+
+        // Fixes bug, in the case sequence is completed but before finger is lifted app becomes paused, never detecting finger lift
+        if (startNextSequence) startSequence();
     }
 
     @Override // Better indication of when the activity becomes visible than onResume
@@ -814,8 +816,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // 1001 is arbitrary number, I could use any number for the code. Done to identify that responses with this code are for the purpose of billing
-    public static final int BILLING_REQUEST_CODE = 1001;
+    // 2002 is arbitrary number, I could use any number for the code. Done to identify that responses with this code are for the purpose of billing
+    public static final int BILLING_REQUEST_CODE = 2002;
     private void setNoAdsButton() {
         noAdsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -853,7 +855,7 @@ public class MainActivity extends AppCompatActivity {
                                                 .show();
                                     } // This happens when item is already purchased? // TODO Test
                                 } else {
-                                    flog("noAdsButton clicked: pendingIntent is null; suspect no Google Account logged into Android device");
+                                    report("noAdsButton clicked: pendingIntent is null; suspect no Google Account logged into Android device");
                                     AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
                                     builder.setTitle(R.string.Error).setMessage(R.string.null_intent_sender_error_message)
                                             .setNeutralButton(R.string.OK, null)
@@ -867,6 +869,7 @@ public class MainActivity extends AppCompatActivity {
                             TLogging.report(e);
                             AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
                             builder.setTitle(R.string.Unknown_Error)
+                                    .setMessage(R.string.unknown_remote_exception)
                                     .setNeutralButton(R.string.OK, null)
                                     .create()
                                     .show();
@@ -886,22 +889,35 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == BILLING_REQUEST_CODE) {
-            String purchaseData = data.getStringExtra("INAPP_PURCHASE_DATA");
+            if (data != null) {
+                String purchaseData = data.getStringExtra("INAPP_PURCHASE_DATA");
 
-            // Purchase successful
-            if (resultCode == RESULT_OK) {
-                try {
-                    JSONObject jo = new JSONObject(purchaseData);
-                    String productId = jo.getString("productId");
-                    flog("You have bought the " + productId + " item!");
+                // Purchase successful
+                if (resultCode == RESULT_OK) {
+                    try {
+                        JSONObject jo = new JSONObject(purchaseData);
+                        String productId = jo.getString("productId");
+                        flog("You have bought the " + productId + " item!");
+                    } catch (JSONException e) {
+                        flog("Failed to parse purchase data: " + purchaseData);
+                        report(e);
+                    }
                 }
-                catch (JSONException e) {
-                    flog("Failed to parse purchase data: " + purchaseData);
-                    report(e);
+                // Purchase Cancelled/Failed
+                else {
+                    flog("Purchase RESULT_CANCELLED: " + resultCode);
                 }
             }
-            // Purchase Cancelled/Failed
-            else { flog("Purchase RESULT_CANCELLED: " + resultCode); }
+            else {
+                flog(resultCode + " : " + (resultCode==RESULT_OK));
+                report("Null intent data");
+                AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+                builder.setTitle(R.string.Unknown_Error)
+                        .setMessage(R.string.unknown_null_intent_data)
+                        .setNeutralButton(R.string.OK, null)
+                        .create()
+                        .show();
+            }
         }
         else {
             flog("Invalid requestCode: " + requestCode);

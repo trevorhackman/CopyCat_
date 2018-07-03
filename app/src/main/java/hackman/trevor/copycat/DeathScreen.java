@@ -43,7 +43,6 @@ public class DeathScreen extends LinearLayout {
 
     private MainActivity main;
     private int screenHeight;
-    private int screenWidth;
 
     TextView txt_score;
     TextView txt_best;
@@ -141,7 +140,6 @@ public class DeathScreen extends LinearLayout {
         super.onLayout(changed, l, t, r, b);
         int height = b-t;
         screenHeight = MainActivity.displayMetrics.heightPixels;
-        screenWidth = MainActivity.displayMetrics.widthPixels;
 
         // For dealing with configuration changes mid-animation
         boolean runAgain = false;
@@ -152,7 +150,7 @@ public class DeathScreen extends LinearLayout {
 
         rollIn = ObjectAnimator.ofFloat(this, "Y", screenHeight, (screenHeight - height)/2);
         rollIn.setDuration(deathScreenInDuration);
-        Animator.AnimatorListener animatorListener = new Animator.AnimatorListener() {
+        Animator.AnimatorListener rollInListener = new Animator.AnimatorListener() {
             @Override public void onAnimationCancel(Animator animation) {}
             @Override public void onAnimationRepeat(Animator animation) {}
 
@@ -172,7 +170,7 @@ public class DeathScreen extends LinearLayout {
 
                 if (!main.inGame) {
                     main.mainButton.setText("");
-                    main.playSymbolButton.setAlpha(1.0f);
+                    main.playSymbolButton.reset();
                     playAgainButton.setClickable(true);
                     mainMenuButton.setClickable(true);
                 }
@@ -182,11 +180,11 @@ public class DeathScreen extends LinearLayout {
 
 
         if (!runAgain) {
-            rollIn.addListener(animatorListener);
+            rollIn.addListener(rollInListener);
         }
         else {
             rollIn.start();
-            rollIn.addListener(animatorListener);
+            rollIn.addListener(rollInListener);
         }
     }
 
