@@ -26,7 +26,7 @@ public class SettingsScreen extends LinearLayout {
     private boolean isSettingsScreenCompletelyUp; // Keeps track of whether screen is completely open (fade in animation over)
     private boolean listenToEnd = true;
 
-    private final int fadeInDuration = 600;
+    private final int fadeInDuration = 500;
     private final int fadeOutDuration = 300;
 
     private MainActivity main;

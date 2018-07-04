@@ -346,6 +346,9 @@ MainActivity extends AppCompatActivity {
         setRequestedOrientation(SCREEN_ORIENTATION_USER);
 
         flexAll();
+
+        // If the animation doesn't load in time, you see the title pre-animation skip to the animation
+        title.setAlpha(0.0f);
     }
 
     void startGame() {

@@ -41,6 +41,8 @@ public class Title extends android.support.v7.widget.AppCompatImageView {
     }
 
     void popIn() {
+        this.setAlpha(1.0f);
+        
         this.setScaleY(0);
         this.setScaleX(0);
         scaleX = ObjectAnimator.ofFloat(this, "scaleX", 1.0f);
