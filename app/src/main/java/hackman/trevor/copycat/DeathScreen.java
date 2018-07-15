@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -13,8 +14,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import hackman.trevor.tlibrary.library.TMath;
-
-import static hackman.trevor.tlibrary.library.TLogging.log;
 
 public class DeathScreen extends LinearLayout {
     private final int deathScreenInDuration = 1000;
@@ -110,7 +109,10 @@ public class DeathScreen extends LinearLayout {
                 final ViewGroup parent = (ViewGroup) deathScreen.getParent();
                 parent.removeView(deathScreen);
                 parent.addView(deathScreen, 0);
-                deathScreen.setTranslationZ(0);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    deathScreen.setTranslationZ(-1);
+                }
+
                 deathScreen.setAlpha(1.0f); // Make visible again
             }
         });
@@ -157,7 +159,9 @@ public class DeathScreen extends LinearLayout {
             @Override
             public void onAnimationStart(Animator animation) {
                 deathScreen.bringToFront();
-                deathScreen.setTranslationZ(999); // Fix for newer APIs handling bringToFront differently with relativeLayout
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    deathScreen.setTranslationZ(999); // Fix for APIS>=21 handling bringToFront differently with relativeLayout
+                }
             }
 
             @Override

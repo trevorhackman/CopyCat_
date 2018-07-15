@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import hackman.trevor.tlibrary.library.TMath;
 
 import static hackman.trevor.copycat.MainActivity.mainFadeDuration;
-import static hackman.trevor.tlibrary.library.TLogging.log;
 
 /**
  * Created by Trevor on 3/14/2018.

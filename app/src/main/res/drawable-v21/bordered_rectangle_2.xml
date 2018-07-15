@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector>
+<ripple android:color="@color/colorAccentDark"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <selector xmlns:android="http://schemas.android.com/apk/res/android">
             <item android:state_pressed="false">
@@ -22,4 +23,4 @@
             </item>
         </selector>
     </item>
-</selector>
+</ripple>

@@ -20,10 +20,10 @@ android {
 
     defaultConfig {
         applicationId "hackman.trevor.copycat"
-        minSdkVersion 21
+        minSdkVersion 19
         targetSdkVersion 27
-        versionCode 26
-        versionName "1.8.1b"
+        versionCode 27
+        versionName "1.8.2"
         multiDexEnabled true
     }
     buildTypes {

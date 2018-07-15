@@ -4,19 +4,18 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import hackman.trevor.tlibrary.library.TMath;
 
-import static hackman.trevor.tlibrary.library.TLogging.log;
 import static hackman.trevor.tlibrary.library.TLogging.report;
 
 public class SettingsScreen extends LinearLayout {
@@ -92,7 +91,10 @@ public class SettingsScreen extends LinearLayout {
                     final ViewGroup parent = (ViewGroup) SettingsScreen.this.getParent();
                     parent.removeView(SettingsScreen.this);
                     parent.addView(SettingsScreen.this, 0);
-                    SettingsScreen.this.setTranslationZ(0); // Bring elevation back to zero
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        SettingsScreen.this.setTranslationZ(-1); // Brings to back
+                    }
+
                     main.mainButtonEnabled = true;
                 }
             }
@@ -187,7 +189,9 @@ public class SettingsScreen extends LinearLayout {
 
         main.mainButtonEnabled = false; // Disable mainbutton while settings are up
         this.bringToFront();
-        this.setTranslationZ(999); // Fix for bringToFront not completely working on newer APIs with relativeLayout
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            this.setTranslationZ(999); // Fix for bringToFront not completely working on newer APIs with relativeLayout
+        }
 
         // Causes fade in from current alpha value which may have been modified since creation
         fadeIn = ObjectAnimator.ofFloat(this, "alpha", 1.0f);

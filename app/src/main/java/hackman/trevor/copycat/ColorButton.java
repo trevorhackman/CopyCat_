@@ -3,11 +3,8 @@ package hackman.trevor.copycat;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 
 import hackman.trevor.tlibrary.library.TMath;
-
-import static hackman.trevor.tlibrary.library.TLogging.log;
 
 public class ColorButton extends android.support.v7.widget.AppCompatImageButton {
     private AndroidSound sound;
@@ -116,5 +113,10 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
 
             returnToNormal();
         }
+    }
+
+    @Override // This is here just to satisfy an android inspection
+    public boolean performClick() {
+        return super.performClick();
     }
 }

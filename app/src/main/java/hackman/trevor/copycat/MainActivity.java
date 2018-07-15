@@ -258,13 +258,13 @@ MainActivity extends AppCompatActivity {
         txt_instructions = findViewById(R.id.instructions);
 
         // Initialize buttons
+        mainButton = findViewById(R.id.mainButton);
+        playSymbolButton = findViewById(R.id.playSymbolButton);
         buttonBar = findViewById(R.id.button_bar);
         settingsButton = findViewById(R.id.settings);
         starButton = findViewById(R.id.star);
         noAdsButton = findViewById(R.id.noAds);
         moreGamesButton = findViewById(R.id.moreGames);
-        mainButton = findViewById(R.id.mainButton);
-        playSymbolButton = findViewById(R.id.playSymbolButton);
         buttonBarArray = new Button[4];
         buttonBarArray[0] = moreGamesButton;
         buttonBarArray[1] = noAdsButton;
@@ -352,6 +352,8 @@ MainActivity extends AppCompatActivity {
     }
 
     void startGame() {
+        flog("Game started");
+
         inGame = true;
         mainButtonEnabled = false;
         txt_instructions.fadeIn();
@@ -552,7 +554,7 @@ MainActivity extends AppCompatActivity {
                 TDialog.createAlertDialog(context, R.string.rate_the_app_title, R.string.rate_the_app_message, R.string.Rate, R.string.Cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        startRateGameIntent(MainActivity.this, getPackageName());
+                        startRateGameIntent(context, getPackageName());
                     }
                 }, new DialogInterface.OnClickListener() {
                     @Override
@@ -637,6 +639,8 @@ MainActivity extends AppCompatActivity {
     }
 
     private void onFailure(int pressed, int correct) {
+        flog("onFailure called");
+
         inGame = false;
         startNextSequence = false;
         sequence.clear();
@@ -683,6 +687,8 @@ MainActivity extends AppCompatActivity {
 
     // End game in progress, reset variables, and return to main menu
     private void exitGameToMainMenu() {
+        flog("Exit to game menu");
+
         inGame = false;
         mainButtonEnabled = true;
         startNextSequence = false;
@@ -831,9 +837,12 @@ MainActivity extends AppCompatActivity {
                         try {
                             flog("Purchase flow started");
                             Bundle buyIntentBundle = null;
-                            try {
+
+                            if (mService != null) {
                                 buyIntentBundle = mService.getBuyIntent(3, getPackageName(), "no_ads", "inapp", "Verified by me");
-                            } catch(NullPointerException e) { // incase mService is null
+                            }
+                            else {
+                                flog("mService is null, purchase flow ended");
                                 AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
                                 builder.setTitle(R.string.Error).setMessage(R.string.null_mService_error_message)
                                         .setNeutralButton(R.string.OK, null)
@@ -842,6 +851,7 @@ MainActivity extends AppCompatActivity {
                                 // Attempt to re-establish billing connection
                                 bindBillingService();
                             }
+
                             if (buyIntentBundle != null) {
                                 PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
 
@@ -914,12 +924,7 @@ MainActivity extends AppCompatActivity {
             else {
                 flog(resultCode + " : " + (resultCode==RESULT_OK));
                 report("Null intent data");
-                AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-                builder.setTitle(R.string.Unknown_Error)
-                        .setMessage(R.string.unknown_null_intent_data)
-                        .setNeutralButton(R.string.OK, null)
-                        .create()
-                        .show();
+                Dialogs.openNullIntentError(this);
             }
         }
         else {

@@ -1,6 +1,6 @@
 <resources>
     <!-- Descriptive string resources-->
-    <string name="version_number">1.8.0</string>
+    <string name="version_number">1.8.2</string>
     <string name="app_name">Simon Says</string>
     <string name="rate_the_app_title">Rate the app</string>
     <string name="rate_the_app_message">Simon Says is made by a single person so your reviews mean a lot. Thank you for the effort. </string>

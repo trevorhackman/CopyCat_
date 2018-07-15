@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 
 import hackman.trevor.tlibrary.library.TMath;
 
-import static hackman.trevor.tlibrary.library.TLogging.log;
-
 public class MainButton extends AppCompatButton {
 
     public MainButton(Context context, AttributeSet attributeSet) {

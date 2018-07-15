@@ -1,9 +1,10 @@
 package hackman.trevor.copycat;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.Build;
 
-import static hackman.trevor.tlibrary.library.TLogging.log;
 import static hackman.trevor.tlibrary.library.TLogging.report;
 
 /*
@@ -29,9 +30,14 @@ public class AndroidSound {
     }
 
     static void newSoundPool() {
-        soundPool = new SoundPool.Builder()
-                .setMaxStreams(20)
-                .build();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            soundPool = new SoundPool.Builder()
+                    .setMaxStreams(20)
+                    .build();
+        }
+        else {
+            soundPool = new SoundPool(20, AudioManager.STREAM_MUSIC, 0);
+        }
     }
 
     static void loadSounds(Context context) {
