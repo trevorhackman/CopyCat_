@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CopyCat.iml" filepath="$PROJECT_DIR$/CopyCat.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CopyCat_.iml" filepath="$PROJECT_DIR$/CopyCat_.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/tlibrary/tlibrary.iml" filepath="$PROJECT_DIR$/tlibrary/tlibrary.iml" />
     </modules>

@@ -132,7 +132,7 @@ MainActivity extends AppCompatActivity {
             case BLUE:
                 return blueButton;
         }
-        return null;
+        throw new IllegalArgumentException("No such color: 135");
     }
 
     // Tracks whether or not the game is stopped
@@ -617,6 +617,7 @@ MainActivity extends AppCompatActivity {
                         }
                         return true;
                     } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                        button.performClick(); // To satisfy inspector
                         button.returnToNormal();
 
                         if (startNextSequence) {
