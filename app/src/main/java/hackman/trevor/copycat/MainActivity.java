@@ -73,8 +73,8 @@ MainActivity extends AppCompatActivity {
             mService = IInAppBillingService.Stub.asInterface(service);
             flog("mServiceConn connected");
 
-            noAdsStatus = isNoAdsPurchased(); // We have to wait for connection else nullReferenceError
-            if (noAdsStatus == NOT_OWNED)
+            noAdsStatusResult = isNoAdsPurchased(); // We have to wait for connection else nullReferenceError
+            if (noAdsStatusResult == NOT_OWNED)
                 requestNewInterstitial();
         }
 
@@ -184,7 +184,7 @@ MainActivity extends AppCompatActivity {
     static DisplayMetrics displayMetrics = new DisplayMetrics();
 
     // Declare variables
-    MainActivity.noAdsStatus noAdsStatus; // Tracks the response from isNoAdsPurchased()
+    MainActivity.noAdsStatus noAdsStatusResult; // Tracks the response from isNoAdsPurchased()
     boolean allowColorInput; // Close input while sequence is playing, open when it's the player's turn to repeat
     boolean inGame; // Keeps track of whether in game or not
     boolean mainButtonEnabled; // Enables and disables main button, effectively tracks when game is allowed to start
@@ -662,7 +662,7 @@ MainActivity extends AppCompatActivity {
 
         // Check for Ad
         // Don't display ad on the very first play
-        if (noAdsStatus == NOT_OWNED && gamesCompleted > 1) {
+        if (noAdsStatusResult == NOT_OWNED && gamesCompleted > 1) {
             if (interstitialAd.isLoaded()) {
                 double rollForAd = random.nextDouble(); // Double in range [0.0, 1.0)
                 if (rollForAd < 0.38) { // 38% chance for ad
@@ -674,8 +674,8 @@ MainActivity extends AppCompatActivity {
             else if (!interstitialAd.isLoading()) requestNewInterstitial();
         }
         // If request failed, request again until success, don't show Ad unless sure NOT_OWNED
-        else if (noAdsStatus == REQUEST_FAILED) {
-            noAdsStatus = isNoAdsPurchased();
+        else if (noAdsStatusResult == REQUEST_FAILED) {
+            noAdsStatusResult = isNoAdsPurchased();
         }
         // else OWNED, don't roll for ads or send more requests
 
@@ -832,69 +832,66 @@ MainActivity extends AppCompatActivity {
         noAdsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TDialog.createAlertDialog(context, R.string.no_ads_title, R.string.no_ads_message, R.string.Purchase, R.string.Cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        try {
-                            flog("Purchase flow started");
-                            Bundle buyIntentBundle = null;
+                // Null check
+                if (noAdsStatusResult == null) { report("noAdsStatusResult should never be null 836"); }
 
-                            if (mService != null) {
-                                buyIntentBundle = mService.getBuyIntent(3, getPackageName(), "no_ads", "inapp", "Verified by me");
-                            }
-                            else {
-                                flog("mService is null, purchase flow ended");
-                                AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-                                builder.setTitle(R.string.Error).setMessage(R.string.null_mService_error_message)
-                                        .setNeutralButton(R.string.OK, null)
-                                        .create()
-                                        .show();
-                                // Attempt to re-establish billing connection
-                                bindBillingService();
-                            }
+                // We know product is already owned
+                else if (noAdsStatusResult == OWNED) {
+                    Dialogs.noAdsAlreadyPurchased(context);
+                }
+                else {
+                    if (noAdsStatusResult == REQUEST_FAILED) noAdsStatusResult = isNoAdsPurchased(); // Query again if necessary
 
-                            if (buyIntentBundle != null) {
-                                PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
+                    TDialog.createAlertDialog(context, R.string.no_ads_title, R.string.no_ads_message, R.string.Purchase, R.string.Cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            try {
+                                flog("Purchase flow started");
+                                Bundle buyIntentBundle = null;
 
-                                if (pendingIntent != null) {
-                                    IntentSender intentSender = pendingIntent.getIntentSender();
-                                    if (intentSender != null)
-                                        startIntentSenderForResult(intentSender, BILLING_REQUEST_CODE, new Intent(), 0, 0, 0);
-                                    else {
-                                        report("intentSender is null");
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-                                        builder.setTitle(R.string.Unknown_Error)
-                                                .setNeutralButton(R.string.OK, null)
-                                                .create()
-                                                .show();
-                                    } // This happens when item is already purchased? // TODO Test
+                                if (mService != null) {
+                                    buyIntentBundle = mService.getBuyIntent(3, getPackageName(), "no_ads", "inapp", "Verified by me");
                                 } else {
-                                    report("noAdsButton clicked: pendingIntent is null; suspect no Google Account logged into Android device");
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-                                    builder.setTitle(R.string.Error).setMessage(R.string.null_intent_sender_error_message)
-                                            .setNeutralButton(R.string.OK, null)
-                                            .create()
-                                            .show();
+                                    flog("mService is null, purchase flow ended");
+                                    Dialogs.nullmServiceError(context);
+                                    // Attempt to re-establish billing connection
+                                    bindBillingService();
+                                }
+
+                                if (buyIntentBundle != null) {
+                                    PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
+
+                                    if (pendingIntent != null) {
+                                        IntentSender intentSender = pendingIntent.getIntentSender();
+                                        if (intentSender != null)
+                                            startIntentSenderForResult(intentSender, BILLING_REQUEST_CODE, new Intent(), 0, 0, 0);
+                                        else {
+                                            report("intentSender is null");
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+                                            builder.setTitle(R.string.Unknown_Error)
+                                                    .setNeutralButton(R.string.OK, null)
+                                                    .create()
+                                                    .show();
+                                        }
+                                    } else { // I believe this happens when item is already purchased // TODO test
+                                        report("noAdsButton clicked: pendingIntent is null; already purchased? No Google Account logged in? Other Reason?");
+                                        Dialogs.nullPendingIntentSenderError(context);
+                                    }
                                 }
                             }
+                            // DeadObjectException (A type of RemoteException) happens when (but uncertain if limited to) mService is not null, but mServiceConn has disconnected
+                            catch (RemoteException | IntentSender.SendIntentException e) {
+                                TLogging.report(e);
+                                Dialogs.remoteException(context);
+                            }
                         }
-                        // DeadObjectException (A type of RemoteException) happens when (but uncertain if limited to) mService is not null, but mServiceConn has disconnected
-                        catch (RemoteException | IntentSender.SendIntentException e) {
-                            TLogging.report(e);
-                            AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-                            builder.setTitle(R.string.Unknown_Error)
-                                    .setMessage(R.string.unknown_remote_exception)
-                                    .setNeutralButton(R.string.OK, null)
-                                    .create()
-                                    .show();
+                    }, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // Dialog closes by default
                         }
-                    }
-                }, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // Dialog closes by default
-                    }
-                });
+                    });
+                }
             }
         });
     }
@@ -912,6 +909,7 @@ MainActivity extends AppCompatActivity {
                         JSONObject jo = new JSONObject(purchaseData);
                         String productId = jo.getString("productId");
                         flog("You have bought the " + productId + " item!");
+                        Dialogs.successfulNoAdsPurchase(context);
                     } catch (JSONException e) {
                         flog("Failed to parse purchase data: " + purchaseData);
                         report(e);
@@ -925,7 +923,7 @@ MainActivity extends AppCompatActivity {
             else {
                 flog(resultCode + " : " + (resultCode==RESULT_OK));
                 report("Null intent data");
-                Dialogs.openNullIntentError(this);
+                Dialogs.nullIntentError(context);
             }
         }
         else {
@@ -958,6 +956,7 @@ MainActivity extends AppCompatActivity {
                     }
                     else {
                         flog("Query for no_ads purchase failed: ownedProducts is null");
+                        report("Null ownedProducts 971");
                         return REQUEST_FAILED;
                     }
                 }
