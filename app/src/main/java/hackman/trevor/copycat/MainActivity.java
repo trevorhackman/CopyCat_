@@ -57,8 +57,7 @@ import static hackman.trevor.tlibrary.library.TLogging.report;
 import static hackman.trevor.tlibrary.library.TMiscellaneous.startMoreGamesIntent;
 import static hackman.trevor.tlibrary.library.TMiscellaneous.startRateGameIntent;
 
-public class
-MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
     // Ad
     InterstitialAd interstitialAd;
 
