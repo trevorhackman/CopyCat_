@@ -80,14 +80,14 @@
 
     <hackman.trevor.copycat.MainButton
         android:id="@+id/mainButton"
-        android:layout_width="200px"
-        android:layout_height="200px"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_centerInParent="true"
         android:background="@drawable/circle"
         android:clickable="false"
         android:textAlignment="center"
         android:textColor="#ffffff"
-        android:textSize="100px"
+        android:textSize="100dp"
         android:textStyle="bold"
         tools:ignore="SpUsage" />
 

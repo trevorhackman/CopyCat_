@@ -21,7 +21,8 @@
         android:textAppearance="@style/DeathScreenText"
         android:textSize="40dp"
         android:textStyle="bold|italic"
-        tools:ignore="SpUsage" />
+        tools:ignore="SpUsage"
+        android:gravity="center"/>
 
     <ImageView
         android:id="@+id/divider0"
@@ -49,6 +50,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="left"
             android:text="@string/Score"
             android:textAppearance="@style/DeathScreenText" />
 
@@ -57,6 +59,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="left"
             android:text="123"
             android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText"
@@ -80,7 +83,9 @@
             android:id="@+id/txt_best"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
             android:layout_weight="1"
+            android:gravity="left"
             android:text="@string/Best"
             android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText" />
@@ -89,7 +94,9 @@
             android:id="@+id/best"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
             android:layout_weight="1"
+            android:gravity="left"
             android:text="321"
             android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText"
@@ -112,7 +119,9 @@
             android:id="@+id/txt_pressed"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
             android:layout_weight="1"
+            android:gravity="left"
             android:text="@string/Pressed"
             android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText" />
@@ -121,7 +130,9 @@
             android:id="@+id/pressed"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
             android:layout_weight="1"
+            android:gravity="left"
             android:text="Green"
             android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText"
@@ -145,7 +156,9 @@
             android:id="@+id/txt_correct"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
             android:layout_weight="1"
+            android:gravity="left"
             android:text="@string/Correct"
             android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText" />
@@ -154,7 +167,9 @@
             android:id="@+id/correct"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
             android:layout_weight="1"
+            android:gravity="left"
             android:text="Bottom Right"
             android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText"

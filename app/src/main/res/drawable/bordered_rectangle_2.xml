@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector>
-    <item>
         <selector xmlns:android="http://schemas.android.com/apk/res/android">
-            <item android:state_pressed="false">
+            <item android:state_pressed="false" android:state_enabled="true">
                 <shape android:shape="rectangle">
                     <stroke android:color="@color/colorAccent" android:width="3dp" />
                     <solid android:color="@color/colorAccentLightLight"/>
                 </shape>
             </item>
-            <item android:state_pressed="true">
+            <item android:state_pressed="true" android:state_enabled="true" >
                 <shape android:shape="rectangle">
                     <stroke android:color="@color/colorAccentDark" android:width="5dp" />
                     <!--<solid android:color="@color/colorAccentLight"/>-->
@@ -20,6 +18,10 @@
                         />
                 </shape>
             </item>
+            <item android:state_enabled="false">
+                <shape android:shape="rectangle">
+                    <stroke android:color="@color/colorAccent" android:width="3dp" />
+                    <solid android:color="@color/colorAccentLightLight"/>
+                </shape>
+            </item>
         </selector>
-    </item>
-</selector>

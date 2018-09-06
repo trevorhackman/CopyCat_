@@ -11,7 +11,7 @@ import hackman.trevor.tlibrary.library.TMath;
  */
 public class ExampleUnitTest {
     @Test
-    public void test() throws Exception {
+    public void test() {
         System.out.print(TMath.complementaryColor(0x40FF00));
         System.out.print(TMath.complementaryColor(0xFF4000));
         System.out.print(TMath.complementaryColor(0xFFFF40));

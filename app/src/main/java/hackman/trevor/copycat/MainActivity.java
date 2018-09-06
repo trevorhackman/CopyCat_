@@ -11,9 +11,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -39,18 +41,17 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Random;
 
-import hackman.trevor.tlibrary.library.TDialog;
 import hackman.trevor.tlibrary.library.TLogging;
 import hackman.trevor.tlibrary.library.TMath;
 import hackman.trevor.tlibrary.library.TPreferences;
 import io.fabric.sdk.android.Fabric;
 
-import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LOCKED;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER;
 import static hackman.trevor.copycat.AndroidSound.sounds;
 import static hackman.trevor.copycat.MainActivity.noAdsStatus.NOT_OWNED;
 import static hackman.trevor.copycat.MainActivity.noAdsStatus.OWNED;
 import static hackman.trevor.copycat.MainActivity.noAdsStatus.REQUEST_FAILED;
+import static hackman.trevor.tlibrary.library.TLogging.TESTING;
 import static hackman.trevor.tlibrary.library.TLogging.flog;
 import static hackman.trevor.tlibrary.library.TLogging.log;
 import static hackman.trevor.tlibrary.library.TLogging.report;
@@ -210,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         getScreenDimensions();
 
         // Log start of app and screen size
-        flog("Activity Start: Screen:["+ displayMetrics.heightPixels + "p by " + displayMetrics.widthPixels + "p]");
+        flog("Activity Create: Screen:["+ displayMetrics.heightPixels + "p by " + displayMetrics.widthPixels + "p]");
 
         // Initialize miscellaneous objects
         runner = new Runner();
@@ -361,8 +362,12 @@ public class MainActivity extends AppCompatActivity {
         String level_text = "" + level;
         mainButton.setText(level_text);
 
+        // Keep screen from rotating during game to prevent confusion
         // Multi-screen orientation changes ignore this setting, but I guess that's okay
-        setRequestedOrientation(SCREEN_ORIENTATION_LOCKED);
+        // Doesn't work VERSION < 18, but I guess that's okay too
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+        }
 
         for (ColorButton c: colorButtons) {
             c.returnToNormal();
@@ -550,17 +555,18 @@ public class MainActivity extends AppCompatActivity {
         starButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TDialog.createAlertDialog(context, R.string.rate_the_app_title, R.string.rate_the_app_message, R.string.Rate, R.string.Cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startRateGameIntent(context, getPackageName());
-                    }
-                }, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // Dialog closes by default
-                    }
-                });
+                AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+                builder.setTitle(R.string.rate_the_app_title)
+                        .setMessage(R.string.rate_the_app_message)
+                        .setPositiveButton(R.string.Rate, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startRateGameIntent(context, getPackageName());
+                            }
+                        })
+                        .setNegativeButton(R.string.Cancel, null)
+                        .create()
+                        .show();
             }
         });
     }
@@ -569,17 +575,18 @@ public class MainActivity extends AppCompatActivity {
         moreGamesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TDialog.createAlertDialog(context, R.string.more_games_title, R.string.more_games_message, R.string.View, R.string.Cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startMoreGamesIntent(MainActivity.this);
-                    }
-                }, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // Dialog closes by default
-                    }
-                });
+                AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+                builder.setTitle(R.string.more_games_title)
+                        .setMessage(R.string.more_games_message)
+                        .setPositiveButton(R.string.View, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startMoreGamesIntent(MainActivity.this);
+                            }
+                        })
+                        .setNegativeButton(R.string.Cancel, null)
+                        .create()
+                        .show();
             }
         });
     }
@@ -729,21 +736,24 @@ public class MainActivity extends AppCompatActivity {
         }
         else if (inGame) {
             if (level > 2) { // 'level > 2' not worth bothering to ask if only just started the game
-                TDialog.createAlertDialog(context, R.string.exit_title, R.string.exit_message, R.string.Exit_App, R.string.Menu, R.string.Cancel,
-                        // Positive listener
-                        new DialogInterface.OnClickListener() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+                builder.setTitle(R.string.exit_title)
+                        .setMessage(R.string.exit_message)
+                        .setPositiveButton(R.string.Exit_App, new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
+                            public void onClick(DialogInterface dialog, int which) {
                                 MainActivity.super.onBackPressed();
                             }
-                        },
-                        // Neutral listener
-                        new DialogInterface.OnClickListener() {
+                        })
+                        .setNeutralButton(R.string.Menu, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 exitGameToMainMenu();
                             }
-                        });
+                        })
+                        .setNegativeButton(R.string.Cancel, null)
+                        .create()
+                        .show();
             }
             else { exitGameToMainMenu(); }
         }
@@ -776,6 +786,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Fixes bug, in the case sequence is completed but before finger is lifted app becomes paused, never detecting finger lift
         if (startNextSequence) startSequence();
+
+        flog("Activity Resume");
     }
 
     @Override // Better indication of when the activity becomes visible than onResume
@@ -791,6 +803,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
+        flog("Activity Pause");
     }
 
     @Override
@@ -816,12 +829,53 @@ public class MainActivity extends AppCompatActivity {
         if (AndroidSound.soundPool != null) {
             AndroidSound.release();
         }
+
+        // Log Destruction
+        flog("Activity Destroyed");
     }
 
 
     private void requestNewInterstitial() {
         AdRequest adRequest = new AdRequest.Builder().build();
         interstitialAd.loadAd(adRequest);
+    }
+
+    void noAdsOnClick() {
+        try {
+            flog("Purchase flow started");
+            Bundle buyIntentBundle = null;
+
+            if (mService != null) {
+                buyIntentBundle = mService.getBuyIntent(3, getPackageName(), "no_ads", "inapp", "Verified by me");
+            } else {
+                flog("mService is null, purchase flow ended");
+                Dialogs.nullmServiceError(context);
+                // Attempt to re-establish billing connection
+                bindBillingService();
+            }
+
+            if (buyIntentBundle != null) {
+                PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
+
+                if (pendingIntent != null) {
+                    IntentSender intentSender = pendingIntent.getIntentSender();
+                    if (intentSender != null)
+                        startIntentSenderForResult(intentSender, BILLING_REQUEST_CODE, new Intent(), 0, 0, 0);
+                    else {
+                        report("intentSender is null");
+                        Dialogs.nullIntentSenderError(context);
+                    }
+                } else { // I believe this happens when item is already purchased // TODO test
+                    report("noAdsButton clicked: pendingIntent is null; already purchased? No Google Account logged in? Other Reason?");
+                    Dialogs.nullPendingIntentError(context);
+                }
+            }
+        }
+        // DeadObjectException (A type of RemoteException) happens when (but uncertain if limited to) mService is not null, but mServiceConn has disconnected
+        catch (RemoteException | IntentSender.SendIntentException e) {
+            TLogging.report(e);
+            Dialogs.remoteException(context);
+        }
     }
 
 
@@ -832,7 +886,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Null check
-                if (noAdsStatusResult == null) { report("noAdsStatusResult should never be null 836"); }
+                if (noAdsStatusResult == null && !TESTING) { report("noAdsStatusResult should never be null 836"); }
 
                 // We know product is already owned
                 else if (noAdsStatusResult == OWNED) {
@@ -841,55 +895,18 @@ public class MainActivity extends AppCompatActivity {
                 else {
                     if (noAdsStatusResult == REQUEST_FAILED) noAdsStatusResult = isNoAdsPurchased(); // Query again if necessary
 
-                    TDialog.createAlertDialog(context, R.string.no_ads_title, R.string.no_ads_message, R.string.Purchase, R.string.Cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            try {
-                                flog("Purchase flow started");
-                                Bundle buyIntentBundle = null;
-
-                                if (mService != null) {
-                                    buyIntentBundle = mService.getBuyIntent(3, getPackageName(), "no_ads", "inapp", "Verified by me");
-                                } else {
-                                    flog("mService is null, purchase flow ended");
-                                    Dialogs.nullmServiceError(context);
-                                    // Attempt to re-establish billing connection
-                                    bindBillingService();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+                    builder.setTitle(R.string.no_ads_title)
+                            .setMessage(R.string.no_ads_message)
+                            .setPositiveButton(R.string.Purchase, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    noAdsOnClick();
                                 }
-
-                                if (buyIntentBundle != null) {
-                                    PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
-
-                                    if (pendingIntent != null) {
-                                        IntentSender intentSender = pendingIntent.getIntentSender();
-                                        if (intentSender != null)
-                                            startIntentSenderForResult(intentSender, BILLING_REQUEST_CODE, new Intent(), 0, 0, 0);
-                                        else {
-                                            report("intentSender is null");
-                                            AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-                                            builder.setTitle(R.string.Unknown_Error)
-                                                    .setNeutralButton(R.string.OK, null)
-                                                    .create()
-                                                    .show();
-                                        }
-                                    } else { // I believe this happens when item is already purchased // TODO test
-                                        report("noAdsButton clicked: pendingIntent is null; already purchased? No Google Account logged in? Other Reason?");
-                                        Dialogs.nullPendingIntentSenderError(context);
-                                    }
-                                }
-                            }
-                            // DeadObjectException (A type of RemoteException) happens when (but uncertain if limited to) mService is not null, but mServiceConn has disconnected
-                            catch (RemoteException | IntentSender.SendIntentException e) {
-                                TLogging.report(e);
-                                Dialogs.remoteException(context);
-                            }
-                        }
-                    }, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // Dialog closes by default
-                        }
-                    });
+                            })
+                            .setNegativeButton(R.string.Cancel, null)
+                            .create()
+                            .show();
                 }
             }
         });

@@ -23,10 +23,7 @@ public final class TCollision {
         if (y > blockSize / 2 + radius || x > blockSize / 2 + radius)
             return false;
         // Hard False
-        if (y > blockSize / 2 && x > blockSize / 2 && (x - blockSize / 2) * (x - blockSize / 2) + (y - blockSize / 2) * (y - blockSize / 2) > radius * radius)
-            return false;
-        // Else True
-        return true;
+        return !(y > blockSize / 2) || !(x > blockSize / 2) || !((x - blockSize / 2) * (x - blockSize / 2) + (y - blockSize / 2) * (y - blockSize / 2) > radius * radius);
     }
 
     public static boolean collisionBetweenCircleAndRectangle(double circleX, double circleY, double radius, double blockX, double blockY, double blockWidth, double blockHeight) {
@@ -43,9 +40,6 @@ public final class TCollision {
         if (y > blockHeight / 2 + radius || x > blockWidth / 2 + radius)
             return false;
         // Hard False
-        if (y > blockHeight / 2 && x > blockWidth / 2 && (x - blockWidth / 2) * (x - blockWidth / 2) + (y - blockHeight / 2) * (y - blockHeight / 2) > radius * radius)
-            return false;
-        // Else True
-        return true;
+        return !(y > blockHeight / 2) || !(x > blockWidth / 2) || !((x - blockWidth / 2) * (x - blockWidth / 2) + (y - blockHeight / 2) * (y - blockHeight / 2) > radius * radius);
     }
 }

@@ -158,15 +158,25 @@ public class DeathScreen extends LinearLayout {
 
             @Override
             public void onAnimationStart(Animator animation) {
+                // Prevent buttons from being clickable, from going to press state, and visually show that they're disabled during animation
+                mainMenuButton.setEnabled(false);
+                playAgainButton.setEnabled(false);
+
                 deathScreen.bringToFront();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    deathScreen.setTranslationZ(999); // Fix for APIS>=21 handling bringToFront differently with relativeLayout
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) { // Required pre-Kitkat for layouts coming to front to be visible
+                    getParent().requestLayout();
+                    ((View) getParent()).invalidate();
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // TranslationZ/elevation added in api 21
+                    deathScreen.setTranslationZ(999);
                 }
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
                 isDeathScreenUp = true;
+                mainMenuButton.setEnabled(true);
+                playAgainButton.setEnabled(true);
 
                 // Make deathscreen buttons clickable once completely animated in
                 playAgainButton.setClickable(true);

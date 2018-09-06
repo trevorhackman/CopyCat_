@@ -71,11 +71,14 @@ public class SettingsScreen extends LinearLayout {
         setArrowButtons();
 
         fadeInListener = new Animator.AnimatorListener() {
-            @Override public void onAnimationStart(Animator animator) { }
+            @Override public void onAnimationStart(Animator animator) {
+                settingsCloseButton.setEnabled(false); // Prevent weirdness while opening (disables clicking) and visually shows the button as disabled
+            }
             @Override public void onAnimationRepeat(Animator animator) { }
             @Override public void onAnimationCancel(Animator animator) { }
             @Override public void onAnimationEnd(Animator animator) {
                 isSettingsScreenCompletelyUp = true;
+                settingsCloseButton.setEnabled(true);
             }
         };
 
@@ -189,6 +192,10 @@ public class SettingsScreen extends LinearLayout {
 
         main.mainButtonEnabled = false; // Disable mainbutton while settings are up
         this.bringToFront();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            getParent().requestLayout();
+            ((View) getParent()).invalidate();
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             this.setTranslationZ(999); // Fix for bringToFront not completely working on newer APIs with relativeLayout
         }

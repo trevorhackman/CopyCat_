@@ -91,7 +91,7 @@ public final class TLogging {
         log(string, VERBOSE);
     }
 
-    // Logs to logcat and to firebase
+    // If testing logs to logcat, else logs to Firebase
     // Note: Firebase log is only recieved if there is an fatal crash or non-fatal exception
     public static void flog(String string) {
         lastLog = string;

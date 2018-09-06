@@ -39,9 +39,9 @@ public enum Dialogs {;
                 .show();
     }
 
-    public static void nullPendingIntentSenderError(Context context) {
+    public static void nullPendingIntentError(Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-        builder.setTitle(R.string.Error).setMessage(R.string.null_intent_sender_error_message)
+        builder.setTitle(R.string.Error).setMessage(R.string.null_pending_intent_error_message)
                 .setNeutralButton(R.string.OK, null)
                 .create()
                 .show();
@@ -52,6 +52,15 @@ public enum Dialogs {;
         builder.setTitle(R.string.Unknown_Error)
                 .setMessage(R.string.unknown_remote_exception)
                 .setNeutralButton(R.string.OK, null)
+                .create()
+                .show();
+    }
+
+    public static void nullIntentSenderError(Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+        builder.setTitle(R.string.Unknown_Error)
+                .setNeutralButton(R.string.OK, null)
+                .setMessage(R.string.unknown_null_intent_sender)
                 .create()
                 .show();
     }
