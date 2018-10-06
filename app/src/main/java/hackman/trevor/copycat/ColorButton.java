@@ -31,10 +31,10 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
         // Balancing the volume out some b/c the higher pitched notes 'sound' louder than lower pitched notes
         float volume = 1;
         switch(number) {
-            case 0: volume = .7f; break;
-            case 1: volume = .8f; break;
-            case 2: volume = .9f; break;
-            // case 3: volume = 1; break; // default makes this unneceessary
+            case 0: volume = .67f; break;
+            case 1: volume = .78f; break;
+            case 2: volume = .89f; break;
+            // case 3: volume = 1; break; // default makes this unnecessary
         }
         sound.play(volume);
     }
@@ -113,10 +113,5 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
 
             returnToNormal();
         }
-    }
-
-    @Override // This is here just to satisfy an android inspection
-    public boolean performClick() {
-        return super.performClick();
     }
 }

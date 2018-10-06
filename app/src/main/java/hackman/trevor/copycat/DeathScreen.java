@@ -309,6 +309,9 @@ public class DeathScreen extends LinearLayout {
 
                 // Fade in UI
                 main.mainFadeInAnimation();
+
+                // Play button sound
+                AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
             }
         });
         mainMenuButton.setClickable(false); // setOnClickListener resets clickable to true, so we need to set it to false here
@@ -323,6 +326,9 @@ public class DeathScreen extends LinearLayout {
                 main.startGameAfterFadeOut = true;
                 main.mainButton.setText("1"); // Starting level is always 1
                 deathScreen.animateOut();
+
+                // Play button sound
+                AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
             }
         });
         playAgainButton.setClickable(false); // setOnClickListener resets clickable to true, so we need to set it to false here

@@ -107,11 +107,6 @@ public class SettingsScreen extends LinearLayout {
         fadeOut.addListener(fadeOutListener);
     }
 
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
-    }
-
     boolean isSettingsScreenUp() {
         return isSettingsScreenUp;
     }
@@ -229,6 +224,9 @@ public class SettingsScreen extends LinearLayout {
             @Override
             public void onClick(View view) {
                 close();
+
+                // Play button sound
+                AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
             }
         });
     }
@@ -242,6 +240,9 @@ public class SettingsScreen extends LinearLayout {
                     if (speedSetting < INSANE) {
                         main.myPreferences.putInt("speed", ++speedSetting);
                         setSpeed();
+
+                        // Play button sound
+                        AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
                     }
                 }
             }
@@ -255,6 +256,9 @@ public class SettingsScreen extends LinearLayout {
                     if (speedSetting > NORMAL) {
                         main.myPreferences.putInt("speed", --speedSetting);
                         setSpeed();
+
+                        // Play button sound
+                        AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
                     }
                 }
             }
@@ -268,6 +272,9 @@ public class SettingsScreen extends LinearLayout {
                     if (colorsSetting < GREYED) {
                         main.myPreferences.putInt("colors", ++colorsSetting);
                         setColors();
+
+                        // Play button sound
+                        AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
                     }
                 }
             }
@@ -281,6 +288,9 @@ public class SettingsScreen extends LinearLayout {
                     if (colorsSetting > CLASSIC) {
                         main.myPreferences.putInt("colors", --colorsSetting);
                         setColors();
+
+                        // Play button sound
+                        AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
                     }
                 }
             }

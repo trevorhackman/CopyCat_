@@ -23,8 +23,7 @@ public enum TMath {;
     public static float convertMdToPixel(float md, Context context) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         int minDimension = Math.min(metrics.heightPixels, metrics.widthPixels);
-        float px = md * minDimension / 360;
-        return px;
+        return md * minDimension / 360;
     }
 
     /**
@@ -37,8 +36,7 @@ public enum TMath {;
      */
     public static float convertHpToPixel(float hp, Context context) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        float px = hp * metrics.heightPixels / 640;
-        return px;
+        return hp * metrics.heightPixels / 640;
     }
 
     /**
@@ -50,8 +48,7 @@ public enum TMath {;
      */
     public static float convertWpToPixel(float wp, Context context) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        float px = wp * metrics.widthPixels / 360;
-        return px;
+        return wp * metrics.widthPixels / 360;
     }
 
     /**
@@ -63,8 +60,7 @@ public enum TMath {;
      */
     public static float convertDpToPixel(float dp, Context context) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        float px = dp * (metrics.xdpi / (float)metrics.densityDpi);
-        return px;
+        return dp * (metrics.xdpi / (float)metrics.densityDpi);
     }
 
     /**
@@ -76,8 +72,7 @@ public enum TMath {;
      */
     public static float convertPixelsToDp(float px, Context context){
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        float dp = px / (metrics.xdpi / (float)metrics.densityDpi);
-        return dp;
+        return px / (metrics.xdpi / (float)metrics.densityDpi);
     }
 
     // Turns an int into its corresponding 'excel column' form. That is 1, 2, 3... into A, B, C, ... Z, AA, AB, AC, ... AZ, BA, BB, ... ZZ, AAA, ...

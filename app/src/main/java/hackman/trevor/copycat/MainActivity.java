@@ -347,8 +347,13 @@ public class MainActivity extends AppCompatActivity {
 
         flexAll();
 
-        // If the animation doesn't load in time, you see the title pre-animation skip to the animation
+        // Bug fix: If the animation doesn't load in time, you see the title pre-animation skip to the animation
         title.setAlpha(0.0f);
+
+        // TODO Find good start sound and figure out solution to loading issue.
+        // Loading issue: Turns out sounds don't load instantly, and potentially variably, so difficulties ensure with playing sound right on startup
+        // Play start sound
+        // playStartSound();
     }
 
     void startGame() {
@@ -546,6 +551,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (!settingsScreen.isSettingsScreenUp()) {
                     settingsScreen.display();
+
+                    // Play button sound
+                    AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
                 }
             }
         });
@@ -567,6 +575,9 @@ public class MainActivity extends AppCompatActivity {
                         .setNegativeButton(R.string.Cancel, null)
                         .create()
                         .show();
+
+                // Play button sound
+                AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
             }
         });
     }
@@ -587,6 +598,9 @@ public class MainActivity extends AppCompatActivity {
                         .setNegativeButton(R.string.Cancel, null)
                         .create()
                         .show();
+
+                // Play button sound
+                AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
             }
         });
     }
@@ -761,6 +775,23 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed(); // Exits app
         }
     }
+
+    // Loading start sound takes time and is done on a different thread, and there's no onLoadListener..., and sound fails to play if not loaded, so we guess 100ms
+    // In case of failure, retry every 100ms until success
+    /*private void playStartSound() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Play startup sound
+                int x = AndroidSound.sounds[0].playRegardless(0.5f);
+                log("ATTEMPT: " + x);
+
+                // A return of 1 means success, if failure, try again in 100 milliseconds
+                if (x != 1) playStartSound();
+            }
+        }, 100);
+    }*/
+
     @Override
     public void onStart() {
         super.onStart();
@@ -777,6 +808,8 @@ public class MainActivity extends AppCompatActivity {
             AndroidSound.newSoundPool();
             AndroidSound.loadSounds(context);
         }
+
+        flog("Activity Start");
     }
 
     @Override
@@ -816,6 +849,11 @@ public class MainActivity extends AppCompatActivity {
         if (AndroidSound.soundPool != null) { // Bug, unsure of the cause, that causes release to be called when things are already released
             AndroidSound.release();
         }
+        else {
+            log("SOUNDPOOL ALREADY NULL");
+        }
+
+        flog("Activity Stop");
     }
 
     @Override
@@ -908,6 +946,9 @@ public class MainActivity extends AppCompatActivity {
                             .create()
                             .show();
                 }
+
+                // Play button sound
+                AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
             }
         });
     }

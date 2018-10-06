@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- For v > 21 : android:navigationBarColor is the difference -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowFullscreen">true</item> <!-- This makes app full screen -->
-        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
+        <item name="android:soundEffectsEnabled">false</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryDark</item> <!-- Navigation bar is the software bar on the bottom containing home, back, and overview buttons -->
     </style>
 </resources>

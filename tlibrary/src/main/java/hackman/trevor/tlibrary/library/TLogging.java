@@ -17,7 +17,7 @@ import static android.util.Log.WARN;
 public final class TLogging {
     private TLogging() {} // Private constructor to stop instances of this class, everything is static so instances are pointless
 
-    public static final boolean TESTING = false; // TODO Make this false for release, keep true for testing
+    public static final boolean TESTING = true; // TODO Make this false for release, keep true for testing
     private static int charTracker = 0;
     private static String lastLog = "Default";
     private static boolean crashlyticsEnabled = true;
@@ -53,7 +53,8 @@ public final class TLogging {
         }
     }
 
-    private static String getTag() {
+    // synchronized to be thread-safe just in case
+    private synchronized static String getTag() {
         // The TT_ is to make my logs filterable in the logcat by searching for TT, there's shitloads of other logs from other sources that I'm largely not interested in
         return "TT_" + TMath.intToExcelColName(++charTracker);
     }
