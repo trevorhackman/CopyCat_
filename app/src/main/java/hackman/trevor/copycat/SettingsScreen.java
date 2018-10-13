@@ -226,7 +226,7 @@ public class SettingsScreen extends LinearLayout {
                 close();
 
                 // Play button sound
-                AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
+                AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
             }
         });
     }
@@ -242,7 +242,7 @@ public class SettingsScreen extends LinearLayout {
                         setSpeed();
 
                         // Play button sound
-                        AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
+                        AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
                     }
                 }
             }
@@ -258,7 +258,7 @@ public class SettingsScreen extends LinearLayout {
                         setSpeed();
 
                         // Play button sound
-                        AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
+                        AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
                     }
                 }
             }
@@ -274,7 +274,7 @@ public class SettingsScreen extends LinearLayout {
                         setColors();
 
                         // Play button sound
-                        AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
+                        AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
                     }
                 }
             }
@@ -290,7 +290,7 @@ public class SettingsScreen extends LinearLayout {
                         setColors();
 
                         // Play button sound
-                        AndroidSound.sounds[5].play(AndroidSound.VOLUME_CLICK);
+                        AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
                     }
                 }
             }

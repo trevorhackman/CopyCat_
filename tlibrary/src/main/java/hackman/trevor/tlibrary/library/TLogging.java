@@ -17,11 +17,11 @@ import static android.util.Log.WARN;
 public final class TLogging {
     private TLogging() {} // Private constructor to stop instances of this class, everything is static so instances are pointless
 
-    public static final boolean TESTING = true; // TODO Make this false for release, keep true for testing
+    public static final boolean TESTING = false; // TODO Make this false for release, keep true for testing
+
     private static int charTracker = 0;
     private static String lastLog = "Default";
     private static boolean crashlyticsEnabled = true;
-
     public static void log() {
         log(getTag());
     }
@@ -98,6 +98,7 @@ public final class TLogging {
         lastLog = string;
         if (crashlyticsEnabled) {
             Crashlytics.log(string);
+            // Crashlytics.log(ERROR, "TT_", string); // Uncomment this if I want logging in release mode
         }
         else log(string);
     }

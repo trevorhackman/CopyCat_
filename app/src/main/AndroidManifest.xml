@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- installLocation="auto" allows the app to be installed on external storage, default is internal only -->
+<!-- installLocation="auto" allows the app to be installed on external storage, default is internal only. No reason not to allow. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
@@ -29,10 +29,9 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="user"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout|density|smallestScreenSize">
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout|density|smallestScreenSize"> <!-- This line is essential, prevents reloads on these changes -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

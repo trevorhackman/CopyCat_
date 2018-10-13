@@ -5,6 +5,7 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
 
+import static hackman.trevor.tlibrary.library.TLogging.flog;
 import static hackman.trevor.tlibrary.library.TLogging.report;
 
 /*
@@ -18,6 +19,14 @@ public class AndroidSound {
     private final Context context;
     private final int soundId;
 
+    // Play ids
+    public static int chip1 = 0;
+    public static int chip2 = 1;
+    public static int chip3 = 2;
+    public static int chip4 = 3;
+    public static int failure = 4;
+    public static int click = 5;
+
     // Beep volume level
     public static final float VOLUME_CLICK = 0.25f;
 
@@ -27,7 +36,7 @@ public class AndroidSound {
         this.context = context;
     }
 
-    // Release all sound resources, to be called from onPause()
+    // Release all sound resources, to be called from onStop()
     public static void release() {
         try {
             unloadAll();
@@ -35,7 +44,12 @@ public class AndroidSound {
             soundPool = null;
         } // May happen if soundPool already released
         catch (NullPointerException e) {
-            report(e,"FALAL SOUND RELEASE");
+            report(e,"FALAL SOUND RELEASE 47");
+
+            if (soundPool != null) {
+                soundPool.release();
+                soundPool = null;
+            }
         }
     }
 
@@ -49,6 +63,18 @@ public class AndroidSound {
         else {
             soundPool = new SoundPool(20, AudioManager.STREAM_MUSIC, 0);
         }
+
+        // soundPool onLoadCompleteListener listens to the loading of individual sounds
+        // Currently only using this for logging
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            // loadID seems to be a number 1 to n, where n is how many sounds I have, numbered in order of creation, not any different it seems to soundId
+            // status = 0 is success. What other values can it have? No idea, android documentation is extremely lacking.
+            public void onLoadComplete(SoundPool soundPool, int loadID, int status) {
+                if (status != 0) flog("Sound failed to load. Status: " + status + ", id: " + loadID);
+                if (loadID == 6 && status == 0) flog("All sounds loaded"); // All sounds successfully loaded
+            }
+        });
     }
 
     // Call this second
@@ -56,15 +82,15 @@ public class AndroidSound {
         sounds = new AndroidSound[6];
 
         // Startup loaded first since it has to play first
-        // Placeholder startup sound TODO find/create a good one,
+        // TODO find/create a good startup sound
         // sounds[6] = new AndroidSound(context, R.raw.startup_ogg);
 
-        sounds[0] = new AndroidSound(context, R.raw.chip1);         // Sound 1
-        sounds[1] = new AndroidSound(context, R.raw.chip2);         // Sound 2
-        sounds[2] = new AndroidSound(context, R.raw.chip3);         // Sound 3
-        sounds[3] = new AndroidSound(context, R.raw.chip4);         // Sound 4
-        sounds[4] = new AndroidSound(context, R.raw.failure);       // Death sound
-        sounds[5] = new AndroidSound(context, R.raw.click);         // Button click sound
+        sounds[chip1] = new AndroidSound(context, R.raw.chip1);         // Sound 1 (Highest)
+        sounds[chip2] = new AndroidSound(context, R.raw.chip2);         // Sound 2
+        sounds[chip3] = new AndroidSound(context, R.raw.chip3);         // Sound 3
+        sounds[chip4] = new AndroidSound(context, R.raw.chip4);         // Sound 4 (Lowest)
+        sounds[click] = new AndroidSound(context, R.raw.click);         // Button click sound
+        sounds[failure] = new AndroidSound(context, R.raw.failure);     // Death sound
     }
 
     // Return 1 for success, 0 for failure,
@@ -76,7 +102,7 @@ public class AndroidSound {
             } // May happen if soundPool is unloaded, but not reloaded
             catch (NullPointerException e) {
                 // Report and attempt recovery of sounds
-                report(e, "FALAL SOUND PLAY");
+                report(e, "FALAL SOUND PLAY 100");
                 newSoundPool();
                 loadSounds(context);
                 return 0;
@@ -93,7 +119,7 @@ public class AndroidSound {
         } // May happen if soundPool is unloaded, but not reloaded
         catch (NullPointerException e) {
             // Report and attempt recovery of sounds
-            report(e, "FALAL SOUND PLAY");
+            report(e, "FALAL SOUND PLAY REGARDLESS 117");
             newSoundPool();
             loadSounds(context);
             return 0;
@@ -105,7 +131,7 @@ public class AndroidSound {
             soundPool.unload(soundId);
         } // May happen if soundPool already released
         catch (NullPointerException e) {
-            report(e,"FALAL SOUND UNLOAD");
+            report(e,"FALAL SOUND UNLOAD 129");
         }
     }
 
