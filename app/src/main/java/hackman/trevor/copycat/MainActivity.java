@@ -20,6 +20,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -195,7 +196,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // Crashlytics disabled be default, automatically enable it here if not testing
-        if (!TLogging.TESTING) Fabric.with(this, new Crashlytics());
+        if (!TLogging.TESTING) {
+            Fabric.with(this, new Crashlytics()); // Enable crashlytics
+            Log.e("TT_", "Release Mode");
+        }
         else TLogging.disableCrashlytics(); // Necessary else crashlytics crashes from not being initialized with fabric
 
         // Load layout
@@ -205,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
         getScreenDimensions();
 
         // Log start of app and screen size
-        flog("Activity Create: Screen:["+ displayMetrics.heightPixels + "p by " + displayMetrics.widthPixels + "p]");
+        flog("Activity Create: Screen:["+ displayMetrics.widthPixels + "(width) by " + displayMetrics.heightPixels + "(height)]");
 
         // Initialize miscellaneous objects
         runner = new Runner();
@@ -546,7 +550,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Open dialog asking to rate the app
-                Dialogs.rateTheApp(context, MainActivity.this);
+                Dialogs.rateTheApp(MainActivity.this);
+                myPreferences.putBoolean("ratingRequestDisplayed", true); // Don't do a rating request if people already found this button
 
                 // Play button sound
                 AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
@@ -641,27 +646,36 @@ public class MainActivity extends AppCompatActivity {
         int gamesCompleted = myPreferences.getInt("gamesCompleted", 0) + 1;
         myPreferences.putInt("gamesCompleted", gamesCompleted);
 
-        // Check for Ad
-        // Don't display ad on the very first play
-        if (noAdsStatusResult == NOT_OWNED && gamesCompleted > 1) {
-            if (interstitialAd.isLoaded()) {
-                double rollForAd = random.nextDouble(); // Double in range [0.0, 1.0)
-                if (rollForAd < 0.385) { // 38.5% chance for ad
-                    if (!TLogging.TESTING) {
-                        flog("Ad shown");
-                        interstitialAd.show();
+        // Request rating if never requested before and conditions are met
+        boolean ratingRequestDisplayed = myPreferences.getBoolean("ratingRequestDisplayed", false);
+
+        if (!ratingRequestDisplayed && gamesCompleted > 10 && scoreNum > 10) {
+            flog("Rating request displayed");
+            Dialogs.rateTheApp(this);
+            myPreferences.putBoolean("ratingRequestDisplayed", true);
+        }
+        else {
+            // Check for Ad
+            // Don't display ad on the very first play
+            if (noAdsStatusResult == NOT_OWNED && gamesCompleted > 1) {
+                if (interstitialAd.isLoaded()) {
+                    double rollForAd = random.nextDouble(); // Double in range [0.0, 1.0)
+                    if (rollForAd < 0.39) { // 39% chance for ad
+                        if (!TLogging.TESTING) {
+                            flog("Ad shown");
+                            interstitialAd.show();
+                        } else log("Ad not displayed because TESTING");
                     }
-                    else log("Ad not displayed because TESTING");
                 }
+                // If NOT_OWNED but Ad never began loading (connection issues?), try loading Ad
+                else if (!interstitialAd.isLoading()) requestNewInterstitial();
             }
-            // If NOT_OWNED but Ad never began loading (connection issues?), try loading Ad
-            else if (!interstitialAd.isLoading()) requestNewInterstitial();
+            // If request failed, request again until success, don't show Ad unless sure NOT_OWNED
+            else if (noAdsStatusResult == REQUEST_FAILED) {
+                noAdsStatusResult = isNoAdsPurchased();
+            }
+            // else OWNED, don't roll for ads or send more requests
         }
-        // If request failed, request again until success, don't show Ad unless sure NOT_OWNED
-        else if (noAdsStatusResult == REQUEST_FAILED) {
-            noAdsStatusResult = isNoAdsPurchased();
-        }
-        // else OWNED, don't roll for ads or send more requests
 
         deathScreen.setValues(scoreNum, pressed, correct);
         deathScreen.animateIn();

@@ -24,11 +24,20 @@ public class TPreferences {
         editor.apply();
     }
 
+    public void putBoolean(String key, Boolean bool) {
+        editor.putBoolean(key, bool);
+        editor.apply();
+    }
+
     public int getInt(String key, int defValue) {
         return sharedPreferences.getInt(key, defValue);
     }
 
     public double getDouble(String key, double defValue) {
         return Double.longBitsToDouble(sharedPreferences.getLong(key, Double.doubleToRawLongBits(defValue)));
+    }
+
+    public boolean getBoolean(String key, boolean defValue) {
+        return sharedPreferences.getBoolean(key, defValue);
     }
 }

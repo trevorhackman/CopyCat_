@@ -6,51 +6,20 @@ import com.crashlytics.android.Crashlytics;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
-import static android.util.Log.ASSERT;
-import static android.util.Log.DEBUG;
-import static android.util.Log.ERROR;
-import static android.util.Log.INFO;
-import static android.util.Log.VERBOSE;
-import static android.util.Log.WARN;
+import java.util.Arrays;
 
 public final class TLogging {
     private TLogging() {} // Private constructor to stop instances of this class, everything is static so instances are pointless
 
-    public static final boolean TESTING = false; // TODO Make this false for release, keep true for testing
+    public static final boolean TESTING = true; // TODO Make this false for release, keep true for testing
 
     private static int charTracker = 0;
     private static String lastLog = "Default";
-    private static boolean crashlyticsEnabled = true;
+    private static boolean crashlyticsEnabled = true; // Gets disabled if (TESTING). When enabled, logcat logging is not allowed
+
     public static void log() {
         log(getTag());
-    }
 
-    private enum Priority {ASSERT, ERROR, WARN, INFO, DEBUG, VERBOSE}
-    private static void log(String string, final int PRIORITY) {
-        if (TESTING) {
-            lastLog = string;
-            switch (PRIORITY) {
-                case ASSERT:
-                    Log.wtf(getTag(), string);
-                    break;
-                case ERROR:
-                    Log.e(getTag(), string);
-                    break;
-                case WARN:
-                    Log.w(getTag(), string);
-                    break;
-                case INFO:
-                    Log.i(getTag(), string);
-                    break;
-                case DEBUG:
-                    Log.d(getTag(), string);
-                    break;
-                case VERBOSE:
-                    Log.v(getTag(), string);
-                    break;
-            }
-        }
     }
 
     // synchronized to be thread-safe just in case
@@ -61,7 +30,7 @@ public final class TLogging {
 
     // Logs to logcat, uses Log.ERROR by default
     public static void log(String string) {
-        log(string, ERROR);
+        if (TESTING) Log.e(getTag(), string);
     }
 
     public static void log(int integer) {
@@ -76,20 +45,12 @@ public final class TLogging {
         log("" + bool);
     }
 
-    public static void logw(String string) {
-        log(string, WARN);
+    public static void log(boolean[] boolArray) {
+        log(Arrays.toString(boolArray));
     }
 
-    public static void logi(String string) {
-        log(string, INFO);
-    }
-
-    public static void logd(String string) {
-        log(string, DEBUG);
-    }
-
-    public static void logv(String string) {
-        log(string, VERBOSE);
+    public static void log(Object object) {
+        log(object.toString());
     }
 
     // If testing logs to logcat, else logs to Firebase

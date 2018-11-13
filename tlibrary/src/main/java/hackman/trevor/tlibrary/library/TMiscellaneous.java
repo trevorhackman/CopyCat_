@@ -12,8 +12,7 @@ import android.view.View;
 import android.view.Window;
 
 // Class for various tidbits, if enough tidbits of any common type accumulate I will agglomerate them into a new library class
-public final class TMiscellaneous {
-    private TMiscellaneous() {} // Private constructor to stop instances of this class, everything is static so instances are pointless
+public enum TMiscellaneous {;
 
     // This will need to be accordingly adjusted if I ever change my developer name
     public static void startMoreGamesIntent(Context context) {
@@ -27,8 +26,14 @@ public final class TMiscellaneous {
         else {
             Intent webLink = new Intent(Intent.ACTION_VIEW);
             webLink.setData(Uri.parse("https://play.google.com/store/search?q=pub:Hackman"));
-            context.startActivity(webLink);
-            //context.startActivity(Intent.createChooser(intent, null));
+
+            // Check that there's an activity that can handle a webLink (there should be for 99% of phones, but you never know)
+            if (webLink.resolveActivity(context.getPackageManager()) != null) {
+                context.startActivity(webLink);
+            }
+            else { // Should create an empty chooser with message "No apps can perform this action"
+                context.startActivity(Intent.createChooser(webLink, null));
+            }
         }
     }
 
@@ -43,8 +48,14 @@ public final class TMiscellaneous {
         else {
             Intent webLink = new Intent(Intent.ACTION_VIEW);
             webLink.setData(Uri.parse("https://play.google.com/store/apps/details?id=" + packageName));
-            context.startActivity(webLink);
-            //context.startActivity(Intent.createChooser(intent, null));
+
+            // Check that there's an activity that can handle a webLink (there should be for 99% of phones, but you never know)
+            if (webLink.resolveActivity(context.getPackageManager()) != null) {
+                context.startActivity(webLink);
+            }
+            else { // Should create an empty chooser with message "No apps can perform this action"
+                context.startActivity(Intent.createChooser(webLink, null));
+            }
         }
     }
 

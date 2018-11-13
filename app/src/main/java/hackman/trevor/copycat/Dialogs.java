@@ -44,14 +44,14 @@ public enum Dialogs {;
                 .show();
     }
 
-    public static void rateTheApp(final Context context, final MainActivity main) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+    public static void rateTheApp(final MainActivity main) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(main, AlertDialog.THEME_HOLO_DARK);
         builder.setTitle(R.string.rate_the_app_title)
                 .setMessage(R.string.rate_the_app_message)
                 .setPositiveButton(R.string.Rate, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startRateGameIntent(context, main.getPackageName());
+                        startRateGameIntent(main, main.getPackageName());
                     }
                 })
                 .setNegativeButton(R.string.Cancel, null)

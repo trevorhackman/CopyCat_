@@ -16,6 +16,8 @@ import static hackman.trevor.tlibrary.library.TLogging.report;
 public class AndroidSound {
     public static SoundPool soundPool;
     public static AndroidSound[] sounds;
+    private static boolean allSoundsLoaded = false;
+
     private final Context context;
     private final int soundId;
 
@@ -68,11 +70,14 @@ public class AndroidSound {
         // Currently only using this for logging
         soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             @Override
-            // loadID seems to be a number 1 to n, where n is how many sounds I have, numbered in order of creation, not any different it seems to soundId
+            // loadID is a number 1 to n, where n is how many sounds I have, numbered in order of creation, currently equivalent to soundId
             // status = 0 is success. What other values can it have? No idea, android documentation is extremely lacking.
             public void onLoadComplete(SoundPool soundPool, int loadID, int status) {
-                if (status != 0) flog("Sound failed to load. Status: " + status + ", id: " + loadID);
-                if (loadID == 6 && status == 0) flog("All sounds loaded"); // All sounds successfully loaded
+                if (status != 0) report("Sound failed to load. Status: " + status + ", id: " + loadID);
+                if (loadID == 6 && status == 0) {
+                    allSoundsLoaded = true;
+                    flog("All sounds loaded"); // All sounds successfully loaded
+                }
             }
         });
     }
@@ -96,23 +101,29 @@ public class AndroidSound {
     // Return 1 for success, 0 for failure,
     public int play(float volume) {
         if (!MainActivity.stopped) {
-            try {
-                 int result = soundPool.play(soundId, volume, volume, 0, 0, 1);
-                 return result != 0 ? 1 : 0; // 0 if failure, 1 if success
-            } // May happen if soundPool is unloaded, but not reloaded
-            catch (NullPointerException e) {
-                // Report and attempt recovery of sounds
-                report(e, "FALAL SOUND PLAY 100");
-                newSoundPool();
-                loadSounds(context);
-                return 0;
-            }
+            if (allSoundsLoaded || true) { // TODO Remove || true after another report comes in
+                try {
+                    int result = soundPool.play(soundId, volume, volume, 0, 0, 1);
+                    return result != 0 ? 1 : 0; // 0 if failure, 1 if success
+                } // May happen if soundPool is unloaded, but not reloaded
+                catch (NullPointerException e) {
+                    // Report and attempt recovery of sounds
+                    report(e, "FALAL SOUND PLAY 100 : " + allSoundsLoaded);
+                    newSoundPool();
+                    loadSounds(context);
+                    return 0;
+                }
+            } // else // prior returns
+            // Attempt recovery of sounds
+            newSoundPool();
+            loadSounds(context);
+            return 0;
         }
         return -1;
     }
 
     // For playing starting sounds, don't want to wait
-    public int playRegardless(float volume) {
+    /*public int playRegardless(float volume) {
         try {
             int result = soundPool.play(soundId, volume, volume, 0, 0, 1);
             return result != 0 ? 1 : 0; // 0 if failure, 1 if success
@@ -124,7 +135,7 @@ public class AndroidSound {
             loadSounds(context);
             return 0;
         }
-    }
+    }*/
 
     private void unload() {
         try {
@@ -136,6 +147,7 @@ public class AndroidSound {
     }
 
     private static void unloadAll() {
+        allSoundsLoaded = false;
         for (AndroidSound sound: sounds) {
             sound.unload();
         }
