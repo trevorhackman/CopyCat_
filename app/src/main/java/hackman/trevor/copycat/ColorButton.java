@@ -6,7 +6,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.util.AttributeSet;
 
-import hackman.trevor.tlibrary.library.TColor;
 import hackman.trevor.tlibrary.library.TMath;
 
 public class ColorButton extends android.support.v7.widget.AppCompatImageButton {
@@ -107,7 +106,7 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
         GradientDrawable layer0 = new GradientDrawable();
         layer0.setCornerRadius(cornerRadius);
         layer0.setStroke((int)(min * .145), 0x00abcdef);
-        layer0.setColor(TColor.saturationShift(color, -0.5));
+        layer0.setColor(0xaaffffff); // Highlight
 
         Drawable layers[] = new Drawable[2];
         layers[0] = layer0;

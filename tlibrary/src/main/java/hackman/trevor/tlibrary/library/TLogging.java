@@ -11,7 +11,7 @@ import java.util.Arrays;
 public final class TLogging {
     private TLogging() {} // Private constructor to stop instances of this class, everything is static so instances are pointless
 
-    public static final boolean TESTING = true; // TODO Make this false for release, keep true for testing
+    public static final boolean TESTING = false; // TODO Make this false for release, keep true for testing
 
     private static int charTracker = 0;
     private static String lastLog = "Default";
@@ -19,7 +19,6 @@ public final class TLogging {
 
     public static void log() {
         log(getTag());
-
     }
 
     // synchronized to be thread-safe just in case

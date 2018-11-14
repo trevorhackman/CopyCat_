@@ -22,7 +22,7 @@ android {
         applicationId "hackman.trevor.copycat"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 33
+        versionCode 34
         versionName "1.8.7"
         multiDexEnabled true
     }
