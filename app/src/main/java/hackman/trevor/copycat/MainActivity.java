@@ -343,15 +343,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void startGame() {
-        flog("Game started");
-
-        inGame = true;
         mainButtonEnabled = false;
-        txt_instructions.fadeIn();
-
         allowColorInput = false;
+        inGame = true;
+
         String level_text = "" + level;
         mainButton.setText(level_text);
+        txt_instructions.fadeIn();
 
         // Keep screen from rotating during game to prevent confusion
         // Multi-screen orientation changes ignore this setting, but I guess that's okay
@@ -364,6 +362,7 @@ public class MainActivity extends AppCompatActivity {
             c.returnToNormal();
         }
 
+        flog("Game started");
         startSequence();
     }
 
@@ -485,7 +484,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     handler.sendEmptyMessage(sequence.get(0)); // if statement needed for case of starting game then backing to main menu
                 }
-                catch(NullPointerException e) { TLogging.report("");} // Something has gone wrong, this should never happen
+                catch(NullPointerException | IndexOutOfBoundsException e) { TLogging.report("error 488");} // Something has gone wrong, this should never happen
             }
         }, (int) (milliSecondsDelay * 8 + milliSecondsToLight)); // Weird balancing I've found to like across speed settings
     }
@@ -785,6 +784,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Fixes bug, in the case sequence is completed but before finger is lifted app becomes paused, never detecting finger lift
         if (startNextSequence) startSequence();
+
+        // Load sounds if necessary
+        if (AndroidSound.soundPool == null) {
+            AndroidSound.newSoundPool();
+            AndroidSound.loadSounds(context);
+        }
     }
 
     @Override // Better indication of when the activity becomes visible than onResume
