@@ -63,7 +63,7 @@
     <string name="unknown_null_intent_sender">Null intent sender</string>
     <string name="unknown_null_intent_data">Null intent data</string>
     <string name="unknown_remote_exception">Remote exception</string>
-    <string name="null_pending_intent_error_message">You may have already made this purchase, may not be logged in with a Google account, or try again later.</string>
-    <string name="null_mService_error_message">Connection could not be established with Google Billing. Check that you have Google Play Store installed and operational, or try again later. </string>
+    <string name="null_pending_intent_error_message">You may have already made this purchase. Try again later.</string>
+    <string name="null_mService_error_message">Could not connect to Google Billing. Check that you have Google Play Store installed and operational, or try again later. </string>
 
 </resources>

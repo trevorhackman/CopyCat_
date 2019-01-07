@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import hackman.trevor.tlibrary.library.TMath;
+import hackman.trevor.tlibrary.library.TDimensions;
 
 public class DeathScreen extends LinearLayout {
     private final int deathScreenInDuration = 1000;
@@ -24,7 +24,8 @@ public class DeathScreen extends LinearLayout {
     private TimeInterpolator rollInInterpolator;
 
     private ObjectAnimator rollIn;
-    private ObjectAnimator fadeOut;
+    private Runnable fadeOutStart; // Runs at start of fade out animation
+    private Runnable fadeOutEnd; // Runs at end of fade out animation
 
     private Button mainMenuButton;
     private Button playAgainButton;
@@ -49,6 +50,7 @@ public class DeathScreen extends LinearLayout {
     TextView txt_correct;
 
     boolean isDeathScreenUp = false;
+    boolean isDeathScreenComing = false;
 
     // The pressed/correct choices for the classic colors
     private String[] classicNames;
@@ -83,23 +85,19 @@ public class DeathScreen extends LinearLayout {
         row2 = findViewById(R.id.deathScreenRow2);
         row3 = findViewById(R.id.deathScreenRow3);
 
-        fadeOut = ObjectAnimator.ofFloat(this, "alpha", 0.0f);
-        fadeOut.setDuration(deathScreenOutDuration);
-        fadeOut.addListener(new Animator.AnimatorListener() {
-            @Override public void onAnimationCancel(Animator animation) {}
-            @Override public void onAnimationRepeat(Animator animation) {}
-
+        fadeOutStart = new Runnable() {
             @Override
-            public void onAnimationStart(Animator animation) {
-                // Don't want to be clickable while fading out, also stops multiclicks
+            public void run() {
+                // Don't want to be clickable while fading out, also stops multi-clicks
                 playAgainButton.setClickable(false);
                 mainMenuButton.setClickable(false);
 
                 isDeathScreenUp = false;
             }
-
+        };
+        fadeOutEnd = new Runnable() {
             @Override
-            public void onAnimationEnd(Animator animation) {
+            public void run() {
                 if (main.startGameAfterFadeOut) {
                     main.startGameAfterFadeOut = false;
                     main.startGame();
@@ -115,7 +113,7 @@ public class DeathScreen extends LinearLayout {
 
                 deathScreen.setAlpha(1.0f); // Make visible again
             }
-        });
+        };
 
         rollInInterpolator = new TimeInterpolator() {
             @Override
@@ -141,7 +139,7 @@ public class DeathScreen extends LinearLayout {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         int height = b-t;
-        screenHeight = MainActivity.displayMetrics.heightPixels;
+        screenHeight = TDimensions.getHeightPixels();
 
         // For dealing with configuration changes mid-animation
         boolean runAgain = false;
@@ -158,6 +156,8 @@ public class DeathScreen extends LinearLayout {
 
             @Override
             public void onAnimationStart(Animator animation) {
+                isDeathScreenComing = true; // Set flag
+
                 // Prevent buttons from being clickable, from going to press state, and visually show that they're disabled during animation
                 mainMenuButton.setEnabled(false);
                 playAgainButton.setEnabled(false);
@@ -174,20 +174,15 @@ public class DeathScreen extends LinearLayout {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                isDeathScreenUp = true;
-                mainMenuButton.setEnabled(true);
-                playAgainButton.setEnabled(true);
+                isDeathScreenUp = true; // Set flag
+                isDeathScreenComing = false; // Set flag
+                main.mainButton.setText(""); // Clear score tracker
 
-                // Make deathscreen buttons clickable once completely animated in
+                // Give buttons enabled graphic and make clickable once completely animated in
                 playAgainButton.setClickable(true);
                 mainMenuButton.setClickable(true);
-
-                if (!main.inGame) {
-                    main.mainButton.setText("");
-                    main.playSymbolButton.reset();
-                    playAgainButton.setClickable(true);
-                    mainMenuButton.setClickable(true);
-                }
+                playAgainButton.setEnabled(true);
+                mainMenuButton.setEnabled(true);
             }
         };
         rollIn.setInterpolator(rollInInterpolator);
@@ -218,15 +213,15 @@ public class DeathScreen extends LinearLayout {
         float buttonTextSize = 16.2f;
         float rowBottomMargin = 6f;
 
-        float minHeadText = TMath.convertDpToPixel(headTextSize, main);
-        float minInnerText = TMath.convertDpToPixel(innerTextSize, main) * minScaleInner;
-        float minButtonTextSize = TMath.convertDpToPixel(buttonTextSize, main);
-        float minRowBottomMargin = TMath.convertDpToPixel(rowBottomMargin, main);
+        float minHeadText = TDimensions.convertDpToPixel(headTextSize);
+        float minInnerText = TDimensions.convertDpToPixel(innerTextSize) * minScaleInner;
+        float minButtonTextSize = TDimensions.convertDpToPixel(buttonTextSize);
+        float minRowBottomMargin = TDimensions.convertDpToPixel(rowBottomMargin);
 
-        float calculatedHeadText = TMath.convertMdToPixel(headTextSize * scale, main);
-        float calculatedInnerText = TMath.convertMdToPixel(innerTextSize * scale, main);
-        float calculatedButtonText = TMath.convertMdToPixel(buttonTextSize * scale, main);
-        float calculatedRowBottomMargin = TMath.convertMdToPixel(rowBottomMargin * scale, main);
+        float calculatedHeadText = TDimensions.mdToPixels(headTextSize * scale);
+        float calculatedInnerText = TDimensions.mdToPixels(innerTextSize * scale);
+        float calculatedButtonText = TDimensions.mdToPixels(buttonTextSize * scale);
+        float calculatedRowBottomMargin = TDimensions.mdToPixels(rowBottomMargin * scale);
 
         float finalHeadText = Math.max(calculatedHeadText, minHeadText);
         float finalInnerText = Math.max(calculatedInnerText, minInnerText);
@@ -293,8 +288,8 @@ public class DeathScreen extends LinearLayout {
         rollIn.start();
     }
 
-    void animateOut() {
-        fadeOut.start();
+    private void animateOut() {
+        this.animate().alpha(0.0f).setDuration(deathScreenOutDuration).withStartAction(fadeOutStart).withEndAction(fadeOutEnd);
     }
 
     void performMainMenuClick() {

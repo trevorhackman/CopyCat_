@@ -19,7 +19,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -40,8 +39,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Random;
 
+import hackman.trevor.tlibrary.library.TDimensions;
 import hackman.trevor.tlibrary.library.TLogging;
-import hackman.trevor.tlibrary.library.TMath;
 import hackman.trevor.tlibrary.library.TPreferences;
 import io.fabric.sdk.android.Fabric;
 
@@ -175,9 +174,6 @@ public class MainActivity extends AppCompatActivity {
     Animator.AnimatorListener fadeOutButtonBarListener;
     static final int mainFadeDuration = 1000; // main animation duration in milliseconds
 
-    // Screen size, obtained in onCreate
-    static DisplayMetrics displayMetrics = new DisplayMetrics();
-
     // Declare variables
     MainActivity.noAdsStatus noAdsStatusResult = INITIAL; // Tracks the response from isNoAdsPurchased()
     boolean allowColorInput; // Close input while sequence is playing, open when it's the player's turn to repeat
@@ -202,14 +198,14 @@ public class MainActivity extends AppCompatActivity {
         }
         else TLogging.disableCrashlytics(); // Necessary else crashlytics crashes from not being initialized with fabric
 
-        // Load layout
-        setContentView(R.layout.activity_main);
-
-        // Get screen dimensions of device
-        getScreenDimensions();
+        // Initialize
+        TDimensions.initialize(this);
 
         // Log start of app and screen size
-        flog("Activity Create: Screen:["+ displayMetrics.widthPixels + "(width) by " + displayMetrics.heightPixels + "(height)]");
+        flog("Activity Create: Screen:["+ TDimensions.getWidthPixels() + "(width) by " + TDimensions.getHeightPixels() + "(height)]");
+
+        // Load layout
+        setContentView(R.layout.activity_main);
 
         // Initialize miscellaneous objects
         runner = new Runner();
@@ -370,6 +366,8 @@ public class MainActivity extends AppCompatActivity {
     void mainFadeInAnimation() {
         buttonBar.animate().alpha(1.0f).setDuration(mainFadeDuration).setListener(fadeInButtonBarListener);
         top_fade.animate().alpha(1.0f).setDuration(mainFadeDuration);
+        playSymbolButton.returnToNormal(); // Return playSymbol to normal
+        mainButton.unshrink();
         title.fadeIn();
     }
 
@@ -379,17 +377,12 @@ public class MainActivity extends AppCompatActivity {
         top_fade.animate().alpha(0.0f).setDuration(mainFadeDuration);
         playSymbolButton.fadeOut();
         title.fadeOut();
+        mainButton.shrink();
     }
-
-    // Get screen dimensions; used for resizing of elements if and as needed.
-    private void getScreenDimensions() {
-        displayMetrics = getResources().getDisplayMetrics();
-    }
-
     // Flexible UI resizes according to screen dimensions
     private void flexAll() {
-        int height = displayMetrics.heightPixels;
-        int width = displayMetrics.widthPixels;
+        int height = TDimensions.getHeightPixels();
+        int width = TDimensions.getWidthPixels();
 
         title.flexSize(height, width);
         mainButton.flexSize(height, width);
@@ -408,11 +401,11 @@ public class MainActivity extends AppCompatActivity {
 
             // Determine margin, minimum margin is 6dp
             int margin = (int)(.015 * minDimension);
-            margin = Math.max((int)TMath.convertDpToPixel(4, this), margin);
+            margin = Math.max((int)TDimensions.convertDpToPixel(4), margin);
 
             // Determine button size, minimum* size is 60dp, but if screen is super small, let the buttons go smaller
             int maxSize = (minDimension - margin*numButtons*2)/numButtons; // Max size that will let the buttons still fit on screen
-            int minSize = (int)TMath.convertDpToPixel(60f, this);
+            int minSize = (int)TDimensions.convertDpToPixel(60f);
 
             int size = (int)(maxSize * 0.9);
 
@@ -438,13 +431,8 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                // All UI changes have to run on UI thread or errors occur
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        button.returnToNormal();
-                    }
-                });
+                button.returnToNormal();
+
                 // Checks to see if there's more colors to play
                 if (sequenceTraveler + 1 < sequence.size()) {
                     sequenceTraveler++;
@@ -617,6 +605,12 @@ public class MainActivity extends AppCompatActivity {
                                 startSequence();
                             }
                         }
+                    } // Happens if you press, and then an orientation change or some interruption occurs
+                    else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
+                        // Return buttons to normal - Fixes bug on portrait to reverse portrait orientation change which doesn't trigger onConfigurationChange (Why)
+                        for (ColorButton button : colorButtons) {
+                            button.returnToNormal();
+                        }
                     }
                 }
                 return false;
@@ -635,7 +629,6 @@ public class MainActivity extends AppCompatActivity {
         level = 1;
 
         // In case user fails so fast that animations haven't ended yet
-        playSymbolButton.endAnimations();
         txt_instructions.endAnimations();
 
         // Death sound
@@ -698,13 +691,11 @@ public class MainActivity extends AppCompatActivity {
         sequence.clear();
 
         // End animations incase still ongoing and return buttons to normal incase they are in middle of press by sequence
-        playSymbolButton.endAnimations();
         txt_instructions.endAnimations();
         for (ColorButton button: colorButtons) {
             button.returnToNormal();
         }
 
-        playSymbolButton.reset();
         mainFadeInAnimation();
         allowColorInput = true;
         setRequestedOrientation(SCREEN_ORIENTATION_USER);
@@ -713,7 +704,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        getScreenDimensions();
+
+        // Vital to reinitialize when change in screen dimensions
+        TDimensions.initialize(this);
+
+        // Resize UI
         flexAll();
     }
 
@@ -721,6 +716,10 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (deathScreen.isDeathScreenUp) {
             deathScreen.performMainMenuClick();
+        }
+        else //noinspection StatementWithEmptyBody
+            if (deathScreen.isDeathScreenComing) {
+            // Intentionally do nothing
         }
         else if (settingsScreen.isSettingsScreenUp()) {
             settingsScreen.close();
@@ -853,7 +852,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (mService != null) {
                 buyIntentBundle = mService.getBuyIntent(3, getPackageName(), "no_ads", "inapp", "Verified by me");
-            } else {
+            } else { // Happens if Google Play Store is disabled (or not installed?)
                 flog("mService is null, purchase flow ended");
                 Dialogs.nullmServiceError(context);
                 // Attempt to re-establish billing connection
@@ -871,8 +870,8 @@ public class MainActivity extends AppCompatActivity {
                         report("intentSender is null");
                         Dialogs.nullIntentSenderError(context);
                     }
-                } else { // I believe this happens when item is already purchased // TODO test
-                    report("noAdsButton clicked: pendingIntent is null; already purchased? No Google Account logged in? Other Reason?");
+                } else { // Happens if item already purchased. This shouldn't happen.
+                    report("noAdsButton clicked: pendingIntent is null; Already purchased? : 868");
                     Dialogs.nullPendingIntentError(context);
                 }
             }
@@ -896,13 +895,16 @@ public class MainActivity extends AppCompatActivity {
 
                 // We know product is already owned
                 else if (noAdsStatusResult == OWNED) {
+                    // Show already purchased dialog
                     Dialogs.noAdsAlreadyPurchased(context);
                 }
+                // Google Billing will display offline message if offline, I don't have to bother with my own
                 else {
-                    if (noAdsStatusResult != NOT_OWNED) noAdsStatusResult = isNoAdsPurchased(); // Query again if necessary
+                    if (noAdsStatusResult != NOT_OWNED)
+                        noAdsStatusResult = isNoAdsPurchased(); // Query again if necessary
 
-                    // Show purchase menu (This might show even if already purchased if query failed or query was never made, unsure how to resolve)
-                    Dialogs.purchaseMenu(context, MainActivity.this);
+                    // Show purchase menu
+                    Dialogs.purchaseMenu(MainActivity.this);
                 }
 
                 // Play button sound
@@ -924,6 +926,7 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject jo = new JSONObject(purchaseData);
                         String productId = jo.getString("productId");
                         flog("You have bought the " + productId + " item!");
+                        noAdsStatusResult = OWNED; // Vital to set this
                         Dialogs.successfulNoAdsPurchase(context);
                     } catch (JSONException e) {
                         flog("Failed to parse purchase data: " + purchaseData);

@@ -30,7 +30,7 @@ public class AndroidSound {
     public static int click = 5;
 
     // Beep volume level
-    public static final float VOLUME_CLICK = 0.25f;
+    public static final float VOLUME_CLICK = 0.3f;
 
     // Private constructor
     private AndroidSound(Context context, int resource) {
@@ -78,6 +78,11 @@ public class AndroidSound {
                     allSoundsLoaded = true;
                     flog("All sounds loaded"); // All sounds successfully loaded
                 }
+
+                // TODO This is a test, remove if I don't receive any reports. I should never receive any
+                if (loadID > 6) {
+                    report("loadID greater than 6 : 84");
+                }
             }
         });
     }
@@ -101,14 +106,14 @@ public class AndroidSound {
     // Return 1 for success, 0 for failure,
     public int play(float volume) {
         if (!MainActivity.stopped) {
-            if (allSoundsLoaded || true) { // TODO Remove || true after another report comes in
+            if (allSoundsLoaded) {
                 try {
                     int result = soundPool.play(soundId, volume, volume, 0, 0, 1);
                     return result != 0 ? 1 : 0; // 0 if failure, 1 if success
                 } // May happen if soundPool is unloaded, but not reloaded
                 catch (NullPointerException e) {
                     // Report and attempt recovery of sounds
-                    report(e, "FALAL SOUND PLAY 100 : " + allSoundsLoaded);
+                    report(e, "FALAL SOUND PLAY : 100");
                     newSoundPool();
                     loadSounds(context);
                     return 0;
@@ -122,7 +127,7 @@ public class AndroidSound {
         return -1;
     }
 
-    // For playing starting sounds, don't want to wait
+    // For playing starting sounds, don't want to wait for MainActivity.stopped
     /*public int playRegardless(float volume) {
         try {
             int result = soundPool.play(soundId, volume, volume, 0, 0, 1);

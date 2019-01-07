@@ -7,7 +7,7 @@ import android.support.v7.widget.AppCompatButton;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
-import hackman.trevor.tlibrary.library.TMath;
+import hackman.trevor.tlibrary.library.TDimensions;
 
 import static hackman.trevor.copycat.MainActivity.mainFadeDuration;
 
@@ -17,30 +17,19 @@ import static hackman.trevor.copycat.MainActivity.mainFadeDuration;
  */
 
 public class PlaySymbol extends AppCompatButton {
-    private float scale = 1.09f;
+    private AnimatorSet gyrateSet;
     private ObjectAnimator scaleY;
     private ObjectAnimator scaleX;
-    private AnimatorSet gyrateSet;
-    private int animationDuration = 725;
-
-    private ObjectAnimator fadeOutAlpha;
-    private ObjectAnimator fadeOutX;
-    private ObjectAnimator fadeOutY;
+    private int gyrationDuration = 725;
+    private float scale = 1.09f;
 
     public PlaySymbol(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
-        fadeOutAlpha = ObjectAnimator.ofFloat(this, "alpha", 0.0f);
-        fadeOutX = ObjectAnimator.ofFloat(this, "scaleX", 0.3f);
-        fadeOutY = ObjectAnimator.ofFloat(this, "scaleY", 0.3f);
-        fadeOutAlpha.setDuration(mainFadeDuration);
-        fadeOutX.setDuration(mainFadeDuration);
-        fadeOutY.setDuration(mainFadeDuration);
-
         scaleX = ObjectAnimator.ofFloat(this, "scaleX", scale);
         scaleY = ObjectAnimator.ofFloat(this, "scaleY", scale);
-        scaleX.setDuration(animationDuration);
-        scaleY.setDuration(animationDuration);
+        scaleX.setDuration(gyrationDuration);
+        scaleY.setDuration(gyrationDuration);
         scaleX.setRepeatCount(-1);
         scaleY.setRepeatCount(-1);
         scaleX.setRepeatMode(ObjectAnimator.REVERSE);
@@ -52,20 +41,18 @@ public class PlaySymbol extends AppCompatButton {
 
     void fadeOut() {
         gyrateSet.end();
-        fadeOutAlpha.start();
-        fadeOutX.start();
-        fadeOutY.start();
+        animate().scaleX(0.3f).scaleY(0.3f).alpha(0.0f)
+                .setDuration(mainFadeDuration);
     }
 
-    void endAnimations() {
-        fadeOutAlpha.end();
-        fadeOutX.end();
-        fadeOutY.end();
-    }
-
-    void reset() {
-        setAlpha(1.0f);
-        gyrateSet.start();
+    void returnToNormal() {
+        Runnable onEnd = new Runnable() {
+            @Override
+            public void run() {
+                gyrateSet.start();
+            }
+        };
+        animate().alpha(1.0f).scaleY(1.0f).scaleX(1.0f).withEndAction(onEnd).setDuration(1000);
     }
 
     void gyrate() {
@@ -78,9 +65,9 @@ public class PlaySymbol extends AppCompatButton {
         float scale = 0.40f;
         float minDimension = Math.min(height, width);
         float dimensionSize = minDimension * scale;
-        float minSize = TMath.convertDpToPixel(100, getContext());
+        float minSize = TDimensions.convertDpToPixel(100);
 
-        // divide Math.pow(2,0.5) to incribe into MainButton circle
+        // divide Math.pow(2,0.5) to inscribe into MainButton circle
         int size = (int)(Math.max(minSize, dimensionSize) / Math.pow(2, 0.5));
 
         params.height = size;

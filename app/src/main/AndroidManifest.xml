@@ -38,6 +38,12 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="7c414c329f4e2ac275ac7a0c78f70f79025b5206" />
+
+        <!-- Suggested attempt to fix to admob crash issue - https://groups.google.com/forum/#!category-topic/google-admob-ads-sdk/android/Yniv0UNCc74 -->
+        <activity
+            android:name="com.google.android.gms.ads.AdActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            tools:replace="android:theme"/>
     </application>
 
 </manifest>

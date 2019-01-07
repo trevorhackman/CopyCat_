@@ -4,9 +4,10 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.animation.Interpolator;
 
-import hackman.trevor.tlibrary.library.TMath;
+import hackman.trevor.tlibrary.library.TDimensions;
 
 public class Instructions extends android.support.v7.widget.AppCompatTextView {
     private static final int instructionsInDuration = 500;
@@ -37,7 +38,7 @@ public class Instructions extends android.support.v7.widget.AppCompatTextView {
             }
         };
 
-        dropOut = ObjectAnimator.ofFloat(this, "translationY", TMath.convertHpToPixel(120, context));
+        dropOut = ObjectAnimator.ofFloat(this, "translationY", TDimensions.convertHpToPixel(120));
         dropOut.setDuration(instructionsOutDuration);
         dropOut.setStartDelay(instructionsOutDelay);
         dropOut.setInterpolator(interpolator);
@@ -84,12 +85,13 @@ public class Instructions extends android.support.v7.widget.AppCompatTextView {
     }
 
     void flex() {
-        float scale = .35f;
+        float scale = 1f;
         float textSize = 20;
-        float minTextSize = TMath.convertDpToPixel(textSize, getContext());
-        float calculatedTextSize = TMath.convertMdToPixel(textSize * scale, getContext());
+        float minTextSize = TDimensions.convertDpToPixel(textSize);
+        float calculatedTextSize = TDimensions.mdToPixels(textSize * scale);
+        float finalTextSize = Math.max(minTextSize, calculatedTextSize);
 
-        this.setTextSize(Math.max(minTextSize, calculatedTextSize));
+        this.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalTextSize);
     }
 
     void fadeIn() {

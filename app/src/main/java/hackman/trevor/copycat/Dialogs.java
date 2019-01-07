@@ -59,8 +59,8 @@ public enum Dialogs {;
                 .show();
     }
 
-    public static void purchaseMenu(Context context, final MainActivity main) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+    public static void purchaseMenu(final MainActivity main) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(main, AlertDialog.THEME_HOLO_DARK);
         builder.setTitle(R.string.no_ads_title)
                 .setMessage(R.string.no_ads_message)
                 .setPositiveButton(R.string.Purchase, new DialogInterface.OnClickListener() {

@@ -14,7 +14,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import hackman.trevor.tlibrary.library.TMath;
+import hackman.trevor.tlibrary.library.TDimensions;
 
 import static hackman.trevor.tlibrary.library.TLogging.report;
 
@@ -127,17 +127,17 @@ public class SettingsScreen extends LinearLayout {
         float buttonTextSize    = 16.2f;
         float arrowSize         = 35f;
 
-        float minHeadSize       = TMath.convertDpToPixel(headTextSize, main);
-        float minLeftSize       = TMath.convertDpToPixel(leftTextSize, main);
-        float minRightSize      = TMath.convertDpToPixel(rightTextSize, main);
-        float minButtonSize     = TMath.convertDpToPixel(buttonTextSize, main);
-        float minArrowSize      = TMath.convertDpToPixel(arrowSize, main);
+        float minHeadSize       = TDimensions.convertDpToPixel(headTextSize);
+        float minLeftSize       = TDimensions.convertDpToPixel(leftTextSize);
+        float minRightSize      = TDimensions.convertDpToPixel(rightTextSize);
+        float minButtonSize     = TDimensions.convertDpToPixel(buttonTextSize);
+        float minArrowSize      = TDimensions.convertDpToPixel(arrowSize);
 
-        float calculatedHeadSize    = TMath.convertMdToPixel(headTextSize * scale, main);
-        float calculatedLeftSize    = TMath.convertMdToPixel(leftTextSize * scale, main);
-        float calculatedRightSize   = TMath.convertMdToPixel(rightTextSize * scale, main);
-        float calculatedButtonSize  = TMath.convertMdToPixel(buttonTextSize * scale, main);
-        float calculatedArrowSize   = TMath.convertMdToPixel(arrowSize * scale, main);
+        float calculatedHeadSize    = TDimensions.mdToPixels(headTextSize * scale);
+        float calculatedLeftSize    = TDimensions.mdToPixels(leftTextSize * scale);
+        float calculatedRightSize   = TDimensions.mdToPixels(rightTextSize * scale);
+        float calculatedButtonSize  = TDimensions.mdToPixels(buttonTextSize * scale);
+        float calculatedArrowSize   = TDimensions.mdToPixels(arrowSize * scale);
 
         float finalHeadSize     = Math.max(minHeadSize, calculatedHeadSize);
         float finalLeftSize     = Math.max(minLeftSize, calculatedLeftSize);

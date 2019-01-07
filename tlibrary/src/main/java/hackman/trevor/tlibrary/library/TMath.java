@@ -1,8 +1,6 @@
 package hackman.trevor.tlibrary.library;
 
-import android.content.Context;
 import android.graphics.Color;
-import android.util.DisplayMetrics;
 
 import static hackman.trevor.tlibrary.library.TLogging.report;
 
@@ -11,70 +9,6 @@ import static hackman.trevor.tlibrary.library.TLogging.report;
 // an illegal keyword combination in object-oriented java.
 // Alternative is to make the class final with a private constructor that throws an error if called
 public enum TMath {;
-
-    /**
-     * This method converts md unit to equivalent pixels, depending on minimum dimension
-     *
-     * @param md A value in md (custom minimum-dimension-dependent pixels) unit. 1md = 1/360 Minimum Dimension
-     * md is equivalent to wp on portrait landscape
-     * @param context to get resources and device specific display metrics
-     * @return A float value to represent px equivalent to md depending on device height
-     */
-    public static float convertMdToPixel(float md, Context context) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        int minDimension = Math.min(metrics.heightPixels, metrics.widthPixels);
-        return md * minDimension / 360;
-    }
-
-    /**
-     * This method converts hp unit to equivalent pixels, depending on height of device
-     *
-     * @param hp A value in hp (custom height-dependent pixels) unit. 1hp = 1/640 Screen Height
-     * hp is equivalent to wp on 16:9 aspect ratio displays
-     * @param context to get resources and device specific display metrics
-     * @return A float value to represent px equivalent to hp depending on device height
-     */
-    public static float convertHpToPixel(float hp, Context context) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        return hp * metrics.heightPixels / 640;
-    }
-
-    /**
-     * This method converts wp unit to equivalent pixels, depending on width of device
-     *
-     * @param wp A value in wp (custom width-dependent pixels) unit. 1wp = 1/360 Screen Width
-     * @param context Context to get resources and device specific display metrics
-     * @return A float value to represent px equivalent to wp depending on device width
-     */
-    public static float convertWpToPixel(float wp, Context context) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        return wp * metrics.widthPixels / 360;
-    }
-
-    /**
-     * This method converts dp unit to equivalent pixels, depending on device density.
-     *
-     * @param dp A value in dp (density independent pixels) unit. Which we need to convert into pixels
-     * @param context Context to get resources and device specific display metrics
-     * @return A float value to represent px equivalent to dp depending on device density
-     */
-    public static float convertDpToPixel(float dp, Context context) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        return dp * (metrics.xdpi / (float)metrics.densityDpi);
-    }
-
-    /**
-     * This method converts device specific pixels to density independent pixels.
-     *
-     * @param px A value in px (pixels) unit. Which we need to convert into db
-     * @param context Context to get resources and device specific display metrics
-     * @return A float value to represent dp equivalent to px value
-     */
-    public static float convertPixelsToDp(float px, Context context){
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        return px / (metrics.xdpi / (float)metrics.densityDpi);
-    }
-
     // Turns an int into its corresponding 'excel column' form. That is 1, 2, 3... into A, B, C, ... Z, AA, AB, AC, ... AZ, BA, BB, ... ZZ, AAA, ...
     // Only takes integers that are 1 or greater
     public static String intToExcelColName(int integer) {

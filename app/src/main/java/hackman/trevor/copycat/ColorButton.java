@@ -65,10 +65,7 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
         super.onSizeChanged(xNew, yNew, xOld, yOld);
 
         if (xNew != 0 && yNew != 0) {
-            int height = yNew;
-            int width = xNew;
-
-            createDrawables(height, width);
+            createDrawables(yNew, xNew);
         }
     }
 
