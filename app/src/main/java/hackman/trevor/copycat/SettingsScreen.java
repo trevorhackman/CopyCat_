@@ -63,7 +63,7 @@ public class SettingsScreen extends LinearLayout {
         txt_setting0 = findViewById(R.id.setting0);
         txt_setting1 = findViewById(R.id.setting1);
 
-        // The overcomplicated way of creating deepcopies of drawables
+        // The overcomplicated way of creating deep-copies of drawables
         leftArrowButton1.setBackground(leftArrowButton0.getBackground().getConstantState().newDrawable().mutate());
         rightArrowButton1.setBackground(rightArrowButton0.getBackground().getConstantState().newDrawable().mutate());
 
@@ -127,11 +127,11 @@ public class SettingsScreen extends LinearLayout {
         float buttonTextSize    = 16.2f;
         float arrowSize         = 35f;
 
-        float minHeadSize       = TDimensions.convertDpToPixel(headTextSize);
-        float minLeftSize       = TDimensions.convertDpToPixel(leftTextSize);
-        float minRightSize      = TDimensions.convertDpToPixel(rightTextSize);
-        float minButtonSize     = TDimensions.convertDpToPixel(buttonTextSize);
-        float minArrowSize      = TDimensions.convertDpToPixel(arrowSize);
+        float minHeadSize       = TDimensions.dpToPixel(headTextSize);
+        float minLeftSize       = TDimensions.dpToPixel(leftTextSize);
+        float minRightSize      = TDimensions.dpToPixel(rightTextSize);
+        float minButtonSize     = TDimensions.dpToPixel(buttonTextSize);
+        float minArrowSize      = TDimensions.dpToPixel(arrowSize);
 
         float calculatedHeadSize    = TDimensions.mdToPixels(headTextSize * scale);
         float calculatedLeftSize    = TDimensions.mdToPixels(leftTextSize * scale);
@@ -226,7 +226,7 @@ public class SettingsScreen extends LinearLayout {
                 close();
 
                 // Play button sound
-                AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
+                AndroidSound.click.play(getContext());
             }
         });
     }
@@ -242,7 +242,7 @@ public class SettingsScreen extends LinearLayout {
                         setSpeed();
 
                         // Play button sound
-                        AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
+                        AndroidSound.click.play(getContext());
                     }
                 }
             }
@@ -258,7 +258,7 @@ public class SettingsScreen extends LinearLayout {
                         setSpeed();
 
                         // Play button sound
-                        AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
+                        AndroidSound.click.play(getContext());
                     }
                 }
             }
@@ -274,7 +274,7 @@ public class SettingsScreen extends LinearLayout {
                         setColors();
 
                         // Play button sound
-                        AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
+                        AndroidSound.click.play(getContext());
                     }
                 }
             }
@@ -290,7 +290,7 @@ public class SettingsScreen extends LinearLayout {
                         setColors();
 
                         // Play button sound
-                        AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
+                        AndroidSound.click.play(getContext());
                     }
                 }
             }
@@ -298,7 +298,7 @@ public class SettingsScreen extends LinearLayout {
     }
 
     // To be called on creation and every time speed setting is changed
-    // Also fades left&right arrow buttons appropiately
+    // Also fades left&right arrow buttons appropriately
     private static final int NORMAL = 0;
     private static final int FAST = 1;
     private static final int EXTREME = 2;

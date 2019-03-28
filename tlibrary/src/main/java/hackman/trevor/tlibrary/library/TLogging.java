@@ -1,5 +1,6 @@
 package hackman.trevor.tlibrary.library;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -8,18 +9,28 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 
-public final class TLogging {
-    private TLogging() {} // Private constructor to stop instances of this class, everything is static so instances are pointless
+/*
+ * Three Functions
+ * 1) Logging to logcat while testing on android device/emulator
+ * 2) Logging with System.out.println() when testing with non-android environment
+ * 3) Logging to Firebase when released on users' devices in the event of report: being called
+ *
+ * log:
+ * logs to logcat with Log.e: only if TESTING
+ * If log fails (non-android environment) uses System.out.println:
+ *
+ * flog:
+ * If testing logs to logcat, else logs to Firebase with Crashlytics.log:
+ * Firebase logs are only received if there is an fatal crash or report while not testing
+ *
+ * report:
+ * If not testing, reports to Firebase with Crashlytics.logException:
+ * If testing, just logs the report
+ */
 
-    public static final boolean TESTING = false; // TODO Make this false for release, keep true for testing
-
-    private static int charTracker = 0;
-    private static String lastLog = "Default";
-    private static boolean crashlyticsEnabled = true; // Gets disabled if (TESTING). When enabled, logcat logging is not allowed
-
-    public static void log() {
-        log(getTag());
-    }
+public enum TLogging {;
+    public static final boolean TESTING = true; // TODO Make this false for release, keep true for testing
+    private static int charTracker = 0; // For getTag:
 
     // synchronized to be thread-safe just in case
     private synchronized static String getTag() {
@@ -29,7 +40,23 @@ public final class TLogging {
 
     // Logs to logcat, uses Log.ERROR by default
     public static void log(String string) {
-        if (TESTING) Log.e(getTag(), string);
+        if (TESTING) {
+            try {
+                Log.e(getTag(), string);
+            } catch (RuntimeException | NoClassDefFoundError e) { // Not ideal, but detecting non-android environment with this
+                System.out.println(string);
+            }
+        }
+    }
+
+    public static void log(String[] strings) {
+        String s = "";
+        for (String string : strings) s += string + "\n";
+        log(s);
+    }
+
+    public static void log() {
+        log(getTag());
     }
 
     public static void log(int integer) {
@@ -48,17 +75,19 @@ public final class TLogging {
         log(Arrays.toString(boolArray));
     }
 
-    public static void log(Object object) {
-        log(object.toString());
+    public static void log(@Nullable Object object) {
+        if (object == null) log("null");
+        else log(object.toString());
+    }
+
+    public static void log(Object[] objects) {
+        log(Arrays.toString(objects));
     }
 
     // If testing logs to logcat, else logs to Firebase
-    // Note: Firebase log is only recieved if there is an fatal crash or non-fatal exception
     public static void flog(String string) {
-        lastLog = string;
-        if (crashlyticsEnabled) {
+        if (!TESTING) {
             Crashlytics.log(string);
-            // Crashlytics.log(ERROR, "TT_", string); // Uncomment this if I want logging in release mode
         }
         else log(string);
     }
@@ -76,18 +105,16 @@ public final class TLogging {
         else flog("False");
     }
 
-    public static void report() { report(lastLog); }
-
     // For when you catch an error and stop a crash from happening but still want to report it to firebase
     public static void report(Throwable e) {
-        if (crashlyticsEnabled) {
+        if (!TESTING) {
             flog(e.toString());
             Crashlytics.logException(e);
         }
         else {
             // Method for getting stacktrace as string
             StringWriter sw = new StringWriter();
-            e.printStackTrace(new PrintWriter(sw));
+            e.printStackTrace(new PrintWriter(sw)); // Writes stacktrace to sw
             String exceptionAsString = sw.toString();
 
             log(exceptionAsString);
@@ -95,17 +122,11 @@ public final class TLogging {
     }
 
     public static void report(String string) {
-        flog(string);
         report(new Exception(string));
     }
 
     public static void report(Throwable e, String string) {
         flog(string);
         report(e);
-    }
-
-    public static void disableCrashlytics() {
-        crashlyticsEnabled = false;
-        log("Crashlytics disabled");
     }
 }

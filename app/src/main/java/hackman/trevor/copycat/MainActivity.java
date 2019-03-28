@@ -28,10 +28,6 @@ import android.widget.LinearLayout;
 
 import com.android.vending.billing.IInAppBillingService;
 import com.crashlytics.android.Crashlytics;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,7 +41,6 @@ import hackman.trevor.tlibrary.library.TPreferences;
 import io.fabric.sdk.android.Fabric;
 
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER;
-import static hackman.trevor.copycat.AndroidSound.sounds;
 import static hackman.trevor.copycat.MainActivity.noAdsStatus.INITIAL;
 import static hackman.trevor.copycat.MainActivity.noAdsStatus.NOT_OWNED;
 import static hackman.trevor.copycat.MainActivity.noAdsStatus.OWNED;
@@ -55,9 +50,6 @@ import static hackman.trevor.tlibrary.library.TLogging.log;
 import static hackman.trevor.tlibrary.library.TLogging.report;
 
 public class MainActivity extends AppCompatActivity {
-    // Ad
-    InterstitialAd interstitialAd;
-
     // Saved Data
     TPreferences myPreferences;
 
@@ -71,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
             noAdsStatusResult = isNoAdsPurchased(); // We have to wait for connection else nullReferenceError
             if (noAdsStatusResult == NOT_OWNED)
-                requestNewInterstitial();
+                Ads.requestNewInterstitial();
         }
 
         @Override
@@ -191,15 +183,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Crashlytics disabled be default, automatically enable it here if not testing
+        // Crashlytics disabled by default, automatically enable it here if not testing
         if (!TLogging.TESTING) {
             Fabric.with(this, new Crashlytics()); // Enable crashlytics
             Log.e("TT_", "Release Mode");
         }
-        else TLogging.disableCrashlytics(); // Necessary else crashlytics crashes from not being initialized with fabric
+        else log("TESTING");
 
         // Initialize
-        TDimensions.initialize(this);
+        TDimensions.setUp(this);
 
         // Log start of app and screen size
         flog("Activity Create: Screen:["+ TDimensions.getWidthPixels() + "(width) by " + TDimensions.getHeightPixels() + "(height)]");
@@ -222,23 +214,12 @@ public class MainActivity extends AppCompatActivity {
         // Billing
         bindBillingService();
 
-        // Unsure of purpose of this line, things seem to work fine w/o it. AdMob guide recommends it but doesn't explain what it does in the slightest
-        MobileAds.initialize(this, "ca-app-pub-9667393179892638~7004321704");
-        // Initialize Ads
-        interstitialAd = new InterstitialAd(context);
-        interstitialAd.setAdUnitId("ca-app-pub-9667393179892638/3352851301");
-        interstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdClosed() {
-                super.onAdClosed();
-                requestNewInterstitial();
-            }
-        });
+        // Ads
+        Ads.initializeAds(context);
 
         // For sound
         setVolumeControlStream(AudioManager.STREAM_MUSIC); // Makes the volume wheel control music (all game sounds grouped in music) by default
-        AndroidSound.newSoundPool();
-        AndroidSound.loadSounds(context);
+        AndroidSound.initializeSounds(context);
 
         // Initialize Death Screen
         deathScreen = findViewById(R.id.deathScreen);
@@ -277,10 +258,10 @@ public class MainActivity extends AppCompatActivity {
         colorButtons[3] = blueButton;
 
         // Setup color buttons
-        greenButton.setUp(sounds[AndroidSound.chip1], 0);
-        redButton.setUp(sounds[AndroidSound.chip2], 1);
-        yellowButton.setUp(sounds[AndroidSound.chip3], 2);
-        blueButton.setUp(sounds[AndroidSound.chip4], 3);
+        greenButton.setUp(AndroidSound.chip1, 0);
+        redButton.setUp(AndroidSound.chip2, 1);
+        yellowButton.setUp(AndroidSound.chip3, 2);
+        blueButton.setUp(AndroidSound.chip4, 3);
         setButton(greenButton);
         setButton(redButton);
         setButton(yellowButton);
@@ -401,11 +382,11 @@ public class MainActivity extends AppCompatActivity {
 
             // Determine margin, minimum margin is 6dp
             int margin = (int)(.015 * minDimension);
-            margin = Math.max((int)TDimensions.convertDpToPixel(4), margin);
+            margin = Math.max((int)TDimensions.dpToPixel(4), margin);
 
             // Determine button size, minimum* size is 60dp, but if screen is super small, let the buttons go smaller
             int maxSize = (minDimension - margin*numButtons*2)/numButtons; // Max size that will let the buttons still fit on screen
-            int minSize = (int)TDimensions.convertDpToPixel(60f);
+            int minSize = (int)TDimensions.dpToPixel(60f);
 
             int size = (int)(maxSize * 0.9);
 
@@ -526,7 +507,7 @@ public class MainActivity extends AppCompatActivity {
                     settingsScreen.display();
 
                     // Play button sound
-                    AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
+                    AndroidSound.click.play(context);
                 }
             }
         });
@@ -541,7 +522,7 @@ public class MainActivity extends AppCompatActivity {
                 myPreferences.putBoolean("ratingRequestDisplayed", true); // Don't do a rating request if people already found this button
 
                 // Play button sound
-                AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
+                AndroidSound.click.play(context);
             }
         });
     }
@@ -553,7 +534,7 @@ public class MainActivity extends AppCompatActivity {
                 Dialogs.viewMoreGames(context);
 
                 // Play button sound
-                AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
+                AndroidSound.click.play(context);
             }
         });
     }
@@ -632,7 +613,7 @@ public class MainActivity extends AppCompatActivity {
         txt_instructions.endAnimations();
 
         // Death sound
-        sounds[AndroidSound.failure].play(1);
+        AndroidSound.failure.play(context);
 
         // Track the number of games that have been completed
         int gamesCompleted = myPreferences.getInt("gamesCompleted", 0) + 1;
@@ -650,17 +631,9 @@ public class MainActivity extends AppCompatActivity {
             // Check for Ad
             // Don't display ad on the very first play
             if (noAdsStatusResult == NOT_OWNED && gamesCompleted > 1) {
-                if (interstitialAd.isLoaded()) {
-                    double rollForAd = random.nextDouble(); // Double in range [0.0, 1.0)
-                    if (rollForAd < 0.39) { // 39% chance for ad
-                        if (!TLogging.TESTING) {
-                            flog("Ad shown");
-                            interstitialAd.show();
-                        } else log("Ad not displayed because TESTING");
-                    }
-                }
-                // If NOT_OWNED but Ad never began loading (connection issues?), try loading Ad
-                else if (!interstitialAd.isLoading()) requestNewInterstitial();
+
+                Ads.rollAdDisplay(); // If ad is loaded, random chance to display
+
             }
             // If request failed, request again until success, don't show Ad unless sure NOT_OWNED
             else if (noAdsStatusResult == REQUEST_FAILED) {
@@ -706,7 +679,7 @@ public class MainActivity extends AppCompatActivity {
         super.onConfigurationChanged(newConfig);
 
         // Vital to reinitialize when change in screen dimensions
-        TDimensions.initialize(this);
+        TDimensions.setUp(this);
 
         // Resize UI
         flexAll();
@@ -770,8 +743,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Load sounds if necessary
         if (AndroidSound.soundPool == null) {
-            AndroidSound.newSoundPool();
-            AndroidSound.loadSounds(context);
+            AndroidSound.initializeSounds(context);
         }
     }
 
@@ -786,8 +758,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Load sounds if necessary
         if (AndroidSound.soundPool == null) {
-            AndroidSound.newSoundPool();
-            AndroidSound.loadSounds(context);
+            AndroidSound.initializeSounds(context);
         }
     }
 
@@ -837,12 +808,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Log Destruction
         flog("Activity Destroyed");
-    }
-
-
-    private void requestNewInterstitial() {
-        AdRequest adRequest = new AdRequest.Builder().build();
-        interstitialAd.loadAd(adRequest);
     }
 
     public void noAdsOnClick() {
@@ -908,7 +873,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // Play button sound
-                AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
+                AndroidSound.click.play(context);
             }
         });
     }

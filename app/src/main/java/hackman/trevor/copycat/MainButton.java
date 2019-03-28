@@ -22,7 +22,7 @@ public class MainButton extends AppCompatButton {
         float scale = 0.40f;
         float minDimension = Math.min(height, width);
         float dimensionSize = minDimension * scale;
-        float minSize = TDimensions.convertDpToPixel(100);
+        float minSize = TDimensions.dpToPixel(100);
 
         int size = (int)Math.max(minSize, dimensionSize);
 

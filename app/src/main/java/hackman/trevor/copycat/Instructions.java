@@ -38,7 +38,7 @@ public class Instructions extends android.support.v7.widget.AppCompatTextView {
             }
         };
 
-        dropOut = ObjectAnimator.ofFloat(this, "translationY", TDimensions.convertHpToPixel(120));
+        dropOut = ObjectAnimator.ofFloat(this, "translationY", TDimensions.hpToPixel(120));
         dropOut.setDuration(instructionsOutDuration);
         dropOut.setStartDelay(instructionsOutDelay);
         dropOut.setInterpolator(interpolator);
@@ -87,7 +87,7 @@ public class Instructions extends android.support.v7.widget.AppCompatTextView {
     void flex() {
         float scale = 1f;
         float textSize = 20;
-        float minTextSize = TDimensions.convertDpToPixel(textSize);
+        float minTextSize = TDimensions.dpToPixel(textSize);
         float calculatedTextSize = TDimensions.mdToPixels(textSize * scale);
         float finalTextSize = Math.max(minTextSize, calculatedTextSize);
 

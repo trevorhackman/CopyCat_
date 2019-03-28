@@ -65,7 +65,7 @@ public class PlaySymbol extends AppCompatButton {
         float scale = 0.40f;
         float minDimension = Math.min(height, width);
         float dimensionSize = minDimension * scale;
-        float minSize = TDimensions.convertDpToPixel(100);
+        float minSize = TDimensions.dpToPixel(100);
 
         // divide Math.pow(2,0.5) to inscribe into MainButton circle
         int size = (int)(Math.max(minSize, dimensionSize) / Math.pow(2, 0.5));

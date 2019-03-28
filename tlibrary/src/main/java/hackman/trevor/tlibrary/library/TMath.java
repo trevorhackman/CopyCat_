@@ -1,7 +1,5 @@
 package hackman.trevor.tlibrary.library;
 
-import android.graphics.Color;
-
 import static hackman.trevor.tlibrary.library.TLogging.report;
 
 // An instance-less enum is a quick workaround to making the class both final and abstract,
@@ -9,6 +7,9 @@ import static hackman.trevor.tlibrary.library.TLogging.report;
 // an illegal keyword combination in object-oriented java.
 // Alternative is to make the class final with a private constructor that throws an error if called
 public enum TMath {;
+
+    public static final double BILLION = 1000000000.0;
+
     // Turns an int into its corresponding 'excel column' form. That is 1, 2, 3... into A, B, C, ... Z, AA, AB, AC, ... AZ, BA, BB, ... ZZ, AAA, ...
     // Only takes integers that are 1 or greater
     public static String intToExcelColName(int integer) {
@@ -31,78 +32,6 @@ public enum TMath {;
         }
 
         return result.toString();
-    }
-
-    // Shifts the hue of a color according to HSV
-    // Hue is a value from 0 to 360 on the wheel that goes red=>yellow=>green=>cyan=>blue=>magenta=>red=>...
-    public static int hueShift(int color, int shift) {
-        float[] hsv = new float[3];
-        Color.colorToHSV(color, hsv);
-        hsv[0] += shift;
-        if (hsv[0] > 360) hsv[0] -= 360;
-
-        return Color.HSVToColor(hsv);
-    }
-
-    // Shifts the saturation of a color according to HSV
-    // Saturation is a value form 0=white to 1=color
-    public static int saturationShift(int color, float shift) {
-        float[] hsv = new float[3];
-        Color.colorToHSV(color, hsv);
-        hsv[1] += shift;
-        if (hsv[1] > 1) hsv[1] = 1;
-        if (hsv[1] < 0) hsv[1] = 0;
-        return Color.HSVToColor(hsv);
-    }
-
-    // Shifts the value of a color according to HSV
-    // Value is a value from 0=black to 1=color
-    public static int valueShift(int color, float shift) {
-        float[] hsv = new float[3];
-        Color.colorToHSV(color, hsv);
-        hsv[2] += shift;
-        if (hsv[2] > 1) hsv[2] = 1;
-        if (hsv[2] < 0) hsv[2] = 0;
-
-        return Color.HSVToColor(hsv);
-    }
-
-    // Opposite HSV color
-    public static int complementaryColor(int color) {
-        return hueShift(color, 180);
-    }
-
-    // Makes a color (int) darker by a given percentage
-    // percentage must be a value in the range [0,1.0f]
-    public static int darkenColor(int color, float percentage) {
-        int a, r, g, b;
-        a = Color.alpha(color);
-        r = Color.red(color);
-        g = Color.green(color);
-        b = Color.blue(color);
-
-        percentage = 1 - percentage;
-        r *= percentage;
-        g *= percentage;
-        b *= percentage;
-
-        return Color.argb(a, r, g, b);
-    }
-
-    // Makes a color (int) brighter by a given percentage
-    // percentage must be a value in the range [0,1.0f]
-    public static int brightenColor(int color, float percentage) {
-        int a, r, g, b;
-        a = Color.alpha(color);
-        r = Color.red(color);
-        g = Color.green(color);
-        b = Color.blue(color);
-
-        r += (int)((0xff - r) * percentage);
-        g += (int)((0xff - g) * percentage);
-        b += (int)((0xff - b) * percentage);
-
-        return Color.argb(a, r, g, b);
     }
 
     public static int roundDouble (double d) {

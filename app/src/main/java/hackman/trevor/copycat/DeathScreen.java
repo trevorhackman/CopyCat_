@@ -213,10 +213,10 @@ public class DeathScreen extends LinearLayout {
         float buttonTextSize = 16.2f;
         float rowBottomMargin = 6f;
 
-        float minHeadText = TDimensions.convertDpToPixel(headTextSize);
-        float minInnerText = TDimensions.convertDpToPixel(innerTextSize) * minScaleInner;
-        float minButtonTextSize = TDimensions.convertDpToPixel(buttonTextSize);
-        float minRowBottomMargin = TDimensions.convertDpToPixel(rowBottomMargin);
+        float minHeadText = TDimensions.dpToPixel(headTextSize);
+        float minInnerText = TDimensions.dpToPixel(innerTextSize) * minScaleInner;
+        float minButtonTextSize = TDimensions.dpToPixel(buttonTextSize);
+        float minRowBottomMargin = TDimensions.dpToPixel(rowBottomMargin);
 
         float calculatedHeadText = TDimensions.mdToPixels(headTextSize * scale);
         float calculatedInnerText = TDimensions.mdToPixels(innerTextSize * scale);
@@ -306,7 +306,7 @@ public class DeathScreen extends LinearLayout {
                 main.mainFadeInAnimation();
 
                 // Play button sound
-                AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
+                AndroidSound.click.play(getContext());
             }
         });
         mainMenuButton.setClickable(false); // setOnClickListener resets clickable to true, so we need to set it to false here
@@ -323,7 +323,7 @@ public class DeathScreen extends LinearLayout {
                 deathScreen.animateOut();
 
                 // Play button sound
-                AndroidSound.sounds[AndroidSound.click].play(AndroidSound.VOLUME_CLICK);
+                AndroidSound.click.play(getContext());
             }
         });
         playAgainButton.setClickable(false); // setOnClickListener resets clickable to true, so we need to set it to false here

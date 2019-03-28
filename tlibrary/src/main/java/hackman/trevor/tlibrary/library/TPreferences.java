@@ -29,6 +29,11 @@ public class TPreferences {
         editor.apply();
     }
 
+    public void putString(String key, String value) {
+        editor.putString(key, value);
+        editor.apply();
+    }
+
     public int getInt(String key, int defValue) {
         return sharedPreferences.getInt(key, defValue);
     }
@@ -39,5 +44,9 @@ public class TPreferences {
 
     public boolean getBoolean(String key, boolean defValue) {
         return sharedPreferences.getBoolean(key, defValue);
+    }
+
+    public String getString(String key, String defValue) {
+        return sharedPreferences.getString(key, defValue);
     }
 }
