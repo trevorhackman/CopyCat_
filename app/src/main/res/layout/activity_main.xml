@@ -33,7 +33,7 @@
         app:columnCount="2"
         app:rowCount="2">
 
-        <hackman.trevor.copycat.ColorButton
+        <hackman.trevor.copycat.ui.ColorButton
             android:id="@+id/greenButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
 
-        <hackman.trevor.copycat.ColorButton
+        <hackman.trevor.copycat.ui.ColorButton
             android:id="@+id/redButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
 
-        <hackman.trevor.copycat.ColorButton
+        <hackman.trevor.copycat.ui.ColorButton
             android:id="@+id/yellowButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -66,7 +66,7 @@
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
 
-        <hackman.trevor.copycat.ColorButton
+        <hackman.trevor.copycat.ui.ColorButton
             android:id="@+id/blueButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
             app:layout_rowWeight="1" />
     </android.support.v7.widget.GridLayout>
 
-    <hackman.trevor.copycat.MainButton
+    <hackman.trevor.copycat.ui.MainButton
         android:id="@+id/mainButton"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -91,60 +91,29 @@
         android:textStyle="bold"
         tools:ignore="SpUsage" />
 
-    <hackman.trevor.copycat.PlaySymbol
-        android:id="@+id/playSymbolButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center"
-        android:background="@drawable/play_symbol"
-        android:clickable="false"
-        android:visibility="visible" />
-
-    <LinearLayout
+    <ImageView
+        android:id="@+id/bottom_fade"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/mainButton"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
-
-        <hackman.trevor.copycat.Instructions
-            android:id="@+id/instructions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:alpha="0"
-            android:background="@drawable/instructions_rectangle"
-            android:padding="7dp"
-            android:text="@string/Watch_and_repeat"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            tools:ignore="SpUsage" />
-    </LinearLayout>
+        android:background="@drawable/bottom_fade">
+    </ImageView>
 
     <LinearLayout
         android:id="@+id/button_bar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_below="@+id/mainButton"
-        android:layout_centerHorizontal="true"
-        android:layout_centerInParent="false"
-        android:layout_centerVertical="false"
-        android:background="@drawable/button_bar_background"
         android:gravity="bottom|center_horizontal"
-        android:orientation="horizontal"
-        android:paddingBottom="0dp">
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/moreGames"
             android:layout_width="@dimen/menu_button_size"
             android:layout_height="@dimen/menu_button_size"
-            android:layout_marginBottom="@dimen/menu_button_bottom_margin"
             android:layout_marginLeft="@dimen/menu_button_spread"
             android:layout_marginRight="@dimen/menu_button_spread"
+            android:layout_marginBottom="@dimen/menu_button_bottom_margin"
             android:alpha="1"
             android:background="@drawable/more_games"
             android:padding="0dp" />
@@ -153,9 +122,9 @@
             android:id="@+id/noAds"
             android:layout_width="@dimen/menu_button_size"
             android:layout_height="@dimen/menu_button_size"
-            android:layout_marginBottom="@dimen/menu_button_bottom_margin"
             android:layout_marginLeft="@dimen/menu_button_spread"
             android:layout_marginRight="@dimen/menu_button_spread"
+            android:layout_marginBottom="@dimen/menu_button_bottom_margin"
             android:alpha="1"
             android:background="@drawable/no_ads"
             android:padding="0dp" />
@@ -164,9 +133,9 @@
             android:id="@+id/star"
             android:layout_width="@dimen/menu_button_size"
             android:layout_height="@dimen/menu_button_size"
-            android:layout_marginBottom="@dimen/menu_button_bottom_margin"
             android:layout_marginLeft="@dimen/menu_button_spread"
             android:layout_marginRight="@dimen/menu_button_spread"
+            android:layout_marginBottom="@dimen/menu_button_bottom_margin"
             android:alpha="1"
             android:background="@drawable/star"
             android:padding="0dp" />
@@ -175,9 +144,9 @@
             android:id="@+id/settings"
             android:layout_width="@dimen/menu_button_size"
             android:layout_height="@dimen/menu_button_size"
-            android:layout_marginBottom="@dimen/menu_button_bottom_margin"
             android:layout_marginLeft="@dimen/menu_button_spread"
             android:layout_marginRight="@dimen/menu_button_spread"
+            android:layout_marginBottom="@dimen/menu_button_bottom_margin"
             android:alpha="1"
             android:background="@drawable/gear"
             android:clickable="false"
@@ -203,7 +172,7 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <hackman.trevor.copycat.Title
+        <hackman.trevor.copycat.ui.Title
             android:id="@+id/title_logo"
             android:layout_width="match_parent"
             android:layout_height="0dp"

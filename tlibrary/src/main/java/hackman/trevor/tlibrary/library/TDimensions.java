@@ -80,8 +80,7 @@ public enum TDimensions {;
      * @return A rounded int value to represent px equivalent to dp depending on device density
      */
     public static int dpToPixel(float dp) {
-        float px = dp * (metrics.xdpi / (float)metrics.densityDpi);
-        return Math.round(px);
+        return (int)(dp * metrics.density);
     }
 
     /**
@@ -91,8 +90,7 @@ public enum TDimensions {;
      * @return A float value to represent dp equivalent to px value
      */
     public static float pixelsToDp(float px){
-        float dp = px / (metrics.xdpi / (float)metrics.densityDpi);
-        return dp;
+        return px / metrics.density;
     }
 
     // Overloads

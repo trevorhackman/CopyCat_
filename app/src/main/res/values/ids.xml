@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="modesMenuHeadText" type="id"/>
+    <item name="modesMenuDivider1" type="id"/>
+    <item name="modesMenuDivider2" type="id"/>
+    <item name="modesMenuButtonLayout" type="id"/>
+    <item name="modesMenuDescriptionText" type="id"/>
+    <item name="modesMenuCloseButton" type="id"/>
+    <item name="gameModesButton" type="id"/>
+</resources>

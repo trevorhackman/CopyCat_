@@ -1,4 +1,4 @@
-package hackman.trevor.copycat;
+package hackman.trevor.copycat.ui;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -13,13 +13,18 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import hackman.trevor.copycat.MainActivity;
+import hackman.trevor.copycat.R;
+import hackman.trevor.copycat.logic.Game;
+import hackman.trevor.copycat.standard.AndroidSound;
 import hackman.trevor.tlibrary.library.TDimensions;
+import hackman.trevor.tlibrary.library.ui.Llp;
 
-public class DeathScreen extends LinearLayout {
+public class DeathMenu extends LinearLayout {
     private final int deathScreenInDuration = 1000;
     private final int deathScreenOutDuration = 500;
 
-    private DeathScreen deathScreen = this;
+    private DeathMenu deathMenu = this;
 
     private TimeInterpolator rollInInterpolator;
 
@@ -31,11 +36,13 @@ public class DeathScreen extends LinearLayout {
     private Button playAgainButton;
 
     private TextView txt_gameOver;
-    private TextView txt_scoreValue;
-    private TextView txt_bestValue;
-    private TextView txt_pressedValue;
-    private TextView txt_correctValue;
+    private TextView txt_modeLeft;
+    private TextView txt_scoreLeft;
+    private TextView txt_bestLeft;
+    private TextView txt_pressedLeft;
+    private TextView txt_correctLeft;
 
+    private LinearLayout rowM1;
     private LinearLayout row0;
     private LinearLayout row1;
     private LinearLayout row2;
@@ -44,13 +51,14 @@ public class DeathScreen extends LinearLayout {
     private MainActivity main;
     private int screenHeight;
 
-    TextView txt_score;
-    TextView txt_best;
-    TextView txt_pressed;
-    TextView txt_correct;
+    private TextView txt_mode;
+    private TextView txt_score;
+    private TextView txt_best;
+    private TextView txt_pressed;
+    private TextView txt_correct;
 
-    boolean isDeathScreenUp = false;
-    boolean isDeathScreenComing = false;
+    public boolean isDeathScreenUp = false;
+    public boolean isDeathScreenComing = false;
 
     // The pressed/correct choices for the classic colors
     private String[] classicNames;
@@ -58,28 +66,31 @@ public class DeathScreen extends LinearLayout {
     // The pressed/correct choices for other color sets
     private String[] genericNames;
 
-    public DeathScreen(Context context, AttributeSet attrs) {
+    public DeathMenu(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    void setUp(final MainActivity main) {
+    public void setUp(final MainActivity main) {
         this.main = main;
         mainMenuButton = findViewById(R.id.mainMenuButton);
         playAgainButton = findViewById(R.id.playAgainButton);
         setMainMenuButton(main);
         setPlayAgainButton(main);
 
-        txt_gameOver   = findViewById(R.id.txt_gameOver);
-        txt_scoreValue = findViewById(R.id.txt_score);
-        txt_bestValue = findViewById(R.id.txt_best);
-        txt_pressedValue = findViewById(R.id.txt_pressed);
-        txt_correctValue = findViewById(R.id.txt_correct);
+        txt_gameOver = findViewById(R.id.txt_gameOver);
+        txt_modeLeft = findViewById(R.id.dm_txt_mode);
+        txt_scoreLeft = findViewById(R.id.txt_score);
+        txt_bestLeft = findViewById(R.id.txt_best);
+        txt_pressedLeft = findViewById(R.id.txt_pressed);
+        txt_correctLeft = findViewById(R.id.txt_correct);
 
+        txt_mode = findViewById(R.id.dm_mode);
         txt_score = findViewById(R.id.score);
         txt_best = findViewById(R.id.best);
         txt_pressed = findViewById(R.id.pressed);
         txt_correct = findViewById(R.id.correct);
 
+        rowM1 = findViewById(R.id.deathScreenRowM1);
         row0 = findViewById(R.id.deathScreenRow0);
         row1 = findViewById(R.id.deathScreenRow1);
         row2 = findViewById(R.id.deathScreenRow2);
@@ -89,8 +100,8 @@ public class DeathScreen extends LinearLayout {
             @Override
             public void run() {
                 // Don't want to be clickable while fading out, also stops multi-clicks
-                playAgainButton.setClickable(false);
-                mainMenuButton.setClickable(false);
+                playAgainButton.setEnabled(false);
+                mainMenuButton.setEnabled(false);
 
                 isDeathScreenUp = false;
             }
@@ -98,20 +109,23 @@ public class DeathScreen extends LinearLayout {
         fadeOutEnd = new Runnable() {
             @Override
             public void run() {
-                if (main.startGameAfterFadeOut) {
-                    main.startGameAfterFadeOut = false;
-                    main.startGame();
+                if (main.gameScreen.startGameAfterFadeOut) {
+                    main.gameScreen.startGameAfterFadeOut = false;
+                    main.gameScreen.startGame();
+                }
+                else {
+                    main.gameScreen.enableNonColorButtons(); // Enable buttons
                 }
 
                 // Manual bring to back
-                final ViewGroup parent = (ViewGroup) deathScreen.getParent();
-                parent.removeView(deathScreen);
-                parent.addView(deathScreen, 0);
+                final ViewGroup parent = (ViewGroup) deathMenu.getParent();
+                parent.removeView(deathMenu);
+                parent.addView(deathMenu, 0);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    deathScreen.setTranslationZ(-1);
+                    deathMenu.setTranslationZ(-1);
                 }
 
-                deathScreen.setAlpha(1.0f); // Make visible again
+                deathMenu.setAlpha(1.0f); // Make visible again
             }
         };
 
@@ -162,13 +176,13 @@ public class DeathScreen extends LinearLayout {
                 mainMenuButton.setEnabled(false);
                 playAgainButton.setEnabled(false);
 
-                deathScreen.bringToFront();
+                deathMenu.bringToFront();
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) { // Required pre-Kitkat for layouts coming to front to be visible
                     getParent().requestLayout();
                     ((View) getParent()).invalidate();
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // TranslationZ/elevation added in api 21
-                    deathScreen.setTranslationZ(999);
+                    deathMenu.setTranslationZ(999);
                 }
             }
 
@@ -176,7 +190,7 @@ public class DeathScreen extends LinearLayout {
             public void onAnimationEnd(Animator animation) {
                 isDeathScreenUp = true; // Set flag
                 isDeathScreenComing = false; // Set flag
-                main.mainButton.setText(""); // Clear score tracker
+                main.gameScreen.mainButton.setText(""); // Clear score tracker
 
                 // Give buttons enabled graphic and make clickable once completely animated in
                 playAgainButton.setClickable(true);
@@ -197,7 +211,7 @@ public class DeathScreen extends LinearLayout {
         }
     }
 
-    void flex(int height, int width) {
+    public void flex(int height, int width) {
         ViewGroup.LayoutParams params = this.getLayoutParams();
 
         // Portrait
@@ -230,25 +244,25 @@ public class DeathScreen extends LinearLayout {
 
         txt_gameOver.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalHeadText);
 
-        txt_scoreValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
-        txt_bestValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
-        txt_pressedValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
-        txt_correctValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
+        txt_modeLeft.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
+        txt_scoreLeft.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
+        txt_bestLeft.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
+        txt_pressedLeft.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
+        txt_correctLeft.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
 
+        txt_mode.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
         txt_score.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
         txt_best.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
         txt_pressed.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
         txt_correct.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalInnerText);
 
-        LinearLayout.LayoutParams paramsR0 = (LinearLayout.LayoutParams)row0.getLayoutParams();
-        LinearLayout.LayoutParams paramsR1 = (LinearLayout.LayoutParams)row1.getLayoutParams();
-        LinearLayout.LayoutParams paramsR2 = (LinearLayout.LayoutParams)row2.getLayoutParams();
-        LinearLayout.LayoutParams paramsR3 = (LinearLayout.LayoutParams)row3.getLayoutParams();
-
-        paramsR0.setMargins(0, 0, 0, (int)finalRowBottomMargin);
-        paramsR1.setMargins(0, 0, 0, (int)finalRowBottomMargin);
-        paramsR2.setMargins(0, 0, 0, (int)finalRowBottomMargin);
-        paramsR3.setMargins(0, 0, 0, (int)finalRowBottomMargin);
+        Llp rowsLp = new Llp(Llp.MATCH);
+        rowsLp.setPixelMargins(0, 0, 0, (int)finalRowBottomMargin);
+        rowM1.setLayoutParams(rowsLp);
+        row0.setLayoutParams(rowsLp);
+        row1.setLayoutParams(rowsLp);
+        row2.setLayoutParams(rowsLp);
+        row3.setLayoutParams(rowsLp);
 
         mainMenuButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalButtonSize);
         playAgainButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalButtonSize);
@@ -261,16 +275,16 @@ public class DeathScreen extends LinearLayout {
         playAgainButtonParams.height = (int)(finalButtonSize * multiplier);
     }
 
-    void setValues(int score, int pressed, int correct) {
+    public void setValues(int score, int pressed, int correct) {
         String scoreNum_text = "" + score;
-        deathScreen.txt_score.setText(scoreNum_text);
+        txt_score.setText(scoreNum_text);
 
-        int highScoreNum = main.myPreferences.getInt("highscore", 0);
+        int highScoreNum = main.tPreferences.getInt(main.gameScreen.game.getGameMode().name() + "Best", 0);
         String highScoreNum_text = "" + highScoreNum;
-        deathScreen.txt_best.setText(highScoreNum_text);
+        txt_best.setText(highScoreNum_text);
 
         // Select the proper nameSet for the colorSet
-        String[] names = main.myPreferences.getInt("colors", SettingsScreen.CLASSIC) == SettingsScreen.CLASSIC ? classicNames : genericNames;
+        String[] names = main.tPreferences.getInt("colors", SettingsMenu.CLASSIC) == SettingsMenu.CLASSIC ? classicNames : genericNames;
 
         // Indicate what the pressed and correct buttons were
         String pressedString = names[pressed];
@@ -280,11 +294,14 @@ public class DeathScreen extends LinearLayout {
         if (correct == -1) correctString = "---";
         else correctString = names[correct];
 
-        deathScreen.txt_pressed.setText(pressedString);
-        deathScreen.txt_correct.setText(correctString);
+        txt_pressed.setText(pressedString);
+        txt_correct.setText(correctString);
+
+        String mode = Game.GameMode.valueOf(main.tPreferences.getString("gameMode", Game.GameMode.Classic.name())).displayName();
+        txt_mode.setText(mode);
     }
 
-    void animateIn() {
+    public void animateIn() {
         rollIn.start();
     }
 
@@ -292,18 +309,17 @@ public class DeathScreen extends LinearLayout {
         this.animate().alpha(0.0f).setDuration(deathScreenOutDuration).withStartAction(fadeOutStart).withEndAction(fadeOutEnd);
     }
 
-    void performMainMenuClick() {
+    public void performMainMenuClick() {
         mainMenuButton.performClick();
     }
 
     private void setMainMenuButton(final MainActivity main) {
         mainMenuButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                main.mainButtonEnabled = true;
-                deathScreen.animateOut();
+                deathMenu.animateOut();
 
                 // Fade in UI
-                main.mainFadeInAnimation();
+                main.gameScreen.mainFadeInAnimation();
 
                 // Play button sound
                 AndroidSound.click.play(getContext());
@@ -316,11 +332,11 @@ public class DeathScreen extends LinearLayout {
         playAgainButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                main.playSymbolButton.setAlpha(0.0f);
+                main.gameScreen.playSymbol.setAlpha(0.0f);
 
-                main.startGameAfterFadeOut = true;
-                main.mainButton.setText("1"); // Starting level is always 1
-                deathScreen.animateOut();
+                main.gameScreen.startGameAfterFadeOut = true;
+                main.gameScreen.mainButton.setText("1"); // Starting level is always 1
+                deathMenu.animateOut();
 
                 // Play button sound
                 AndroidSound.click.play(getContext());

@@ -20,7 +20,7 @@ public enum TMiscellaneous {;
         }
         else {
             Intent webLink = new Intent(Intent.ACTION_VIEW);
-            webLink.setData(Uri.parse("https://play.google.com/store/search?q=pub:Hackman"));
+            webLink.setData(Uri.parse("https://play.google.com/store/search?q=pub:Hackman&c=apps")); //&c=apps is necessary
 
             // Check that there's an activity that can handle a webLink (there should be for 99% of phones, but you never know)
             if (webLink.resolveActivity(context.getPackageManager()) != null) {
@@ -32,9 +32,10 @@ public enum TMiscellaneous {;
         }
     }
 
+    // If app is ever offered on other app stores, may need to modify
     public static void startRateGameIntent(Context context, String packageName) {
         Intent marketLink = new Intent(Intent.ACTION_VIEW);
-        marketLink.setData(Uri.parse("market://details?id=" + packageName)); // package name is hackman.trevor.copycat
+        marketLink.setData(Uri.parse("market://details?id=" + packageName));
 
         // Market link will fail if Google Play Store is not installed
         if (marketLink.resolveActivity(context.getPackageManager()) != null) {

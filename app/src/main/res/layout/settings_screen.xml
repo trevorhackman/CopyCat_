@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- tools:showIn="@layout/activity_main" -->
-<hackman.trevor.copycat.SettingsScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<hackman.trevor.copycat.ui.SettingsMenu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/settingsScreen"
     android:layout_width="match_parent"
@@ -18,8 +18,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp"
         android:gravity="center"
         android:text="@string/Settings"
         android:textAlignment="center"
@@ -39,10 +39,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="6dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="6dp"
         android:orientation="horizontal">
 
         <TextView
@@ -165,4 +165,4 @@
         android:textSize="20dp"
         android:textStyle="bold"
         tools:ignore="SpUsage" />
-</hackman.trevor.copycat.SettingsScreen>
+</hackman.trevor.copycat.ui.SettingsMenu>

@@ -34,7 +34,7 @@ public enum TLogging {;
 
     // synchronized to be thread-safe just in case
     private synchronized static String getTag() {
-        // The TT_ is to make my logs filterable in the logcat by searching for TT, there's shitloads of other logs from other sources that I'm largely not interested in
+        // The TT_ is to make my logs filterable in the logcat by searching for TT, there's shit-loads of other logs from other sources that I'm largely not interested in
         return "TT_" + TMath.intToExcelColName(++charTracker);
     }
 
@@ -50,9 +50,9 @@ public enum TLogging {;
     }
 
     public static void log(String[] strings) {
-        String s = "";
-        for (String string : strings) s += string + "\n";
-        log(s);
+        StringBuilder s = new StringBuilder();
+        for (String string : strings) s.append(string).append("\n");
+        log(s.toString());
     }
 
     public static void log() {

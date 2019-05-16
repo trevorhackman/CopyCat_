@@ -1,9 +1,12 @@
-package hackman.trevor.copycat;
+package hackman.trevor.copycat.standard;
 
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
+
+import hackman.trevor.copycat.MainActivity;
+import hackman.trevor.copycat.R;
 
 import static hackman.trevor.tlibrary.library.TLogging.flog;
 import static hackman.trevor.tlibrary.library.TLogging.report;
@@ -80,6 +83,7 @@ public class AndroidSound {
             // loadID seems to be a number 1 to n, where n is how many sounds I have, numbered in order of creation, not any different it seems to soundId
             // status = 0 is success. What other values can it have? No idea, android documentation is extremely lacking.
             public void onLoadComplete(SoundPool soundPool, int loadID, int status) {
+                // TODO Improve this - Retry to load, if repeated failure report
                 if (status != 0) flog("Sound failed to load. Status: " + status + ", id: " + loadID);
             }
         });
@@ -95,7 +99,7 @@ public class AndroidSound {
     }
 
     // Release all sound resources, to be called from onStop()
-    // Don't hog resources from other apps when not infront; don't leak memory and stop sound errors
+    // Don't hog resources from other apps when not in front; don't leak memory and stop sound errors
     // We do this in onStop instead of onPause in order to support multi-screen, onPause is called but onStop isn't on multi-screen window change
     public static void release() {
         try {

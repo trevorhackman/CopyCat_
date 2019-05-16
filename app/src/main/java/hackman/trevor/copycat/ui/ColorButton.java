@@ -1,4 +1,4 @@
-package hackman.trevor.copycat;
+package hackman.trevor.copycat.ui;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -6,6 +6,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.util.AttributeSet;
 
+import hackman.trevor.copycat.standard.AndroidSound;
 import hackman.trevor.tlibrary.library.TColor;
 
 public class ColorButton extends android.support.v7.widget.AppCompatImageButton {
@@ -20,35 +21,35 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
         super(context, attrs);
     }
 
-    void setUp(AndroidSound sound, int number) {
+    public void setUp(AndroidSound sound, int number) {
         this.sound = sound;
         this.number = number;
     }
 
-    void setColor(int color) {
+    public void setColor(int color) {
         this.color = color;
     }
 
-    void playSound() {
+    public void playSound() {
         sound.play(getContext());
     }
 
-    void press() {
+    public void press() {
         pressed = true;
         setBackground(pressedDrawable);
         playSound();
     }
 
-    void returnToNormal() {
+    public void returnToNormal() {
         pressed = false;
         setBackground(drawable);
     }
 
-    boolean getPressed() {
+    public boolean getPressed() {
         return pressed;
     }
 
-    int getNumber() {
+    public int getNumber() {
         return number;
     }
 
@@ -61,7 +62,7 @@ public class ColorButton extends android.support.v7.widget.AppCompatImageButton 
         }
     }
 
-    void flex() {
+    public void flex() {
         if (getHeight() != 0 && getWidth() != 0) {
             int height = getHeight();
             int width = getWidth();

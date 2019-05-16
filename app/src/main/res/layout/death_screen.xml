@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<hackman.trevor.copycat.DeathScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<hackman.trevor.copycat.ui.DeathMenu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/deathScreen"
     android:layout_width="match_parent"
@@ -34,6 +34,39 @@
         tools:ignore="ContentDescription" />
 
     <LinearLayout
+        android:id="@+id/deathScreenRowM1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="18dp"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".4" />
+
+        <TextView
+            android:id="@+id/dm_txt_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="left"
+            android:text="@string/Mode"
+            android:textAppearance="@style/DeathScreenText" />
+
+        <TextView
+            android:id="@+id/dm_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="left"
+            android:text="No Repeat"
+            android:textAppearance="@style/DeathScreenText"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/deathScreenRow0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -61,7 +94,6 @@
             android:layout_weight="1"
             android:gravity="left"
             android:text="123"
-            android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText"
             tools:ignore="HardcodedText" />
 
@@ -87,7 +119,6 @@
             android:layout_weight="1"
             android:gravity="left"
             android:text="@string/Best"
-            android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText" />
 
         <TextView
@@ -98,7 +129,6 @@
             android:layout_weight="1"
             android:gravity="left"
             android:text="321"
-            android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText"
             tools:ignore="HardcodedText" />
     </LinearLayout>
@@ -123,7 +153,6 @@
             android:layout_weight="1"
             android:gravity="left"
             android:text="@string/Pressed"
-            android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText" />
 
         <TextView
@@ -134,7 +163,6 @@
             android:layout_weight="1"
             android:gravity="left"
             android:text="Green"
-            android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText"
             tools:ignore="HardcodedText" />
 
@@ -160,7 +188,6 @@
             android:layout_weight="1"
             android:gravity="left"
             android:text="@string/Correct"
-            android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText" />
 
         <TextView
@@ -171,7 +198,6 @@
             android:layout_weight="1"
             android:gravity="left"
             android:text="Bottom Right"
-            android:textAlignment="textStart"
             android:textAppearance="@style/DeathScreenText"
             tools:ignore="HardcodedText" />
 
@@ -236,4 +262,4 @@
             android:layout_weight=".1" />
     </LinearLayout>
 
-</hackman.trevor.copycat.DeathScreen>
+</hackman.trevor.copycat.ui.DeathMenu>

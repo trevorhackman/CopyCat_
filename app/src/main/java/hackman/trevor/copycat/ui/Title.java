@@ -1,4 +1,4 @@
-package hackman.trevor.copycat;
+package hackman.trevor.copycat.ui;
 
 import android.animation.TimeInterpolator;
 import android.content.Context;
@@ -30,15 +30,15 @@ public class Title extends android.support.v7.widget.AppCompatImageView {
         };
     }
 
-    void fadeIn() {
-        this.animate().alpha(1.0f).setDuration(MainActivity.mainFadeDuration);
+    public void fadeIn() {
+        this.animate().alpha(1.0f).setDuration(GameScreen.mainFadeDuration);
     }
 
-    void fadeOut() {
-        this.animate().alpha(0.0f).setDuration(MainActivity.mainFadeDuration);
+    public void fadeOut() {
+        this.animate().alpha(0.0f).setDuration(GameScreen.mainFadeDuration);
     }
 
-    void popIn() {
+    public void popIn() {
         this.animate()
                 .scaleX(1.0f)
                 .scaleY(1.0f)
@@ -47,7 +47,7 @@ public class Title extends android.support.v7.widget.AppCompatImageView {
                 .setInterpolator(interpolator);
     }
 
-    void flexSize(int height, int width) {
+    public void flex(int height, int width) {
         ViewGroup.LayoutParams params = this.getLayoutParams();
         // Effectively Portrait
         if (width <= height) {
