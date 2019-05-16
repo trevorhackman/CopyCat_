@@ -12,6 +12,7 @@ import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 
 import hackman.trevor.tlibrary.library.TLogging;
 
+import static com.google.android.gms.ads.AdRequest.ERROR_CODE_NETWORK_ERROR;
 import static hackman.trevor.tlibrary.library.TLogging.flog;
 import static hackman.trevor.tlibrary.library.TLogging.log;
 import static hackman.trevor.tlibrary.library.TLogging.report;
@@ -140,13 +141,14 @@ public enum Ads {;
             }
 
             private int failCounter = 0; // Limit how much logs get spammed with this message
+            // Error codes at https://developers.google.com/android/reference/com/google/android/gms/ads/AdListener#onAdFailedToLoad(int)
             @Override public void onRewardedVideoAdFailedToLoad(int errorCode) {
                 if (failCounter++ < 10) {
                     flog("Rewarded Video Ad Failed To Load : " + errorCode);
                 }
 
-                // 2 is error code for no connection. Still not sure what all the codes are or what they mean b/c there's no documentation.
-                if (failCounter == 10 && errorCode != 2) report("Failing a lot at loading rv with error code : " + errorCode);
+                // Errors that aren't from user lacking connection are problematic
+                if (failCounter == 10 && errorCode != ERROR_CODE_NETWORK_ERROR) report("Failing a lot at loading rv with error code : " + errorCode);
 
                 new android.os.Handler().postDelayed(new Runnable() {
                     @Override
