@@ -84,7 +84,7 @@
     <!-- Game Mode Descriptions -->
     <string name="description_Classic">The classic game. Repeat the sequence that grows by one each round.</string>
     <string name="description_Reverse">You must replay the sequence in reverse!</string>
-    <string name="description_Chaos">The sequence totally changes each round.</string>
+    <string name="description_Chaos">The whole sequence completely changes each round.</string>
     <string name="description_Single">Only the newest color added to the sequence plays back. You must still repeat the whole sequence.</string>
 
 </resources>
