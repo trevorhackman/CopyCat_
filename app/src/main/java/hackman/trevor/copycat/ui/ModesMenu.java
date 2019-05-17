@@ -126,6 +126,7 @@ public class ModesMenu extends RelativeLayout {
         closeButton = new Button(main);
         closeButton.setId(R.id.modesMenuCloseButton);
         closeButton.setTypeface(null, Typeface.BOLD);
+        closeButton.setAllCaps(true); // Necessary for API 16
         closeButton.setText(R.string.Close);
         closeButton.setPadding(0, 0, 0, 0);
         closeButton.setBackground(ContextCompat.getDrawable(main, R.drawable.bordered_rectangle_2));

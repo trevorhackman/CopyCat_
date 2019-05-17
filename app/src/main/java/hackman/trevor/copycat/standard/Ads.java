@@ -28,8 +28,6 @@ public enum Ads {;
     public static void initializeMobileAds(Context context) {
         // Unsure of purpose of MobileAds.initialize(), things seem to work fine w/o it. AdMob guide recommends it but doesn't explain what it does in the slightest
         MobileAds.initialize(context, "ca-app-pub-9667393179892638~7004321704");
-
-        log(MobileAds.getInitializationStatus());
     }
 
     public static void initializeInterstitial(Context context) {

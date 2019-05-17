@@ -120,6 +120,9 @@ public class MainActivity extends AppCompatActivity {
         // Billing
         bindBillingService();
 
+        // Disable rewarded video unlock for now - need to rethink things
+        tPreferences.putBoolean("rewardedGameModes", true);
+
         // Ads
         if (!tPreferences.getBoolean("noAdsOwned", false)) {
             Ads.initializeMobileAds(this);

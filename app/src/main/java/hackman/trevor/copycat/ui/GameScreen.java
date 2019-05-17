@@ -788,7 +788,15 @@ public class GameScreen {
                     alternativePlayLayout.removeAllViews();
                     root.removeView(alternativePlayLayout);
                 }
-                root.addView(playSymbol);
+
+                // Gotta add behind the ModesMenu if old android
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && modesMenu.isModesMenuUp) {
+                    root.addView(playSymbol, root.indexOfChild(modesMenu));
+                }
+                else {
+                    root.addView(playSymbol);
+                }
+
             }
             playSymbolState = pss_CLASSIC;
             flexMainClassic(TDimensions.getHeightPixels(), TDimensions.getWidthPixels());
@@ -801,7 +809,14 @@ public class GameScreen {
 
                 alternativePlayLayout.addView(playSymbol);
                 alternativePlayLayout.addView(altModeText);
-                root.addView(alternativePlayLayout);
+
+                // Gotta add behind the ModesMenu if old android
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && modesMenu.isModesMenuUp) {
+                    root.addView(alternativePlayLayout, root.indexOfChild(modesMenu));
+                }
+                else {
+                    root.addView(alternativePlayLayout);
+                }
 
                 playSymbolState = pss_ALTERNATE;
                 flexMainAlternate(TDimensions.getHeightPixels(), TDimensions.getWidthPixels());
