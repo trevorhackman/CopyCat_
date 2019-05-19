@@ -19,7 +19,7 @@ public class GoodButton extends android.support.v7.widget.AppCompatButton {
 
     public GoodButton(Context context, Drawable drawable) {
         this(context);
-        setBackgroundDrawable(drawable);
+        setBackground(drawable);
     }
 
     @Override // Sets text size with md unit

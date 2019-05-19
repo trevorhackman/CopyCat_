@@ -388,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 // Request failed - maybe no internet connection
                 else {
-                    flog("Query for no_ads purchase failed: response is not 0");
+                    flog("Query for no_ads purchase failed: response is not 0, response is " + response);
                     return REQUEST_FAILED;
                 }
             } catch (RemoteException e) {

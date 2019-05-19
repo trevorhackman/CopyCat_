@@ -75,6 +75,10 @@ public enum TLogging {;
         log(Arrays.toString(boolArray));
     }
 
+    public static void log(float[] floatArray) {
+        log(Arrays.toString(floatArray));
+    }
+
     public static void log(@Nullable Object object) {
         if (object == null) log("null");
         else log(object.toString());
