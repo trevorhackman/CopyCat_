@@ -33,10 +33,10 @@ public class AndroidSound {
     public static AndroidSound click;   // Button click sound
 
     // Volume levels
-    public static final float VOLUME_CHIP1 =    0.655f;
-    public static final float VOLUME_CHIP2 =    0.77f;
-    public static final float VOLUME_CHIP3 =    0.885f;
-    public static final float VOLUME_CHIP4 =    1.0f;
+    public static final float VOLUME_CHIP1 =    0.3f;
+    public static final float VOLUME_CHIP2 =    0.45f;
+    public static final float VOLUME_CHIP3 =    0.6f;
+    public static final float VOLUME_CHIP4 =    0.75f;
     public static final float VOLUME_FAILURE =  1.0f;
     public static final float VOLUME_CLICK =    0.3f;
 
@@ -90,10 +90,10 @@ public class AndroidSound {
 
 
         // Balancing the volume out some b/c the higher pitched notes 'sound' louder than lower pitched notes
-        chip1 = new AndroidSound(context, R.raw.chip1, VOLUME_CHIP1, false);
-        chip2 = new AndroidSound(context, R.raw.chip2, VOLUME_CHIP2, false);
-        chip3 = new AndroidSound(context, R.raw.chip3, VOLUME_CHIP3, false);
-        chip4 = new AndroidSound(context, R.raw.chip4, VOLUME_CHIP4, false);
+        chip1 = new AndroidSound(context, R.raw.chip1_amp, VOLUME_CHIP1, false);
+        chip2 = new AndroidSound(context, R.raw.chip2_amp, VOLUME_CHIP2, false);
+        chip3 = new AndroidSound(context, R.raw.chip3_amp, VOLUME_CHIP3, false);
+        chip4 = new AndroidSound(context, R.raw.chip4_amp, VOLUME_CHIP4, false);
         failure = new AndroidSound(context, R.raw.failure, VOLUME_FAILURE, false);
         click = new AndroidSound(context, R.raw.click, VOLUME_CLICK, false);
     }
