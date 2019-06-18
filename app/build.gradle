@@ -22,15 +22,16 @@ android {
         applicationId "hackman.trevor.copycat"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 45
-        versionName "2.0.1"
+        versionCode 48
+        versionName "2.0.2"
         multiDexEnabled true
     }
 
     buildTypes {
         release {
-            minifyEnabled true // Shrinks app by removing unused code. Shrunk app by 30%.
-            useProguard = false // True by default, when false uses R8 instead of Proguard. R8 is newer and supposedly better for Android.
+            shrinkResources true
+            minifyEnabled true
+            useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

@@ -50,10 +50,6 @@ public class GoodTextView extends android.support.v7.widget.AppCompatTextView {
         invalidate(); // Necessary or else outline isn't necessarily drawn if it's done post layout
     }
 
-    public void outline() {
-        outline(thickness1, thickness2);
-    }
-
     // Overload to combine doubleOutline() and setThickness(int, int)
     public void outline(double thickness1, double thickness2) {
         bOutline1 = true;

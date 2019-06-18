@@ -48,7 +48,7 @@ public enum Ads {;
             interstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712"); // AdMob's dedicated test ad unit ID for Android interstitial ads
         }
         else {
-            interstitialAd.setAdUnitId("ca-app-pub-9667393179892638/5508512556"); // For real ads
+            interstitialAd.setAdUnitId("ca-app-pub-9667393179892638/3352851301"); // For real ads
         }
 
         interstitialAd.setAdListener(new AdListener() {
