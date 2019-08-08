@@ -7,7 +7,7 @@ import android.util.TypedValue;
 
 import static hackman.trevor.tlibrary.library.TDimensions.mdToPixels;
 
-public class GoodButton extends android.support.v7.widget.AppCompatButton {
+public class GoodButton extends androidx.appcompat.widget.AppCompatButton {
 
     public GoodButton(Context context) {
         super(context);

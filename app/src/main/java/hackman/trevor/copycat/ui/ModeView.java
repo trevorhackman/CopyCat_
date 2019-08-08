@@ -11,7 +11,8 @@ import android.widget.RelativeLayout;
 import hackman.trevor.copycat.MainActivity;
 import hackman.trevor.copycat.R;
 import hackman.trevor.copycat.logic.Game;
-import hackman.trevor.copycat.standard.AndroidSound;
+import hackman.trevor.copycat.system.AndroidSound;
+import hackman.trevor.copycat.system.Keys;
 import hackman.trevor.tlibrary.library.TColor;
 import hackman.trevor.tlibrary.library.TDimensions;
 import hackman.trevor.tlibrary.library.ui.GoodTextView;
@@ -102,14 +103,14 @@ public class ModeView extends RelativeLayout implements View.OnClickListener {
     }
 
     public void updateBest() {
-        String bestString = main.getString(R.string.Best) + " " + main.tPreferences.getInt(mode.name() + "Best", 0);
+        String bestString = main.getString(R.string.Best) + " " + main.tPreferences().getInt(mode.name() + Keys.modeBest, 0);
         bestText.setText(bestString);
     }
 
     @Override
     public void onClick(View v) {
         if (modesMenu.isModesMenuUp && !selected) {
-            main.tPreferences.putString("gameMode", mode.name());
+            main.tPreferences().putString(Keys.gameMode, mode.name());
             modesMenu.modeSelected(this);
 
             // Play button sound

@@ -1,10 +1,11 @@
-package hackman.trevor.copycat.standard.drawables;
+package hackman.trevor.copycat.system.drawables;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
-import android.support.v4.content.ContextCompat;
+
+import androidx.core.content.ContextCompat;
 
 import hackman.trevor.copycat.R;
 import hackman.trevor.tlibrary.library.TColor;
@@ -35,7 +36,6 @@ public enum Drawables {;
     }
 
     public static LayerDrawable explanationButton(Context context) {
-
         GradientDrawable gd = new GradientDrawable();
         gd.setShape(GradientDrawable.OVAL);
         gd.setColor(TColor.Grey500);

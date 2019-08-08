@@ -3,7 +3,6 @@ package hackman.trevor.copycat.ui;
 import android.annotation.SuppressLint;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -13,10 +12,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import androidx.core.content.ContextCompat;
+
 import hackman.trevor.copycat.MainActivity;
 import hackman.trevor.copycat.R;
 import hackman.trevor.copycat.logic.Game;
-import hackman.trevor.copycat.standard.AndroidSound;
+import hackman.trevor.copycat.system.AndroidSound;
+import hackman.trevor.copycat.system.Keys;
 import hackman.trevor.tlibrary.library.TDimensions;
 import hackman.trevor.tlibrary.library.ui.GoodTextView;
 import hackman.trevor.tlibrary.library.ui.Llp;
@@ -164,7 +166,7 @@ public class ModesMenu extends RelativeLayout {
         onCloseEnd = new Runnable() {
             @Override
             public void run() {
-                main.gameScreen.enableNonColorButtons();
+                main.gameScreen().enableNonColorButtons();
                 closeButton.setEnabled(true);
 
                 // Manual move to back
@@ -280,7 +282,7 @@ public class ModesMenu extends RelativeLayout {
 
     public void open() {
         isModesMenuUp = true;
-        main.gameScreen.disableNonColorButtons();
+        main.gameScreen().disableNonColorButtons();
 
         // Bring to front
         this.bringToFront();
@@ -306,11 +308,11 @@ public class ModesMenu extends RelativeLayout {
         if (isModesMenuCompletelyUp) {
             isModesMenuUp = false;
             isModesMenuCompletelyUp = false;
-            main.gameScreen.enableModesButton();
+            main.gameScreen().enableModesButton();
 
             closeButton.setEnabled(false);
             animate().alpha(0.0f).setDuration(fadeOutDuration).withEndAction(onCloseEnd);
-            main.gameScreen.forMenuFadeIn();
+            main.gameScreen().forMenuFadeIn();
         }
     }
 
@@ -322,12 +324,12 @@ public class ModesMenu extends RelativeLayout {
         updateDescriptionText();
 
         // Update the popUp and playSymbol
-        main.gameScreen.popUpInstructions.modeUpdate();
-        main.gameScreen.playSymbolSetUp();
+        main.gameScreen().popUpInstructions.modeUpdate();
+        main.gameScreen().playSymbolSetUp();
     }
 
     private void updateDescriptionText() {
-        Game.GameMode mode = Game.GameMode.valueOf(main.tPreferences.getString("gameMode", Game.GameMode.Classic.name()));
+        Game.GameMode mode = Game.GameMode.valueOf(main.tPreferences().getString(Keys.gameMode, Game.GameMode.Classic.name()));
 
         String description = null;
         switch (mode) {
@@ -362,7 +364,7 @@ public class ModesMenu extends RelativeLayout {
 
         Game.GameMode[] modes = Game.GameMode.values();
         modeViews = new ModeView[modes.length];
-        Game.GameMode mode = Game.GameMode.valueOf(main.tPreferences.getString("gameMode", Game.GameMode.Classic.name()));
+        Game.GameMode mode = Game.GameMode.valueOf(main.tPreferences().getString(Keys.gameMode, Game.GameMode.Classic.name()));
         for (int i = 0; i < modes.length; ++i) {
             modeViews[i] = new ModeView(main, modes[i], this, true);
             // Set selected
@@ -405,7 +407,7 @@ public class ModesMenu extends RelativeLayout {
 
         Game.GameMode[] modes = Game.GameMode.values();
         modeViews = new ModeView[modes.length];
-        Game.GameMode mode = Game.GameMode.valueOf(main.tPreferences.getString("gameMode", Game.GameMode.Classic.name()));
+        Game.GameMode mode = Game.GameMode.valueOf(main.tPreferences().getString(Keys.gameMode, Game.GameMode.Classic.name()));
         for (int i = 0; i < modes.length; ++i) {
             modeViews[i] = new ModeView(main, modes[i], this, false);
             // Set selected

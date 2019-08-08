@@ -6,10 +6,10 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.util.AttributeSet;
 
-import hackman.trevor.copycat.standard.AndroidSound;
+import hackman.trevor.copycat.system.AndroidSound;
 import hackman.trevor.tlibrary.library.TColor;
 
-public class ColorButton extends android.support.v7.widget.AppCompatImageButton {
+public class ColorButton extends androidx.appcompat.widget.AppCompatImageButton {
     private AndroidSound sound;
     private GradientDrawable drawable;
     private LayerDrawable pressedDrawable;

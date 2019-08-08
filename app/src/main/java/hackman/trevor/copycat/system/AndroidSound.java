@@ -1,11 +1,13 @@
-package hackman.trevor.copycat.standard;
+package hackman.trevor.copycat.system;
 
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
 
-import hackman.trevor.copycat.MainActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Lifecycle;
+
 import hackman.trevor.copycat.R;
 
 import static hackman.trevor.tlibrary.library.TLogging.flog;
@@ -49,8 +51,9 @@ public class AndroidSound {
     }
 
     // Return 1 for success, 0 for failure, -1 for activity stopped (don't want to play sounds when app is in background)
-    public int play(Context context) {
-        if (!MainActivity.stopped || startUpSound) {
+    public int play(AppCompatActivity activity) {
+        // Ensures activity is not stopped
+        if (activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED) || startUpSound) {
             try {
                 int result = soundPool.play(soundId, volume, volume, 0, 0, 1);
                 return result != 0 ? 1 : 0; // 0 if failure, 1 if success
@@ -58,11 +61,16 @@ public class AndroidSound {
             catch (NullPointerException e) {
                 // Report and attempt recovery of sounds
                 report(e, "FALAL SOUND PLAY 100");
-                initializeSounds(context);
+                initializeSounds(activity);
                 return 0;
             }
         }
         return -1;
+    }
+
+    // Overload, can be called with getContext() in views
+    public int play(Context context) {
+        return play((AppCompatActivity) context);
     }
 
     // Call to load sounds in onCreate, onStart, and onResume (be thorough)

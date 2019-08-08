@@ -5,8 +5,6 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -17,14 +15,18 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.google.android.gms.ads.AdView;
+
 import hackman.trevor.copycat.MainActivity;
 import hackman.trevor.copycat.R;
 import hackman.trevor.copycat.logic.Game;
-import hackman.trevor.copycat.standard.AndroidSound;
-import hackman.trevor.copycat.standard.Dialogs;
-import hackman.trevor.copycat.standard.drawables.Drawables;
+import hackman.trevor.copycat.system.Ads;
+import hackman.trevor.copycat.system.AndroidSound;
+import hackman.trevor.copycat.system.Dialogs;
+import hackman.trevor.copycat.system.Keys;
+import hackman.trevor.copycat.system.drawables.Drawables;
+import hackman.trevor.tlibrary.library.TColor;
 import hackman.trevor.tlibrary.library.TDimensions;
-import hackman.trevor.tlibrary.library.TLogging;
 import hackman.trevor.tlibrary.library.ui.GoodButton;
 import hackman.trevor.tlibrary.library.ui.GoodTextView;
 import hackman.trevor.tlibrary.library.ui.Llp;
@@ -32,11 +34,89 @@ import hackman.trevor.tlibrary.library.ui.Rlp;
 
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER;
 import static hackman.trevor.tlibrary.library.TLogging.flog;
+import static hackman.trevor.tlibrary.library.ui.Rlp.MATCH;
+import static hackman.trevor.tlibrary.library.ui.Rlp.WRAP;
 
 public class GameScreen {
     private MainActivity main;
     public GameScreen(MainActivity main) {
         this.main = main;
+    }
+
+    // Layouts for landscape orientation and small phones
+    private LinearLayout leftButtonColumn;
+    private LinearLayout rightButtonColumn;
+
+    // Variables
+    public boolean allowColorInput; // Close input while sequence is playing, open when it's the player's turn to repeat
+    public boolean inGame; // Keeps track of whether in game or not
+    private boolean mainButtonEnabled; // Enables and disables main button, effectively tracks when game is allowed to start
+    public boolean startGameAfterFadeOut; // If true, game will start after the death-screen finishes fading away. Set on playAgainButton click
+    public boolean startNextSequence; // False until sequence is finished, true to continue to next level/sequence
+    public boolean popInRan; // Title pop-in plays in onResume once per creation
+    public long milliSecondsToLight; // The length of time a color is played (visual and sound) for during a sequence
+    public long milliSecondsDelay; // Delay between lights
+    public int level; // What level the user is on
+
+    // Layouts
+    private RelativeLayout root;
+    public DeathMenu deathMenu;
+    public SettingsMenu settingsMenu;
+    public ModesMenu modesMenu;
+    public LinearLayout buttonBar;
+
+    // Button bar
+    public Button moreGamesButton;
+    public Button noAdsButton;
+    public Button starButton;
+    public Button settingsButton;
+    public Button[] buttonBarArray;
+
+    // Color buttons
+    public ColorButton[] colorButtons = new ColorButton[4];
+    public ColorButton greenButton;
+    public ColorButton redButton;
+    public ColorButton yellowButton;
+    public ColorButton blueButton;
+
+    public PlaySymbol playSymbol; // Inside the main button, displays play symbol
+    public MainButton mainButton; // The circle, click on it to play, displays level number
+
+    public Title title;
+    private ImageView top_fade;
+    private ImageView bottom_fade;
+    public Instructions popUpInstructions;
+    private AdView bannerAd;
+
+    // Game modes
+    private GoodButton modesButton; // Game modes button
+    private GoodTextView modeDisplay; // Displays what mode is selected on game start
+
+    // Animator Listeners
+    public Runnable fadeInButtonBarListener;
+    public Runnable fadeOutButtonBarListener;
+    public static final int mainFadeDuration = 1000; // main animation duration in milliseconds
+
+    // The logical game
+    public Game game;
+
+    public final static int GREEN = 0; // Highest
+    public final static int RED = 1; // 2nd Highest
+    public final static int YELLOW = 2; // 3rd Highest
+    public final static int BLUE = 3; // 4th Highest
+
+    private ColorButton getButton(int which) {
+        switch (which) {
+            case GREEN:
+                return greenButton;
+            case RED:
+                return redButton;
+            case YELLOW:
+                return yellowButton;
+            case BLUE:
+                return blueButton;
+        }
+        throw new IllegalArgumentException("No such color: 135");
     }
 
     public void initialize() {
@@ -47,9 +127,6 @@ public class GameScreen {
         level = 1;
         startNextSequence = false;
         popInRan = false;
-
-        // Initialize runner
-        runner = new Runner();
 
         // Initialize Death Menu
         deathMenu = main.findViewById(R.id.deathScreen);
@@ -203,115 +280,17 @@ public class GameScreen {
         root.addView(rightButtonColumn);
         root.addView(modesMenu, 0); // Add to back
         root.addView(popUpInstructions);
-    }
 
-    // Layouts for landscape orientation and small phones
-    private LinearLayout leftButtonColumn;
-    private LinearLayout rightButtonColumn;
-
-    // Variables
-    public boolean allowColorInput; // Close input while sequence is playing, open when it's the player's turn to repeat
-    public boolean inGame; // Keeps track of whether in game or not
-    private boolean mainButtonEnabled; // Enables and disables main button, effectively tracks when game is allowed to start
-    public boolean startGameAfterFadeOut; // If true, game will start after the death-screen finishes fading away. Set on playAgainButton click
-    public boolean startNextSequence; // False until sequence is finished, true to continue to next level/sequence
-    public boolean popInRan; // Title pop-in plays in onResume once per creation
-    public long milliSecondsToLight; // The length of time a color is played (visual and sound) for during a sequence
-    public long milliSecondsDelay; // Delay between lights
-    public int level; // What level the user is on
-
-    // Layouts
-    private RelativeLayout root;
-    public DeathMenu deathMenu;
-    public SettingsMenu settingsMenu;
-    public ModesMenu modesMenu;
-    public LinearLayout buttonBar;
-
-    // Button bar
-    public Button moreGamesButton;
-    public Button noAdsButton;
-    public Button starButton;
-    public Button settingsButton;
-    public Button[] buttonBarArray;
-
-    // Color buttons
-    public ColorButton[] colorButtons = new ColorButton[4];
-    public ColorButton greenButton;
-    public ColorButton redButton;
-    public ColorButton yellowButton;
-    public ColorButton blueButton;
-
-    public PlaySymbol playSymbol; // Inside the main button, displays play symbol
-    public MainButton mainButton; // The circle, click on it to play, displays level number
-
-    public Title title;
-    private ImageView top_fade;
-    private ImageView bottom_fade;
-    public Instructions popUpInstructions;
-
-    // Game modes
-    private GoodButton modesButton; // Game modes button
-    private GoodTextView modeDisplay; // Displays what mode is selected on game start
-
-    // Animator Listeners
-    public Runnable fadeInButtonBarListener;
-    public Runnable fadeOutButtonBarListener;
-    public static final int mainFadeDuration = 1000; // main animation duration in milliseconds
-
-    // The logical game
-    public Game game;
-
-    public final static int GREEN = 0; // Highest
-    public final static int RED = 1; // 2nd Highest
-    public final static int YELLOW = 2; // 3rd Highest
-    public final static int BLUE = 3; // 4th Highest
-
-    private ColorButton getButton(int which) {
-        switch (which) {
-            case GREEN:
-                return greenButton;
-            case RED:
-                return redButton;
-            case YELLOW:
-                return yellowButton;
-            case BLUE:
-                return blueButton;
-        }
-        throw new IllegalArgumentException("No such color: 135");
-    }
-
-    // This is the handler along with my own method I've come up with to stop the
-    // potential memory leaks w/o a static trail making a mess of the entire class
-    public static Runner runner;
-    private class Runner {
-        private void playColor(int key) {
-            GameScreen.this.playColor(getButton(key));
-        }
-    }
-    public final static MyHandler handler = new MyHandler();
-    private static class MyHandler extends Handler {
-        @Override
-        public void handleMessage(Message message) {
-            final int what = message.what;
-            switch (what) {
-                case GREEN:
-                    runner.playColor(GREEN);
-                    break;
-                case RED:
-                    runner.playColor(RED);
-                    break;
-                case YELLOW:
-                    runner.playColor(YELLOW);
-                    break;
-                case BLUE:
-                    runner.playColor(BLUE);
-                    break;
-            }
+        // Conditionally initialize banner ad
+        if (!main.tPreferences().getBoolean(Keys.isNoAdsOwned, false)) {
+            bannerAd = Ads.getBannerAd();
+            bannerAd.setLayoutParams(new Rlp(MATCH, WRAP).bottom());
+            bannerAd.setBackgroundColor(TColor.Transparent);
         }
     }
 
     public void startGame() {
-        game = new Game(Game.GameMode.valueOf(main.tPreferences.getString("gameMode", Game.GameMode.Classic.name())));
+        game = new Game(Game.GameMode.valueOf(main.tPreferences().getString(Keys.gameMode, Game.GameMode.Classic.name())));
         mainButtonEnabled = false;
         allowColorInput = false;
         inGame = true;
@@ -342,13 +321,15 @@ public class GameScreen {
         mainButton.setText(level_text);
 
         // Note, the 1 new value added is kept and retained, growing the sequence naturally per the rules of the game
-        handler.postDelayed(new Runnable() {
+        main.handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                try {
-                    handler.sendEmptyMessage(game.getGameMode().playBack()); // if statement needed for case of starting game then backing to main menu
-                }
-                catch(NullPointerException | IndexOutOfBoundsException e) { TLogging.report("error 488");} // Something has gone wrong, this should never happen
+                main.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        playColor(getButton(game.getGameMode().playBack()));
+                    }
+                });
             }
         }, (int) (milliSecondsDelay * 8 + milliSecondsToLight)); // Weird balancing I've found to like across speed settings
     }
@@ -357,7 +338,7 @@ public class GameScreen {
         button.press();
 
         // Wait a bit then return button to normal
-        handler.postDelayed(new Runnable() {
+        main.handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 button.returnToNormal();
@@ -365,14 +346,15 @@ public class GameScreen {
                 // Checks to see if there's more colors to play
                 if (!game.getGameMode().checkAllowInput()) {
                     // After delay play next color
-                    handler.postDelayed(new Runnable() {
+                    main.handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            try {
-                                // Play next color, have to use the handler because only the original thread that created a view can touch it according to android
-                                handler.sendEmptyMessage(game.getGameMode().playBack());
-                            }
-                            catch(ArrayIndexOutOfBoundsException e) { TLogging.report(e);} // Something has gone wrong, this should never happen
+                            main.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    playColor(getButton(game.getGameMode().playBack()));
+                                }
+                            });
                         }
                     }, milliSecondsDelay);
                 }
@@ -581,6 +563,11 @@ public class GameScreen {
                 // Display settings screen
                 settingsMenu.open();
 
+                // Conditionally add bannerAd
+                if (!main.tPreferences().getBoolean(Keys.isNoAdsOwned, false)) {
+                    root.addView(bannerAd);
+                }
+
                 // Play button sound
                 AndroidSound.click.play(main);
             }
@@ -593,7 +580,7 @@ public class GameScreen {
             public void onClick(View view) {
                 // Open dialog asking to rate the app
                 Dialogs.rateTheApp(main);
-                main.tPreferences.putBoolean("ratingRequestDisplayed", true); // Don't do a rating request if people already found this button
+                main.tPreferences().putBoolean(Keys.isRatingRequestDisplayed, true); // Don't do a rating request if people already found this button
 
                 // Play button sound
                 AndroidSound.click.play(main);
@@ -614,7 +601,19 @@ public class GameScreen {
     }
 
     private void setNoAdsButton() {
-        noAdsButton.setOnClickListener(main.noAdsButtonListener());
+        noAdsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!main.tPreferences().getBoolean(Keys.isNoAdsOwned, false))
+                    Dialogs.purchaseMenu(main);
+                else {
+                    Dialogs.noAdsAlreadyPurchased(main);
+                }
+
+                // Play button sound
+                AndroidSound.click.play(main);
+            }
+        });
     }
 
     // For the 4 colored buttons, sets up touch listeners
@@ -635,10 +634,10 @@ public class GameScreen {
 
                                     // Check to see if new best for the mode has been achieved
                                     int scoreNum = level - 1;
-                                    int highScoreNum = main.tPreferences.getInt(game.getGameMode().name() + "Best", 0);
+                                    int highScoreNum = main.tPreferences().getInt(game.getGameMode().name() + Keys.modeBest, 0);
                                     if (highScoreNum < scoreNum) {
                                         highScoreNum = scoreNum;
-                                        main.tPreferences.putInt(game.getGameMode().name() + "Best", highScoreNum);
+                                        main.tPreferences().putInt(game.getGameMode().name() + Keys.modeBest, highScoreNum);
                                     }
                                 }
                             }
@@ -692,21 +691,22 @@ public class GameScreen {
         AndroidSound.failure.play(main);
 
         // Track the number of games that have been completed
-        int gamesCompleted = main.tPreferences.getInt("gamesCompleted", 0) + 1;
-        main.tPreferences.putInt("gamesCompleted", gamesCompleted);
+        int gamesCompleted = main.tPreferences().getInt(Keys.gamesCompleted, 0) + 1;
+        main.tPreferences().putInt(Keys.gamesCompleted, gamesCompleted);
 
         // Request rating if never requested before and conditions are met
-        boolean ratingRequestDisplayed = main.tPreferences.getBoolean("ratingRequestDisplayed", false);
+        boolean ratingRequestDisplayed = main.tPreferences().getBoolean(Keys.isRatingRequestDisplayed, false);
 
         if (!ratingRequestDisplayed && gamesCompleted > 10 && scoreNum > 10) {
             flog("Rating request displayed");
             Dialogs.rateTheApp(main);
-            main.tPreferences.putBoolean("ratingRequestDisplayed", true);
+            main.tPreferences().putBoolean(Keys.isRatingRequestDisplayed, true);
         }
         else {
             // Don't give bad initial ad experience
-            if (gamesCompleted > 1) {
-                main.adCheck();
+            // Don't continue if we remember that no_ads has been purchased
+            if (gamesCompleted > 1 && !main.tPreferences().getBoolean(Keys.isNoAdsOwned, false)) {
+                Ads.rollAdDisplay(.40, null); // If ad is loaded, random chance to display
             }
         }
 
@@ -715,6 +715,13 @@ public class GameScreen {
 
         // Unlock screen orientation
         main.setRequestedOrientation(SCREEN_ORIENTATION_USER);
+    }
+
+    // Remove the banner ad if possible
+    public void removeBannerAd() {
+        if (bannerAd != null && bannerAd.getParent() != null) {
+            root.removeView(bannerAd);
+        }
     }
 
     // End game in progress, reset variables, and return to main menu
@@ -728,7 +735,7 @@ public class GameScreen {
         mainButton.setText("");
 
         // Remove scheduled tasks
-        handler.removeCallbacksAndMessages(null);
+        main.handler().removeCallbacksAndMessages(null);
 
         // End animations incase still ongoing and return buttons to normal incase they are in middle of press by sequence
         popUpInstructions.endAnimations();
@@ -775,7 +782,7 @@ public class GameScreen {
     private LinearLayout alternativePlayLayout;
     private GoodTextView altModeText;
     public void playSymbolSetUp() {
-        Game.GameMode mode = Game.GameMode.valueOf(main.tPreferences.getString("gameMode", Game.GameMode.Classic.name()));
+        Game.GameMode mode = Game.GameMode.valueOf(main.tPreferences().getString(Keys.gameMode, Game.GameMode.Classic.name()));
 
         // Classic layout
         if (mode == Game.GameMode.Classic) {
@@ -874,7 +881,7 @@ public class GameScreen {
             @Override
             public void onClick(View v) {
                 // If no_ads purchase has been made or have watched the rewarded video ad, then you can get to game modes menu
-                if (main.tPreferences.getBoolean("noAdsOwned", false) || main.tPreferences.getBoolean("rewardedGameModes", false)) {
+                if (main.tPreferences().getBoolean(Keys.isNoAdsOwned, false) || main.tPreferences().getBoolean(Keys.isRewardedGameModes, false)) {
                     modesMenu.open();
                     forMenuFadeOut();
                 }
@@ -883,7 +890,7 @@ public class GameScreen {
                         @Override
                         public void run() {
                             // On reward
-                            main.tPreferences.putBoolean("rewardedGameModes", true);
+                            main.tPreferences().putBoolean(Keys.isRewardedGameModes, true);
                             modesMenu.open();
                             forMenuFadeOut();
                         }

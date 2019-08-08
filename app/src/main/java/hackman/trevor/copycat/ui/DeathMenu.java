@@ -16,7 +16,8 @@ import android.widget.TextView;
 import hackman.trevor.copycat.MainActivity;
 import hackman.trevor.copycat.R;
 import hackman.trevor.copycat.logic.Game;
-import hackman.trevor.copycat.standard.AndroidSound;
+import hackman.trevor.copycat.system.AndroidSound;
+import hackman.trevor.copycat.system.Keys;
 import hackman.trevor.tlibrary.library.TDimensions;
 import hackman.trevor.tlibrary.library.ui.Llp;
 
@@ -109,12 +110,12 @@ public class DeathMenu extends LinearLayout {
         fadeOutEnd = new Runnable() {
             @Override
             public void run() {
-                if (main.gameScreen.startGameAfterFadeOut) {
-                    main.gameScreen.startGameAfterFadeOut = false;
-                    main.gameScreen.startGame();
+                if (main.gameScreen().startGameAfterFadeOut) {
+                    main.gameScreen().startGameAfterFadeOut = false;
+                    main.gameScreen().startGame();
                 }
                 else {
-                    main.gameScreen.enableNonColorButtons(); // Enable buttons
+                    main.gameScreen().enableNonColorButtons(); // Enable buttons
                 }
 
                 // Manual bring to back
@@ -190,7 +191,7 @@ public class DeathMenu extends LinearLayout {
             public void onAnimationEnd(Animator animation) {
                 isDeathScreenUp = true; // Set flag
                 isDeathScreenComing = false; // Set flag
-                main.gameScreen.mainButton.setText(""); // Clear score tracker
+                main.gameScreen().mainButton.setText(""); // Clear score tracker
 
                 // Give buttons enabled graphic and make clickable once completely animated in
                 playAgainButton.setClickable(true);
@@ -279,12 +280,12 @@ public class DeathMenu extends LinearLayout {
         String scoreNum_text = "" + score;
         txt_score.setText(scoreNum_text);
 
-        int highScoreNum = main.tPreferences.getInt(main.gameScreen.game.getGameMode().name() + "Best", 0);
+        int highScoreNum = main.tPreferences().getInt(main.gameScreen().game.getGameMode().name() + Keys.modeBest, 0);
         String highScoreNum_text = "" + highScoreNum;
         txt_best.setText(highScoreNum_text);
 
         // Select the proper nameSet for the colorSet
-        String[] names = main.tPreferences.getInt("colors", SettingsMenu.CLASSIC) == SettingsMenu.CLASSIC ? classicNames : genericNames;
+        String[] names = main.tPreferences().getInt(Keys.colors, SettingsMenu.CLASSIC) == SettingsMenu.CLASSIC ? classicNames : genericNames;
 
         // Indicate what the pressed and correct buttons were
         String pressedString = names[pressed];
@@ -297,7 +298,7 @@ public class DeathMenu extends LinearLayout {
         txt_pressed.setText(pressedString);
         txt_correct.setText(correctString);
 
-        String mode = Game.GameMode.valueOf(main.tPreferences.getString("gameMode", Game.GameMode.Classic.name())).displayName();
+        String mode = Game.GameMode.valueOf(main.tPreferences().getString(Keys.gameMode, Game.GameMode.Classic.name())).displayName();
         txt_mode.setText(mode);
     }
 
@@ -319,10 +320,10 @@ public class DeathMenu extends LinearLayout {
                 deathMenu.animateOut();
 
                 // Fade in UI
-                main.gameScreen.mainFadeInAnimation();
+                main.gameScreen().mainFadeInAnimation();
 
                 // Play button sound
-                AndroidSound.click.play(getContext());
+                AndroidSound.click.play(main);
             }
         });
         mainMenuButton.setClickable(false); // setOnClickListener resets clickable to true, so we need to set it to false here
@@ -332,14 +333,14 @@ public class DeathMenu extends LinearLayout {
         playAgainButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                main.gameScreen.playSymbol.setAlpha(0.0f);
+                main.gameScreen().playSymbol.setAlpha(0.0f);
 
-                main.gameScreen.startGameAfterFadeOut = true;
-                main.gameScreen.mainButton.setText("1"); // Starting level is always 1
+                main.gameScreen().startGameAfterFadeOut = true;
+                main.gameScreen().mainButton.setText("1"); // Starting level is always 1
                 deathMenu.animateOut();
 
                 // Play button sound
-                AndroidSound.click.play(getContext());
+                AndroidSound.click.play(main);
             }
         });
         playAgainButton.setClickable(false); // setOnClickListener resets clickable to true, so we need to set it to false here

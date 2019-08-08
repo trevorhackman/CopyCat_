@@ -1,4 +1,4 @@
-package hackman.trevor.copycat.standard;
+package hackman.trevor.copycat.system;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -7,8 +7,6 @@ import android.content.DialogInterface;
 import hackman.trevor.copycat.MainActivity;
 import hackman.trevor.copycat.R;
 
-import static hackman.trevor.copycat.MainActivity.noAdsStatus.NOT_OWNED;
-import static hackman.trevor.copycat.MainActivity.noAdsStatus.OWNED;
 import static hackman.trevor.tlibrary.library.TLogging.report;
 import static hackman.trevor.tlibrary.library.TMiscellaneous.startMoreGamesIntent;
 import static hackman.trevor.tlibrary.library.TMiscellaneous.startRateGameIntent;
@@ -27,7 +25,7 @@ public enum Dialogs {;
                 .setNeutralButton(R.string.Menu, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        main.gameScreen.exitGameToMainMenu();
+                        main.gameScreen().exitGameToMainMenu();
                     }
                 })
                 .setNegativeButton(R.string.Cancel, null)
@@ -72,7 +70,7 @@ public enum Dialogs {;
                 .setPositiveButton(R.string.Purchase, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        main.purchaseFlow();
+                        Billing.purchaseFlow(main);
                     }
                 })
                 .setNegativeButton(R.string.Cancel, null)
@@ -98,49 +96,6 @@ public enum Dialogs {;
                 .show();
     }
 
-    public static void nullIntentError(Context context) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-        builder.setTitle(R.string.Unknown_Error)
-                .setMessage(R.string.unknown_null_intent_data)
-                .setNeutralButton(R.string.OK, null)
-                .create()
-                .show();
-    }
-
-    public static void nullmServiceError(Context context) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-        builder.setTitle(R.string.Error).setMessage(R.string.null_mService_error_message)
-                .setNeutralButton(R.string.OK, null)
-                .create()
-                .show();
-    }
-
-    public static void nullPendingIntentError(Context context) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-        builder.setTitle(R.string.Error).setMessage(R.string.null_pending_intent_error_message)
-                .setNeutralButton(R.string.OK, null)
-                .create()
-                .show();
-    }
-
-    public static void remoteException(Context context) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-        builder.setTitle(R.string.Unknown_Error)
-                .setMessage(R.string.unknown_remote_exception)
-                .setNeutralButton(R.string.OK, null)
-                .create()
-                .show();
-    }
-
-    public static void nullIntentSenderError(Context context) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
-        builder.setTitle(R.string.Unknown_Error)
-                .setNeutralButton(R.string.OK, null)
-                .setMessage(R.string.unknown_null_intent_sender)
-                .create()
-                .show();
-    }
-
     public static void videoAdNotLoaded(Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
         builder.setTitle(R.string.video_not_loaded_title).setMessage(R.string.video_not_loaded_message)
@@ -156,17 +111,9 @@ public enum Dialogs {;
                 .setPositiveButton(R.string.Watch, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (main.noAdsStatusResult == NOT_OWNED) {
-                            boolean loaded = Ads.playRewardedVideoAd(onReward);
-                            if (!loaded) {
-                                videoAdNotLoaded(main);
-                            }
-                        }
-                        else if (main.noAdsStatusResult != OWNED) {
-                            main.noAdsStatusResult = main.isNoAdsPurchased(); // Query again
-                            // Attempt to play video ad anyways
-                            // Don't want to deny game modes to people who can't connect to Google Billing (for example if Google Play Store is disabled or not installed) to check no_ads purchase
-                            // This does mean in very exceptional cases someone that paid to remove ads might have to watch an ad
+                        // If we don't remember, play an ad
+                        // In exceptional circumstances someone that already payed may not be remembered (data cleared & yet to make successful query to remember), but oh well
+                        if (main.tPreferences().getBoolean(Keys.isNoAdsOwned, false)) {
                             boolean loaded = Ads.playRewardedVideoAd(onReward);
                             if (!loaded) {
                                 videoAdNotLoaded(main);
@@ -175,11 +122,29 @@ public enum Dialogs {;
                         // else OWNED
                         else {
                             report("Shouldn't happen : no_ads owned when we don't remember it being owned : 177");
-                            main.tPreferences.putBoolean("noAdsOwned", true);
+                            main.tPreferences().putBoolean(Keys.isNoAdsOwned, true);
                         }
                     }
                 })
                 .setNegativeButton(R.string.Cancel, null)
+                .create()
+                .show();
+    }
+
+    public static void failedNetwork(Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+        builder.setTitle(R.string.failed_title)
+                .setMessage(R.string.failed_message)
+                .setNeutralButton(R.string.OK, null)
+                .create()
+                .show();
+    }
+
+    public static void unknownError(Context context, String errorMessage) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK);
+        builder.setTitle(R.string.unknown_title)
+                .setMessage(errorMessage)
+                .setNeutralButton(R.string.OK, null)
                 .create()
                 .show();
     }

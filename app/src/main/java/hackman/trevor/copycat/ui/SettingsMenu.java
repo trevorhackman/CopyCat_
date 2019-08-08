@@ -3,7 +3,6 @@ package hackman.trevor.copycat.ui;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -13,9 +12,12 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
 import hackman.trevor.copycat.MainActivity;
 import hackman.trevor.copycat.R;
-import hackman.trevor.copycat.standard.AndroidSound;
+import hackman.trevor.copycat.system.AndroidSound;
+import hackman.trevor.copycat.system.Keys;
 import hackman.trevor.tlibrary.library.TDimensions;
 
 import static hackman.trevor.tlibrary.library.TLogging.report;
@@ -79,7 +81,7 @@ public class SettingsMenu extends LinearLayout {
         fadeOutOnEnd = new Runnable() {
             @Override
             public void run() {
-                main.gameScreen.enableNonColorButtons(); // Enable buttons
+                main.gameScreen().enableNonColorButtons(); // Enable buttons
                 settingsCloseButton.setEnabled(true);
 
                 // Manual move to back
@@ -160,7 +162,7 @@ public class SettingsMenu extends LinearLayout {
 
     public void open() {
         isSettingsScreenUp = true;
-        main.gameScreen.disableNonColorButtons(); // Disable buttons
+        main.gameScreen().disableNonColorButtons(); // Disable buttons
 
         // Bring to front
         this.bringToFront();
@@ -180,7 +182,7 @@ public class SettingsMenu extends LinearLayout {
         if (isSettingsScreenCompletelyUp) {
             isSettingsScreenUp = false;
             isSettingsScreenCompletelyUp = false;
-            main.gameScreen.enableSettingsButton();
+            main.gameScreen().enableSettingsButton();
             settingsCloseButton.setEnabled(false);
             fadeOut = animate().alpha(0.0f).setDuration(fadeOutDuration).withEndAction(fadeOutOnEnd);
         }
@@ -197,8 +199,11 @@ public class SettingsMenu extends LinearLayout {
             public void onClick(View view) {
                 close();
 
+                // Remove the banner ad if there is one
+                main.gameScreen().removeBannerAd();
+
                 // Play button sound
-                AndroidSound.click.play(getContext());
+                AndroidSound.click.play(main);
             }
         });
     }
@@ -208,13 +213,13 @@ public class SettingsMenu extends LinearLayout {
             @Override
             public void onClick(View view) {
                 if (isSettingsScreenUp) {
-                    int speedSetting = main.tPreferences.getInt("speed", NORMAL);
+                    int speedSetting = main.tPreferences().getInt(Keys.speed, NORMAL);
                     if (speedSetting < INSANE) {
-                        main.tPreferences.putInt("speed", ++speedSetting);
+                        main.tPreferences().putInt(Keys.speed, ++speedSetting);
                         setSpeed();
 
                         // Play button sound
-                        AndroidSound.click.play(getContext());
+                        AndroidSound.click.play(main);
                     }
                 }
             }
@@ -224,13 +229,13 @@ public class SettingsMenu extends LinearLayout {
             @Override
             public void onClick(View view) {
                 if (isSettingsScreenUp) {
-                    int speedSetting = main.tPreferences.getInt("speed", NORMAL);
+                    int speedSetting = main.tPreferences().getInt(Keys.speed, NORMAL);
                     if (speedSetting > NORMAL) {
-                        main.tPreferences.putInt("speed", --speedSetting);
+                        main.tPreferences().putInt(Keys.speed, --speedSetting);
                         setSpeed();
 
                         // Play button sound
-                        AndroidSound.click.play(getContext());
+                        AndroidSound.click.play(main);
                     }
                 }
             }
@@ -240,13 +245,13 @@ public class SettingsMenu extends LinearLayout {
             @Override
             public void onClick(View v) {
                 if (isSettingsScreenUp) {
-                    int colorsSetting = main.tPreferences.getInt("colors", CLASSIC);
+                    int colorsSetting = main.tPreferences().getInt(Keys.colors, CLASSIC);
                     if (colorsSetting < GREYED) {
-                        main.tPreferences.putInt("colors", ++colorsSetting);
+                        main.tPreferences().putInt(Keys.colors, ++colorsSetting);
                         setColors();
 
                         // Play button sound
-                        AndroidSound.click.play(getContext());
+                        AndroidSound.click.play(main);
                     }
                 }
             }
@@ -256,13 +261,13 @@ public class SettingsMenu extends LinearLayout {
             @Override
             public void onClick(View v) {
                 if (isSettingsScreenUp) {
-                    int colorsSetting = main.tPreferences.getInt("colors", CLASSIC);
+                    int colorsSetting = main.tPreferences().getInt(Keys.colors, CLASSIC);
                     if (colorsSetting > CLASSIC) {
-                        main.tPreferences.putInt("colors", --colorsSetting);
+                        main.tPreferences().putInt(Keys.colors, --colorsSetting);
                         setColors();
 
                         // Play button sound
-                        AndroidSound.click.play(getContext());
+                        AndroidSound.click.play(main);
                     }
                 }
             }
@@ -276,35 +281,35 @@ public class SettingsMenu extends LinearLayout {
     private static final int EXTREME = 2;
     private static final int INSANE = 3;
     private void setSpeed() {
-        int speed = main.tPreferences.getInt("speed", NORMAL /* default value */);
+        int speed = main.tPreferences().getInt(Keys.speed, NORMAL /* default value */);
         switch (speed) {
             case NORMAL: // Default
-                main.gameScreen.milliSecondsToLight = 500;
-                main.gameScreen.milliSecondsDelay = 90;
+                main.gameScreen().milliSecondsToLight = 500;
+                main.gameScreen().milliSecondsDelay = 90;
                 txt_speedText.setText(R.string.Normal);
 
                 // Fade out left arrow since no more settings to the left
                 leftArrowButton0.getBackground().setColorFilter(0x44ffffff, PorterDuff.Mode.MULTIPLY);
                 break;
             case FAST:
-                main.gameScreen.milliSecondsToLight = 300;
-                main.gameScreen.milliSecondsDelay = 65;
+                main.gameScreen().milliSecondsToLight = 300;
+                main.gameScreen().milliSecondsDelay = 65;
                 txt_speedText.setText(R.string.Fast);
 
                 // Unfade left arrow
                 leftArrowButton0.getBackground().clearColorFilter();
                 break;
             case EXTREME:
-                main.gameScreen.milliSecondsToLight = 150;
-                main.gameScreen.milliSecondsDelay = 45;
+                main.gameScreen().milliSecondsToLight = 150;
+                main.gameScreen().milliSecondsDelay = 45;
                 txt_speedText.setText(R.string.Extreme);
 
                 // Unfade right arrow
                 rightArrowButton0.getBackground().clearColorFilter();
                 break;
             case INSANE:
-                main.gameScreen.milliSecondsToLight = 75;
-                main.gameScreen.milliSecondsDelay = 30;
+                main.gameScreen().milliSecondsToLight = 75;
+                main.gameScreen().milliSecondsDelay = 30;
                 txt_speedText.setText(R.string.Insane);
 
                 // Fade out right arrow since no more settings to the right
@@ -317,7 +322,7 @@ public class SettingsMenu extends LinearLayout {
     }
 
     // To be called on creation and every time speed setting is changed
-    // Also fades left&right arrow buttons appropiately
+    // Also fades left&right arrow buttons appropriately
     public static final int CLASSIC = 0;
     private static final int WARM = 1;
     private static final int BLUES = 2;
@@ -325,15 +330,15 @@ public class SettingsMenu extends LinearLayout {
     private static final int INVERTED = 4;
     private static final int GREYED = 5;
     private void setColors() {
-        int colors = main.tPreferences.getInt("colors", CLASSIC /* default value */);
+        int colors = main.tPreferences().getInt(Keys.colors, CLASSIC /* default value */);
         switch (colors) {
             case CLASSIC:
                 txt_colorsText.setText(R.string.Classic);
-                main.gameScreen.colorButtons[0].setColor(ContextCompat.getColor(main, R.color.green));
-                main.gameScreen.colorButtons[1].setColor(ContextCompat.getColor(main, R.color.red));
-                main.gameScreen.colorButtons[2].setColor(ContextCompat.getColor(main, R.color.yellow));
-                main.gameScreen.colorButtons[3].setColor(ContextCompat.getColor(main, R.color.blue));
-                for (ColorButton cb : main.gameScreen.colorButtons) {
+                main.gameScreen().colorButtons[0].setColor(ContextCompat.getColor(main, R.color.green));
+                main.gameScreen().colorButtons[1].setColor(ContextCompat.getColor(main, R.color.red));
+                main.gameScreen().colorButtons[2].setColor(ContextCompat.getColor(main, R.color.yellow));
+                main.gameScreen().colorButtons[3].setColor(ContextCompat.getColor(main, R.color.blue));
+                for (ColorButton cb : main.gameScreen().colorButtons) {
                     cb.flex();
                 }
 
@@ -342,11 +347,11 @@ public class SettingsMenu extends LinearLayout {
                 break;
             case WARM:
                 txt_colorsText.setText(R.string.Warm);
-                main.gameScreen.colorButtons[0].setColor(ContextCompat.getColor(main, R.color.warm0));
-                main.gameScreen.colorButtons[1].setColor(ContextCompat.getColor(main, R.color.warm1));
-                main.gameScreen.colorButtons[2].setColor(ContextCompat.getColor(main, R.color.warm2));
-                main.gameScreen.colorButtons[3].setColor(ContextCompat.getColor(main, R.color.warm3));
-                for (ColorButton cb : main.gameScreen.colorButtons) {
+                main.gameScreen().colorButtons[0].setColor(ContextCompat.getColor(main, R.color.warm0));
+                main.gameScreen().colorButtons[1].setColor(ContextCompat.getColor(main, R.color.warm1));
+                main.gameScreen().colorButtons[2].setColor(ContextCompat.getColor(main, R.color.warm2));
+                main.gameScreen().colorButtons[3].setColor(ContextCompat.getColor(main, R.color.warm3));
+                for (ColorButton cb : main.gameScreen().colorButtons) {
                     cb.flex();
                 }
 
@@ -355,31 +360,31 @@ public class SettingsMenu extends LinearLayout {
                 break;
             case BLUES:
                 txt_colorsText.setText(R.string.Cool);
-                main.gameScreen.colorButtons[0].setColor(ContextCompat.getColor(main, R.color.cool0));
-                main.gameScreen.colorButtons[1].setColor(ContextCompat.getColor(main, R.color.cool1));
-                main.gameScreen.colorButtons[2].setColor(ContextCompat.getColor(main, R.color.cool2));
-                main.gameScreen.colorButtons[3].setColor(ContextCompat.getColor(main, R.color.cool3));
-                for (ColorButton cb : main.gameScreen.colorButtons) {
+                main.gameScreen().colorButtons[0].setColor(ContextCompat.getColor(main, R.color.cool0));
+                main.gameScreen().colorButtons[1].setColor(ContextCompat.getColor(main, R.color.cool1));
+                main.gameScreen().colorButtons[2].setColor(ContextCompat.getColor(main, R.color.cool2));
+                main.gameScreen().colorButtons[3].setColor(ContextCompat.getColor(main, R.color.cool3));
+                for (ColorButton cb : main.gameScreen().colorButtons) {
                     cb.flex();
                 }
                 break;
             case PURPLES:
                 txt_colorsText.setText(R.string.Royal);
-                main.gameScreen.colorButtons[0].setColor(ContextCompat.getColor(main, R.color.royal0));
-                main.gameScreen.colorButtons[1].setColor(ContextCompat.getColor(main, R.color.royal1));
-                main.gameScreen.colorButtons[2].setColor(ContextCompat.getColor(main, R.color.royal2));
-                main.gameScreen.colorButtons[3].setColor(ContextCompat.getColor(main, R.color.royal3));
-                for (ColorButton cb : main.gameScreen.colorButtons) {
+                main.gameScreen().colorButtons[0].setColor(ContextCompat.getColor(main, R.color.royal0));
+                main.gameScreen().colorButtons[1].setColor(ContextCompat.getColor(main, R.color.royal1));
+                main.gameScreen().colorButtons[2].setColor(ContextCompat.getColor(main, R.color.royal2));
+                main.gameScreen().colorButtons[3].setColor(ContextCompat.getColor(main, R.color.royal3));
+                for (ColorButton cb : main.gameScreen().colorButtons) {
                     cb.flex();
                 }
                 break;
             case INVERTED:
                 txt_colorsText.setText(R.string.Inverted);
-                main.gameScreen.colorButtons[0].setColor(ContextCompat.getColor(main, R.color.inverted0));
-                main.gameScreen.colorButtons[1].setColor(ContextCompat.getColor(main, R.color.inverted1));
-                main.gameScreen.colorButtons[2].setColor(ContextCompat.getColor(main, R.color.inverted2));
-                main.gameScreen.colorButtons[3].setColor(ContextCompat.getColor(main, R.color.inverted3));
-                for (ColorButton cb : main.gameScreen.colorButtons) {
+                main.gameScreen().colorButtons[0].setColor(ContextCompat.getColor(main, R.color.inverted0));
+                main.gameScreen().colorButtons[1].setColor(ContextCompat.getColor(main, R.color.inverted1));
+                main.gameScreen().colorButtons[2].setColor(ContextCompat.getColor(main, R.color.inverted2));
+                main.gameScreen().colorButtons[3].setColor(ContextCompat.getColor(main, R.color.inverted3));
+                for (ColorButton cb : main.gameScreen().colorButtons) {
                     cb.flex();
                 }
 
@@ -388,11 +393,11 @@ public class SettingsMenu extends LinearLayout {
                 break;
             case GREYED:
                 txt_colorsText.setText(R.string.Greyed);
-                main.gameScreen.colorButtons[0].setColor(ContextCompat.getColor(main, R.color.greyed));
-                main.gameScreen.colorButtons[1].setColor(ContextCompat.getColor(main, R.color.greyed));
-                main.gameScreen.colorButtons[2].setColor(ContextCompat.getColor(main, R.color.greyed));
-                main.gameScreen.colorButtons[3].setColor(ContextCompat.getColor(main, R.color.greyed));
-                for (ColorButton cb : main.gameScreen.colorButtons) {
+                main.gameScreen().colorButtons[0].setColor(ContextCompat.getColor(main, R.color.greyed));
+                main.gameScreen().colorButtons[1].setColor(ContextCompat.getColor(main, R.color.greyed));
+                main.gameScreen().colorButtons[2].setColor(ContextCompat.getColor(main, R.color.greyed));
+                main.gameScreen().colorButtons[3].setColor(ContextCompat.getColor(main, R.color.greyed));
+                for (ColorButton cb : main.gameScreen().colorButtons) {
                     cb.flex();
                 }
 

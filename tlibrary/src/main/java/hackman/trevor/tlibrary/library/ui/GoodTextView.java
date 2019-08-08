@@ -12,7 +12,7 @@ import hackman.trevor.tlibrary.library.TColor;
 import static hackman.trevor.tlibrary.library.TDimensions.mdToPixels;
 
 
-public class GoodTextView extends android.support.v7.widget.AppCompatTextView {
+public class GoodTextView extends androidx.appcompat.widget.AppCompatTextView {
     private Paint p;
     private boolean bOutline1 = false; // If an outline is drawn
     private boolean bOutline2 = false; // If a double outline is drawn

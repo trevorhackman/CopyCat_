@@ -10,7 +10,7 @@ import android.view.ViewGroup;
  * The Title
  */
 
-public class Title extends android.support.v7.widget.AppCompatImageView {
+public class Title extends androidx.appcompat.widget.AppCompatImageView {
     private static final int titlePopDuration = 1100;
     private TimeInterpolator interpolator;
 

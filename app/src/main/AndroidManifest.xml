@@ -14,7 +14,7 @@
     <application
         android:resizeableActivity="true"
         android:supportsPictureInPicture="false"
-        android:name="android.support.multidex.MultiDexApplication"
+        android:name="androidx.multidex.MultiDexApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -40,7 +40,7 @@
             android:name="io.fabric.ApiKey"
             android:value="7c414c329f4e2ac275ac7a0c78f70f79025b5206" />
 
-        <uses-library android:name="org.apache.http.legacy" android:required="false"/> <!-- Temp required to fix adMob crash
+        <!--<uses-library android:name="org.apache.http.legacy" android:required="false"/> Temp required to fix adMob crash
         https://groups.google.com/forum/?hl=Es-419#!category-topic/google-admob-ads-sdk/android/K1HKru7RutY -->
     </application>
 

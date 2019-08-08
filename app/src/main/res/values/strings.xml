@@ -2,13 +2,13 @@
     <!-- Descriptive string resources-->
     <string name="version_number">2.0.0</string>
     <string name="app_name">Simon Says</string>
-    <string name="already_purchased_message">You have already paid to remove ads. You will never receive ads!</string>
+    <string name="already_purchased_message">You have already purchased the game. You will never receive ads.</string>
     <string name="rate_the_app_title">Rate App</string>
     <string name="rate_the_app_message">Simon Says is made by a single person so your reviews mean a lot. Thank you for the effort. </string>
     <string name="more_games_title">More Games</string>
     <string name="more_games_message">View other games made by me.</string>
     <string name="no_ads_title">Remove Ads</string>
-    <string name="no_ads_message">Make a small purchase to permanently remove ads.</string>
+    <string name="no_ads_message">Purchase the game to permanently remove ads!</string>
     <string name="purchase_success_message">You will never receive ads again! Thank you very much for your support.</string>
     <string name="exit_title">Are you sure you want to leave?</string>
     <string name="exit_message">Your current game will be lost</string>
@@ -65,13 +65,6 @@
     <string name="Bot_Right" >Bottom Right</string>
 
     <!-- Error Strings -->
-    <string name="Error">Error</string>
-    <string name="Unknown_Error">Unknown Error</string>
-    <string name="unknown_null_intent_sender">Null intent sender</string>
-    <string name="unknown_null_intent_data">Null intent data</string>
-    <string name="unknown_remote_exception">Remote exception</string>
-    <string name="null_pending_intent_error_message">You may have already made this purchase. Try again later.</string>
-    <string name="null_mService_error_message">Could not connect to Google Billing. Check that you have Google Play Store installed and operational or try again later. </string>
     <string name="video_not_loaded_title">Not Loaded</string>
     <string name="video_not_loaded_message">Still waiting for video to load. Check your connection or try again later.</string>
 
@@ -86,5 +79,12 @@
     <string name="description_Reverse">You must replay the sequence in reverse!</string>
     <string name="description_Chaos">The whole sequence is randomized each round.</string>
     <string name="description_Single">Only the newest color added to the sequence plays back. You must still repeat the whole sequence.</string>
+
+    <!-- Failed Network Dialog -->
+    <string name="failed_title">Network Error</string>
+    <string name="failed_message">Check internet connection or try again later.</string>
+
+    <!-- Unknown Error -->
+    <string name="unknown_title">Unknown Error</string>
 
 </resources>

@@ -4,8 +4,9 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatImageView;
+
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.core.content.ContextCompat;
 
 import hackman.trevor.copycat.MainActivity;
 import hackman.trevor.copycat.R;

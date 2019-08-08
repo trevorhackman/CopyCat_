@@ -2,13 +2,15 @@ package hackman.trevor.copycat.ui;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
 import android.util.TypedValue;
 import android.view.animation.Interpolator;
+
+import androidx.core.content.ContextCompat;
 
 import hackman.trevor.copycat.MainActivity;
 import hackman.trevor.copycat.R;
 import hackman.trevor.copycat.logic.Game;
+import hackman.trevor.copycat.system.Keys;
 import hackman.trevor.tlibrary.library.TDimensions;
 import hackman.trevor.tlibrary.library.ui.GoodTextView;
 
@@ -88,7 +90,7 @@ public class Instructions extends GoodTextView {
     }
 
     public void modeUpdate() {
-        Game.GameMode mode = Game.GameMode.valueOf(main.tPreferences.getString("gameMode", Game.GameMode.Classic.name()));
+        Game.GameMode mode = Game.GameMode.valueOf(main.tPreferences().getString(Keys.gameMode, Game.GameMode.Classic.name()));
         if (mode == Game.GameMode.Classic) {
             setText(main.getString(R.string.Watch_and_repeat));
         }

@@ -1,4 +1,4 @@
-package hackman.trevor.copycat.standard.drawables;
+package hackman.trevor.copycat.system.drawables;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
