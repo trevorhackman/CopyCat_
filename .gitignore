@@ -1,5 +1,20 @@
 /.idea/libraries
-/local.properties
-.gradle
+/.idea/workspace.xml
 /build
+.gradle
+
+# Stores absolute path of SDK
+/local.properties
+
+# Stores absolute paths
+/.idea/caches
+
+# Mac OS files
 .DS_Store
+
+# Java bytecode files
+*.class
+
+# Application files
+*.apk
+*.aab
