@@ -90,8 +90,9 @@ public enum Ads implements LifecycleObserver {Observer;
             }
 
             @Override
-            public void onAdFailedToLoad(int i) {
-                super.onAdFailedToLoad(i);
+            public void onAdFailedToLoad(int errorCode) {
+                super.onAdFailedToLoad(errorCode);
+
                 if (handler == null) handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -99,6 +100,8 @@ public enum Ads implements LifecycleObserver {Observer;
                         requestNewInterstitial(); // A 10 second delay before attempting again - no need to clog with constant requests
                     }
                 }, 10000);
+
+                flog("Interstitial failed to load " + errorCodeToString(errorCode));
             }
         });
     }
@@ -134,8 +137,9 @@ public enum Ads implements LifecycleObserver {Observer;
             }
 
             @Override
-            public void onAdFailedToLoad(int i) {
-                super.onAdFailedToLoad(i);
+            public void onAdFailedToLoad(int errorCode) {
+                super.onAdFailedToLoad(errorCode);
+
                 if (handler == null) handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -143,6 +147,8 @@ public enum Ads implements LifecycleObserver {Observer;
                         requestNewBanner(); // A 10 second delay before attempting again - no need to clog with constant requests
                     }
                 }, 10000);
+
+                flog("Banner failed to load " + errorCodeToString(errorCode));
             }
         });
     }
@@ -197,11 +203,11 @@ public enum Ads implements LifecycleObserver {Observer;
             // Error codes at https://developers.google.com/android/reference/com/google/android/gms/ads/AdListener#onAdFailedToLoad(int)
             @Override public void onRewardedVideoAdFailedToLoad(int errorCode) {
                 if (failCounter++ < 10) {
-                    flog("Rewarded Video Ad Failed To Load : " + rewardedErrorCodeToString(errorCode));
+                    flog("Rewarded Video Ad Failed To Load : " + errorCodeToString(errorCode));
                 }
 
                 // Errors that aren't from user lacking connection are problematic
-                if (failCounter == 8 && errorCode != ERROR_CODE_NETWORK_ERROR) report("Failing a lot at loading rv with error : " + rewardedErrorCodeToString(errorCode));
+                if (failCounter == 8 && errorCode != ERROR_CODE_NETWORK_ERROR) report("Failing a lot at loading rv with error : " + errorCodeToString(errorCode));
 
                 if (handler == null) handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -281,8 +287,8 @@ public enum Ads implements LifecycleObserver {Observer;
         return false;
     }
 
-    private static String rewardedErrorCodeToString(int rewardedErrorCode) {
-        switch (rewardedErrorCode) {
+    private static String errorCodeToString(int errorCode) {
+        switch (errorCode) {
             case 0:
                 // Something happened internally; for instance, an invalid response was received from the ad server.
                 return "ERROR_CODE_INTERNAL_ERROR";

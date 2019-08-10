@@ -150,7 +150,7 @@ public enum Billing {;
         Purchase.PurchasesResult purchasesResult = billingClient.queryPurchases(BillingClient.SkuType.INAPP);
         List<Purchase> purchases = purchasesResult.getPurchasesList();
         if (purchases == null) report("Why is purchases null? : " + purchasesResult.getResponseCode() + " " + purchasesResult.getBillingResult().getDebugMessage());
-        else if (purchases.size() == 0) log("No purchases owned");
+        else if (purchases.size() == 0) flog("No purchases owned");
         else {
             for (Purchase purchase : purchases) {
                 if (purchase.getSku().equals(NO_ADS)) {

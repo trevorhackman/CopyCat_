@@ -1,11 +1,12 @@
 package hackman.trevor.copycat.system;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
 
 import hackman.trevor.copycat.R;
@@ -51,7 +52,8 @@ public class AndroidSound {
     }
 
     // Return 1 for success, 0 for failure, -1 for activity stopped (don't want to play sounds when app is in background)
-    public int play(AppCompatActivity activity) {
+    // FragmentActivity is superclass of AppCompatActivity and is the highest level class where .getLifecycle() is allowed
+    public int play(FragmentActivity activity) {
         // Ensures activity is not stopped
         if (activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED) || startUpSound) {
             try {
@@ -70,7 +72,18 @@ public class AndroidSound {
 
     // Overload, can be called with getContext() in views
     public int play(Context context) {
-        return play((AppCompatActivity) context);
+        Class original = context.getClass(); // Just for the report, can remove this in the future if it never happens
+        // Sometimes getContext() returns a ContextWrapper (potentially nested) instead of a direct context
+        // Loop through all wrappers until we get to the right context
+        // The root context will have a null .getBaseContext() causing the loop to exit, but that shouldn't happen
+        while (context instanceof ContextWrapper) {
+            if (context instanceof FragmentActivity) { // FragmentActivity is an indirect subclass of ContextWrapper
+                return play((FragmentActivity) context);
+            }
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+        report("Unknown context of type " + original);
+        return 0;
     }
 
     // Call to load sounds in onCreate, onStart, and onResume (be thorough)
