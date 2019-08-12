@@ -34,6 +34,7 @@ import hackman.trevor.tlibrary.library.ui.Rlp;
 
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER;
 import static hackman.trevor.tlibrary.library.TLogging.flog;
+import static hackman.trevor.tlibrary.library.TLogging.report;
 import static hackman.trevor.tlibrary.library.ui.Rlp.MATCH;
 import static hackman.trevor.tlibrary.library.ui.Rlp.WRAP;
 
@@ -565,7 +566,12 @@ public class GameScreen {
 
                 // Conditionally add bannerAd
                 if (!main.tPreferences().getBoolean(Keys.isNoAdsOwned, false)) {
-                    root.addView(bannerAd);
+                    if (bannerAd.getParent() == null) {
+                        root.addView(bannerAd);
+                    }
+                    else {
+                        report("bannerAd already added?");
+                    }
                 }
 
                 // Play button sound

@@ -149,7 +149,7 @@ public enum Billing {;
     private static void queryPurchases(final MainActivity main) {
         Purchase.PurchasesResult purchasesResult = billingClient.queryPurchases(BillingClient.SkuType.INAPP);
         List<Purchase> purchases = purchasesResult.getPurchasesList();
-        if (purchases == null) report("Why is purchases null? : " + purchasesResult.getResponseCode() + " " + purchasesResult.getBillingResult().getDebugMessage());
+        if (purchases == null) report("Why is purchases null? : " + billingResponseToName(purchasesResult) + " " + purchasesResult.getBillingResult().getDebugMessage());
         else if (purchases.size() == 0) flog("No purchases owned");
         else {
             for (Purchase purchase : purchases) {
@@ -238,6 +238,11 @@ public enum Billing {;
     // Overload
     private static String billingResponseToName(BillingResult billingResult) {
         return billingResponseToName(billingResult.getResponseCode());
+    }
+
+    // Overload
+    private static String billingResponseToName(Purchase.PurchasesResult purchasesResult) {
+        return billingResponseToName(purchasesResult.getBillingResult());
     }
 
     // For testing, reset purchases.

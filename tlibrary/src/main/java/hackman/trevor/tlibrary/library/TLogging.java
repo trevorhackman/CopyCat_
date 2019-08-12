@@ -30,7 +30,7 @@ import java.util.Arrays;
  */
 
 public enum TLogging {;
-    public static final boolean TESTING = true; // TODO Make this false for release, keep true for testing
+    public static final boolean TESTING = false; // TODO Make this false for release, keep true for testing
     private static int charTracker = 0; // For getTag:
 
     // synchronized to be thread-safe just in case
